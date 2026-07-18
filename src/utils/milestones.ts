@@ -93,13 +93,13 @@ export const MILESTONES: Milestone[] = [
     weekStart: 6,
     weekEnd:   12,
     goals: {
-      feedsPerDay:    8, weesPerDay: 6, poosPerDay:   -1,
+      feedsPerDay:    8, weesPerDay: 6, poosPerDay:   1,
       massagesPerDay: 1, vitaminDPerDay: 1, tummyTimeMins: 15,
     },
     feedVolume:   '90–150ml per feed',
     totalDailyMl: '720–900ml per day',
     feedFreq:     'Every 3 hours, 7–9 times per day',
-    poosNote:     '⚠️ Important change: Breastfed babies can now go several days (even up to 7–10 days) without a poo and this is completely normal. The goal tracker is paused for poos. Formula-fed babies should still poo at least once per day.',
+    poosNote:     'Goal set to 1 per day as a general guide. Breastfed babies can sometimes go several days without a poo and this is completely normal — don\'t worry if she misses this goal some days. Formula-fed babies should poo at least once per day.'
     growthNote:   'Weight gain slows slightly to 100–150g per week from around 3 months. Still expect steady upward tracking.',
     whatToExpect: [
       'Breastfed poo frequency drops dramatically — do not panic if she skips days',
@@ -114,7 +114,7 @@ export const MILESTONES: Milestone[] = [
     ],
     goalChanges: [
       { field: 'feedsPerDay',   from: 9,  to: 8,  reason: 'Esha\'s stomach has grown and she can now take more at each feed, reducing the number of feeds needed.' },
-      { field: 'poosPerDay',    from: 3,  to: -1, reason: 'Breastfed babies at this age can go several days without a poo — it\'s completely normal. Poo goal paused.' },
+      { field: 'poosPerDay',    from: 3,  to: 1,  reason: 'From 6 weeks, one poo a day is a reasonable goal — breastfed babies can vary day to day and that\'s normal.' },
       { field: 'tummyTimeMins', from: 10, to: 15, reason: 'Tummy time should increase to build neck and shoulder strength ahead of rolling.' },
     ],
   },
@@ -124,13 +124,13 @@ export const MILESTONES: Milestone[] = [
     weekStart: 12,
     weekEnd:   18,
     goals: {
-      feedsPerDay:    7, weesPerDay: 6, poosPerDay:   -1,
+      feedsPerDay:    7, weesPerDay: 6, poosPerDay:   1,
       massagesPerDay: 1, vitaminDPerDay: 1, tummyTimeMins: 20,
     },
     feedVolume:   '120–180ml per feed',
     totalDailyMl: '840–1080ml per day',
     feedFreq:     'Every 3–3.5 hours, 6–8 times per day',
-    poosNote:     'Breastfed babies still variable. Formula-fed: 1–3 times per day is normal.',
+    poosNote:     'Goal set to 1 per day. Breastfed babies remain variable — some days none, some days more. Formula-fed: 1–3 times per day is normal.'
     growthNote:   'Weight gain continues at 100–150g per week. By 4 months most babies have doubled their birth weight.',
     whatToExpect: [
       '4-month sleep regression is real — more night waking after better stretches is typical',
@@ -155,7 +155,7 @@ export const MILESTONES: Milestone[] = [
     weekStart: 18,
     weekEnd:   26,
     goals: {
-      feedsPerDay:    6, weesPerDay: 6, poosPerDay:   -1,
+      feedsPerDay:    6, weesPerDay: 6, poosPerDay:   1,
       massagesPerDay: 1, vitaminDPerDay: 1, tummyTimeMins: 30,
     },
     feedVolume:   '150–210ml per feed',
@@ -185,13 +185,13 @@ export const MILESTONES: Milestone[] = [
     weekStart: 26,
     weekEnd:   39,
     goals: {
-      feedsPerDay:    5, weesPerDay: 6, poosPerDay: -1,
+      feedsPerDay:    5, weesPerDay: 6, poosPerDay: 1,
       massagesPerDay: 1, vitaminDPerDay: 1, tummyTimeMins: 30,
     },
     feedVolume:   '180–240ml per feed',
     totalDailyMl: '900–1080ml milk + solids starting',
     feedFreq:     'Every 4 hours, 4–6 times per day (plus solids 1–2x)',
-    poosNote:     'Poos change significantly with solids — more solid, stronger smelling, varied frequency.',
+    poosNote:     'Goal set to 1 per day. Poos change significantly with solids — more solid, stronger smelling, varied frequency.'
     growthNote:   'Weight gain continues to slow — 60–100g per week. Focus shifts from milk volume to variety of solid foods.',
     whatToExpect: [
       'Solids are well underway — iron-rich foods are the priority',

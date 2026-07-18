@@ -51,7 +51,7 @@ export interface HandoverEntry {
   lastFeedAgo?: string | null
 }
 
-export type View = 'home' | 'today' | 'history' | 'more' | 'growth' | 'insights' | 'journal' | 'handover' | 'askai' | 'appointments' | 'notes'
+export type View = 'home' | 'today' | 'history' | 'more' | 'growth' | 'insights' | 'journal' | 'handover' | 'askai' | 'appointments' | 'notes' | 'goals'
 
 
 export const FEED_LABELS: Record<FeedType, string> = {
