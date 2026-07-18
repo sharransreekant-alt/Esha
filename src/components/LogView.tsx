@@ -12,6 +12,7 @@ function localDateStr(): string {
 import { LeapCard } from './LeapCard'
 import { GuidanceCard } from './GuidanceCard'
 import { GoalUpdateCard } from './GoalUpdateCard'
+import { CATEGORY_ICON, CATEGORY_BG, CATEGORY_FG } from './Icons'
 
 interface SimpleModalProps {
   emoji: string
@@ -48,7 +49,7 @@ function SimpleModal({ emoji, title, onClose, onSave, hasDuration, durationLabel
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(46,28,18,0.45)', zIndex: 100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(8px)' }}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--white)', borderRadius: 'var(--r) var(--r) 0 0', width: '100%', maxWidth: 430, margin: '0 auto', padding: '8px 20px 48px', boxShadow: '0 -8px 40px rgba(100,60,20,0.18)' }}>
         <div style={{ width: 36, height: 4, background: '#e0d4cc', borderRadius: 2, margin: '12px auto 20px' }} />
-        <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 20, fontWeight: 700, textAlign: 'center', marginBottom: 20 }}>{emoji} {title}</div>
+        <div className="serif" style={{ fontSize: 20, textAlign: 'center', color: 'var(--text)', marginBottom: 20 }}>{title}</div>
         {hasDuration && (
           <div className="fg">
             <label className="flbl">Duration (minutes)</label>
@@ -119,11 +120,11 @@ function TummyTimeModal({ onClose, onSave }: { onClose: () => void; onSave: (t: 
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(46,28,18,0.45)', zIndex: 100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(8px)' }}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--white)', borderRadius: 'var(--r) var(--r) 0 0', width: '100%', maxWidth: 430, margin: '0 auto', padding: '8px 20px 48px', boxShadow: '0 -8px 40px rgba(100,60,20,0.18)' }}>
         <div style={{ width: 36, height: 4, background: '#e0d4cc', borderRadius: 2, margin: '12px auto 20px' }} />
-        <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 20, fontWeight: 700, textAlign: 'center', marginBottom: 20 }}>🏋️ Tummy Time</div>
+        <div className="serif" style={{ fontSize: 20, textAlign: 'center', color: 'var(--text)', marginBottom: 20 }}>Tummy time</div>
 
         {/* Timer */}
         <div style={{ background: 'linear-gradient(135deg,var(--feed-bg),#c8e8ff)', borderRadius: 'var(--r-sm)', padding: 16, marginBottom: 14, textAlign: 'center' }}>
-          <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 48, fontWeight: 700, color: 'var(--text)', marginBottom: 12 }}>{fmtMs(elapsed)}</div>
+          <div className="serif" style={{ fontSize: 48, color: 'var(--text)', marginBottom: 12 }}>{fmtMs(elapsed)}</div>
           <div style={{ display: 'flex', gap: 8 }}>
             {!running
               ? <button onClick={startTimer} style={{ flex: 2, padding: 12, background: 'var(--green)', color: '#fff', border: 'none', borderRadius: 'var(--r-sm)', fontSize: 14, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(62,184,118,0.3)' }}>▶ Start</button>
@@ -202,13 +203,13 @@ export function LogView() {
     close()
   }
 
-  const actions = [
-    { emoji: '🍼', name: 'Feed',        sub: 'With live timer', bg: 'var(--feed-bg)',  action: () => setModal('feed') },
-    { emoji: '💧', name: 'Wee',         sub: 'Wet nappy',       bg: 'var(--wee-bg)',   action: () => setModal('wee') },
-    { emoji: '💩', name: 'Poo',         sub: 'Bowel movement',  bg: 'var(--poo-bg)',   action: () => setModal('poo') },
-    { emoji: '🤲', name: 'Massage',     sub: 'Log duration',    bg: 'var(--mas-bg)',   action: () => setModal('massage') },
-    { emoji: '🏋️', name: 'Tummy Time',  sub: 'Log minutes',     bg: 'var(--feed-bg)',  action: () => setModal('tummyTime') },
-    { emoji: '☀️', name: 'Vitamin D',   sub: 'Daily drop',      bg: 'var(--vit-bg)',   action: () => setModal('vitaminD') },
+  const actions: { key: string; name: string; sub: string; action: () => void }[] = [
+    { key: 'feed',      name: 'Feed',        sub: 'Live timer',      action: () => setModal('feed') },
+    { key: 'wee',       name: 'Wee',         sub: 'Wet nappy',       action: () => setModal('wee') },
+    { key: 'poo',       name: 'Poo',         sub: 'Bowel movement',  action: () => setModal('poo') },
+    { key: 'massage',   name: 'Massage',     sub: 'Log duration',    action: () => setModal('massage') },
+    { key: 'tummyTime', name: 'Tummy time',  sub: 'Log minutes',     action: () => setModal('tummyTime') },
+    { key: 'vitaminD',  name: 'Vitamin D',   sub: 'Daily drop',      action: () => setModal('vitaminD') },
   ]
 
   return (
@@ -216,22 +217,27 @@ export function LogView() {
       <GoalUpdateCard />
       <LeapCard />
       <GuidanceCard />
-      <div className="sec">Log Activity</div>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 9, marginBottom: 26 }}>
-        {actions.map(a => (
-          <button key={a.name} onClick={a.action} style={{
-            background: 'var(--white)', border: 'none', borderRadius: 'var(--r)',
-            boxShadow: 'var(--shadow)', padding: '16px 13px 14px',
-            cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10,
-            transition: 'transform 0.12s',
-          }}>
-            <div style={{ width: 48, height: 48, borderRadius: 15, background: a.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{a.emoji}</div>
-            <div>
-              <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)' }}>{a.name}</div>
-              <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginTop: 1 }}>{a.sub}</div>
-            </div>
-          </button>
-        ))}
+      <div className="sec">Log activity</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 26 }}>
+        {actions.map(a => {
+          const Icon = CATEGORY_ICON[a.key]
+          return (
+            <button key={a.key} onClick={a.action} style={{
+              background: 'var(--white)', border: 'none', borderRadius: 'var(--r)',
+              boxShadow: 'var(--shadow)', padding: '16px 14px',
+              cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12,
+              minHeight: 96,
+            }}>
+              <div style={{ width: 42, height: 42, borderRadius: 13, background: CATEGORY_BG[a.key], display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon color={CATEGORY_FG[a.key]} size={21} />
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)' }}>{a.name}</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginTop: 1 }}>{a.sub}</div>
+              </div>
+            </button>
+          )
+        })}
       </div>
 
       <div className="sec">Recent</div>
@@ -249,11 +255,11 @@ export function LogView() {
           } : undefined}
         />
       )}
-      {modal === 'wee'      && <SimpleModal emoji="💧" title="Log Wee"        onClose={close} onSave={(t,n)   => saveSimple('wee',      t, n)}    />}
-      {modal === 'poo'      && <SimpleModal emoji="💩" title="Log Poo"        onClose={close} onSave={(t,n)   => saveSimple('poo',      t, n)}    />}
-      {modal === 'massage'   && <SimpleModal emoji="🤲" title="Log Massage"    onClose={close} onSave={(t,n,d) => saveSimple('massage',   t, n, d)} hasDuration />}
+      {modal === 'wee'      && <SimpleModal emoji="" title="Log wee"        onClose={close} onSave={(t,n)   => saveSimple('wee',      t, n)}    />}
+      {modal === 'poo'      && <SimpleModal emoji="" title="Log poo"        onClose={close} onSave={(t,n)   => saveSimple('poo',      t, n)}    />}
+      {modal === 'massage'   && <SimpleModal emoji="" title="Log massage"    onClose={close} onSave={(t,n,d) => saveSimple('massage',   t, n, d)} hasDuration />}
       {modal === 'tummyTime' && <TummyTimeModal onClose={close} onSave={async (t,n,d) => { await saveSimple('tummyTime', t, n, d); }} />}
-      {modal === 'vitaminD' && <SimpleModal emoji="☀️" title="Vitamin D Drop" onClose={close} onSave={(t,n)   => saveSimple('vitaminD', t, n)}    hasNotes={false} />}
+      {modal === 'vitaminD' && <SimpleModal emoji="" title="Vitamin D" onClose={close} onSave={(t,n)   => saveSimple('vitaminD', t, n)}    hasNotes={false} />}
     </div>
   )
 }

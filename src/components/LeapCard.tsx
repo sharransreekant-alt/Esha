@@ -13,7 +13,7 @@ function LeapDetail({ leap, phase, onClose }: { leap: Leap; phase: 'fussy' | 'sk
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <div style={{ fontSize: 32, marginBottom: 8 }}>🧠</div>
-          <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 18, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>
+          <div className="serif" style={{ fontSize: 20, color: 'var(--text)', marginBottom: 4 }}>
             Leap {leap.number} — {leap.name}
           </div>
           <div style={{
@@ -103,14 +103,14 @@ export function LeapCard() {
     if (days > 14) return null // don't show until 2 weeks out
     return (
       <div style={{
-        background: 'linear-gradient(135deg, #f0e8ff, #e8f0ff)',
-        borderRadius: 'var(--r-sm)', padding: '12px 14px',
-        marginBottom: 16, border: '1px solid rgba(138,94,200,0.15)',
+        background: 'var(--plum)',
+        borderRadius: 'var(--r)', padding: '14px 16px',
+        marginBottom: 16, boxShadow: '0 10px 26px rgba(75,53,80,0.28)',
       }}>
-        <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--purple)', marginBottom: 2 }}>
-          🧠 Leap {status.nextLeap.number} coming up
+        <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--plum-label)', textTransform: 'uppercase', letterSpacing: '0.9px', marginBottom: 4 }}>
+          Leap {status.nextLeap.number} coming up
         </div>
-        <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>
+        <div style={{ fontSize: 12.5, color: 'rgba(251,246,239,0.72)', fontWeight: 500 }}>
           "{status.nextLeap.name}" starts in about {days} day{days !== 1 ? 's' : ''}. A fussy phase may begin — totally normal.
         </div>
       </div>
@@ -128,33 +128,25 @@ export function LeapCard() {
       <div
         onClick={() => setShowDetail(true)}
         style={{
-          background: isFussy
-            ? 'linear-gradient(135deg, #fff9f0, #fff5e8)'
-            : 'linear-gradient(135deg, #f0fff8, #e8fff4)',
-          borderRadius: 'var(--r-sm)',
-          border: `1px solid ${isFussy ? 'rgba(245,166,35,0.25)' : 'rgba(62,184,118,0.25)'}`,
-          padding: '13px 14px', marginBottom: 16, cursor: 'pointer',
-          boxShadow: 'var(--shadow)',
+          background: 'var(--plum)',
+          borderRadius: 'var(--r)',
+          padding: '18px 18px 20px', marginBottom: 16, cursor: 'pointer',
+          boxShadow: '0 10px 26px rgba(75,53,80,0.28)',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <span style={{ fontSize: 16 }}>🧠</span>
-              <span style={{ fontSize: 12, fontWeight: 900, color: isFussy ? '#8a6200' : 'var(--green)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
-                Leap {leap.number} — {phase === 'fussy' ? 'Fussy phase' : 'Skills phase'}
-              </span>
-            </div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 3 }}>
-              {leap.name}
-            </div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, lineHeight: 1.4 }}>
-              {isFussy
-                ? 'More unsettled than usual? This is why. It will pass.'
-                : 'Watch for new skills emerging — her brain is working hard.'}
-            </div>
-          </div>
-          <div style={{ fontSize: 18, color: 'var(--muted)', flexShrink: 0, marginTop: 2 }}>›</div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: '0.9px', textTransform: 'uppercase', color: 'var(--plum-label)' }}>
+            Leap {leap.number} · {phase === 'fussy' ? 'Fussy phase' : 'Skills phase'}
+          </span>
+          <span style={{ fontSize: 17, color: 'rgba(255,255,255,0.4)' }}>›</span>
+        </div>
+        <div className="serif" style={{ fontSize: 21, color: 'var(--cream)', marginBottom: 6 }}>
+          {leap.name}
+        </div>
+        <div style={{ fontSize: 13, color: 'rgba(251,246,239,0.72)', fontWeight: 500, lineHeight: 1.5 }}>
+          {isFussy
+            ? 'More unsettled than usual? This is why — it will pass. Extra cuddles help.'
+            : 'Watch for new skills emerging — her brain is working hard.'}
         </div>
       </div>
 

@@ -1,32 +1,48 @@
 :root {
-  --cream:      #fdf7f0;
-  --cream2:     #fef2e8;
-  --white:      #ffffff;
-  --border:     rgba(180,120,70,0.12);
-  --shadow:     0 2px 16px rgba(160,100,50,0.09);
-  --shadow-md:  0 4px 24px rgba(160,100,50,0.13);
-  --text:       #2e1c12;
-  --text-med:   #6b4c38;
-  --muted:      #b09080;
-  --coral:      #f07560;
-  --coral-s:    rgba(240,117,96,0.12);
-  --coral-d:    #e05a45;
-  --feed-bg:    #deeeff; --feed-fg: #3a8fc8;
-  --wee-bg:     #fff5d0; --wee-fg:  #b8860b;
-  --poo-bg:     #d4f5e2; --poo-fg:  #2e9a5e;
-  --mas-bg:     #eedeff; --mas-fg:  #8a5ec8;
-  --vit-bg:     #ffebd4; --vit-fg:  #d4682a;
-  --note-bg:    #f0eeeb; --note-fg: #7a6e64;
-  --green:      #3eb876; --green-s: rgba(62,184,118,0.12);
-  --amber:      #f5a623; --amber-s: rgba(245,166,35,0.12);
-  --red:        #e05a45; --red-s:   rgba(224,90,69,0.12);
-  --blue:       #4a9fd4; --blue-s:  rgba(74,159,212,0.12);
-  --purple:     #8a5ec8; --purple-s:rgba(138,94,200,0.12);
-  --hdr-from:   #e8d5f5;
-  --hdr-to:     #ffd8c8;
-  --r:     20px;
-  --r-sm:  14px;
-  --r-xs:  10px;
+  /* ── Backgrounds ── */
+  --cream:      #FBF6EF;
+  --cream2:     #F8F4EC;
+  --white:      #FFFFFF;
+  --border:     rgba(36,28,22,0.08);
+  --shadow:     0 3px 14px rgba(60,42,24,0.07);
+  --shadow-md:  0 10px 26px rgba(60,42,24,0.14);
+
+  /* ── Text ── */
+  --text:       #241C16;
+  --text-med:   #6B5A44;
+  --muted:      #9C8F80;
+
+  /* ── Primary accent (terracotta) ── */
+  --coral:      #C1613F;
+  --coral-s:    rgba(193,97,63,0.12);
+  --coral-d:    #A84F30;
+
+  /* ── Leap / development card (plum) ── */
+  --plum:       #4B3550;
+  --plum-label: #D8B7E8;
+
+  /* ── Category tints ── */
+  --feed-bg:    #E3EDF1; --feed-fg: #3D6274;
+  --wee-bg:     #F6EFD9; --wee-fg:  #A98A2E;
+  --poo-bg:     #ECE6D8; --poo-fg:  #8B7355;
+  --mas-bg:     #EEE8F0; --mas-fg:  #8A5EC8;
+  --tummy-bg:   #E1EEEA; --tummy-fg:#3F7A68;
+  --vit-bg:     #F4EAD7; --vit-fg:  #B8863A;
+  --note-bg:    #F0EEEB; --note-fg: #7A6E64;
+
+  /* ── Status ── */
+  --green:      #5C8368; --green-s: rgba(92,131,104,0.12);
+  --amber:      #B8863A; --amber-s: rgba(184,134,58,0.12);
+  --red:        #B0503A; --red-s:   rgba(176,80,58,0.12);
+  --blue:       #4C7A93; --blue-s:  rgba(76,122,147,0.12);
+  --purple:     #8A5EC8; --purple-s:rgba(138,94,200,0.12);
+
+  --hdr-from:   #F3E9DA;
+  --hdr-to:     #FBF6EF;
+
+  --r:     22px;
+  --r-sm:  16px;
+  --r-xs:  12px;
 }
 
 *, *::before, *::after {
@@ -39,15 +55,21 @@
 body {
   background: var(--cream);
   color: var(--text);
-  font-family: 'Nunito', sans-serif;
+  font-family: 'Manrope', sans-serif;
   min-height: 100vh;
   max-width: 430px;
   margin: 0 auto;
   -webkit-font-smoothing: antialiased;
 }
 
-button { cursor: pointer; font-family: 'Nunito', sans-serif; }
-input, textarea { font-family: 'Nunito', sans-serif; }
+button { cursor: pointer; font-family: 'Manrope', sans-serif; }
+input, textarea { font-family: 'Manrope', sans-serif; }
+
+/* ── Serif display type — for numerals, headlines, timers ── */
+.serif {
+  font-family: 'Instrument Serif', serif;
+  font-style: italic;
+}
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 0; }
@@ -73,13 +95,13 @@ input, textarea { font-family: 'Nunito', sans-serif; }
 .flbl {
   display: block; font-size: 11px; font-weight: 800;
   color: var(--muted); text-transform: uppercase;
-  letter-spacing: 0.9px; margin-bottom: 8px;
+  letter-spacing: 0.8px; margin-bottom: 8px;
 }
 .finput {
-  width: 100%; background: var(--cream);
-  border: 1.5px solid var(--border); border-radius: var(--r-sm);
-  padding: 13px 14px; color: var(--text);
-  font-size: 16px; font-weight: 600; outline: none;
+  width: 100%; background: var(--cream2);
+  border: 1.5px solid var(--border); border-radius: var(--r-xs);
+  padding: 12px 13px; color: var(--text);
+  font-size: 15px; font-weight: 600; outline: none;
   -webkit-appearance: none; appearance: none;
   transition: border-color 0.2s, background 0.2s;
 }
@@ -87,26 +109,26 @@ input, textarea { font-family: 'Nunito', sans-serif; }
 textarea.finput { resize: vertical; min-height: 90px; }
 
 .btn-primary {
-  width: 100%; padding: 15px;
-  background: linear-gradient(135deg, #f58060, var(--coral));
-  color: #fff; border: none; border-radius: var(--r-sm);
-  font-size: 16px; font-weight: 800;
-  box-shadow: 0 4px 14px rgba(240,117,96,0.35);
+  width: 100%; padding: 16px;
+  background: var(--coral);
+  color: #fff; border: none; border-radius: var(--r-xs);
+  font-size: 15px; font-weight: 800;
+  box-shadow: 0 8px 20px rgba(193,97,63,0.3);
   transition: transform 0.12s;
 }
 .btn-primary:active { transform: scale(0.98); }
 .btn-primary:disabled { opacity: 0.5; }
 
 .btn-secondary {
-  width: 100%; padding: 13px;
-  background: var(--cream); color: var(--muted);
-  border: 1.5px solid var(--border); border-radius: var(--r-sm);
-  font-size: 14px; font-weight: 700;
+  width: 100%; padding: 14px;
+  background: none; color: var(--muted);
+  border: none; border-radius: var(--r-xs);
+  font-size: 13.5px; font-weight: 700;
 }
 
 .pill {
-  padding: 9px 15px; border-radius: 20px;
-  background: var(--cream); border: 1.5px solid var(--border);
+  padding: 9px 15px; border-radius: 999px;
+  background: var(--cream2); border: 1.5px solid var(--border);
   color: var(--text-med); font-size: 13px; font-weight: 700;
   transition: all 0.15s;
 }
@@ -115,20 +137,20 @@ textarea.finput { resize: vertical; min-height: 90px; }
 }
 
 .del-btn {
-  background: var(--red-s); border: 1px solid rgba(224,90,69,0.2);
+  background: var(--red-s); border: 1px solid rgba(176,80,58,0.2);
   color: var(--red); font-size: 10px; font-weight: 800;
   padding: 3px 8px; border-radius: 7px; line-height: 1.5;
 }
 
 .info-box {
-  background: var(--cream2); border-radius: var(--r-sm);
+  background: var(--cream2); border-radius: var(--r-xs);
   padding: 13px 14px; font-size: 13px; color: var(--text-med);
   font-weight: 600; line-height: 1.5; margin-bottom: 16px;
 }
 
 .sec {
-  font-size: 11px; font-weight: 900; color: var(--muted);
-  text-transform: uppercase; letter-spacing: 1.2px; margin-bottom: 12px;
+  font-size: 11px; font-weight: 800; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: 11px;
 }
 
 .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }

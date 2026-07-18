@@ -42,14 +42,14 @@ export function Header() {
 
   function openLightbox(src: string) {
     const lb = document.createElement('div')
-    lb.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(20,10,5,0.92);display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(14px)'
+    lb.style.cssText = 'position:fixed;inset:0;z-index:200;background:rgba(26,22,32,0.94);display:flex;flex-direction:column;align-items:center;justify-content:center;backdrop-filter:blur(14px)'
     lb.innerHTML = `
       <img src="${src}" style="width:min(80vw,80vh);height:min(80vw,80vh);border-radius:50%;object-fit:cover;box-shadow:0 8px 60px rgba(0,0,0,0.6);border:4px solid rgba(255,255,255,0.15)">
-      <div style="font-family:Comfortaa,sans-serif;font-size:24px;font-weight:700;color:#fff;margin-top:24px">Esha</div>
-      <div style="font-size:13px;color:rgba(255,255,255,0.55);font-weight:700;margin-top:5px">${eshaAge()}</div>
+      <div style="font-family:'Instrument Serif',serif;font-style:italic;font-size:26px;color:#F2ECE4;margin-top:24px">Esha</div>
+      <div style="font-size:13px;color:rgba(242,236,228,0.55);font-weight:700;margin-top:5px">${eshaAge()}</div>
       <div style="display:flex;gap:11px;margin-top:28px">
-        <button id="lb-change" style="font-family:Nunito,sans-serif;font-size:14px;font-weight:800;padding:12px 22px;border-radius:24px;cursor:pointer;border:none;background:#f07560;color:#fff">📷 Change</button>
-        <button id="lb-close"  style="font-family:Nunito,sans-serif;font-size:14px;font-weight:800;padding:12px 22px;border-radius:24px;cursor:pointer;background:rgba(255,255,255,0.13);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.2)">Close</button>
+        <button id="lb-change" style="font-family:Manrope,sans-serif;font-size:14px;font-weight:800;padding:12px 22px;border-radius:999px;cursor:pointer;border:none;background:#C1613F;color:#fff">Change photo</button>
+        <button id="lb-close"  style="font-family:Manrope,sans-serif;font-size:14px;font-weight:800;padding:12px 22px;border-radius:999px;cursor:pointer;background:rgba(255,255,255,0.13);color:rgba(255,255,255,0.85);border:1px solid rgba(255,255,255,0.2)">Close</button>
       </div>`
     document.body.appendChild(lb)
     lb.querySelector('#lb-close')!.addEventListener('click', () => lb.remove())
@@ -60,83 +60,63 @@ export function Header() {
   return (
     <>
       <header style={{
-        background: 'linear-gradient(135deg, var(--hdr-from) 0%, var(--hdr-to) 100%)',
-        padding: '48px 16px 14px',
+        background: 'linear-gradient(160deg, var(--hdr-from) 0%, var(--hdr-to) 60%)',
+        padding: '48px 20px 18px',
         position: 'sticky', top: 0, zIndex: 20,
-        boxShadow: '0 2px 20px rgba(180,100,60,0.10)',
       }}>
 
-        {/* Row 1: Photo + Name/Age + Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-
+        <div style={{ display: 'flex', alignItems: 'center', gap: 13, marginBottom: 16 }}>
           {/* Photo */}
-          <div style={{ position: 'relative', flexShrink: 0 }}>
-            <div onClick={handlePhotoClick} style={{
-              width: 56, height: 56, borderRadius: '50%',
-              background: 'var(--white)', border: '2.5px solid rgba(255,255,255,0.9)',
-              boxShadow: '0 3px 12px rgba(180,100,60,0.18)',
-              cursor: 'pointer', overflow: 'hidden',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26,
-            }}>
-              {photo
-                ? <img src={photo} alt="Esha" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                : '👶'
-              }
-            </div>
-            {/* Camera badge */}
-            <div onClick={() => fileRef.current?.click()} style={{
-              position: 'absolute', bottom: 0, right: 0,
-              width: 18, height: 18, borderRadius: '50%',
-              background: 'var(--coral)', border: '2px solid rgba(255,255,255,0.95)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', fontSize: 9,
-            }}>📷</div>
-            <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoChange} />
+          <div onClick={handlePhotoClick} style={{
+            width: 56, height: 56, borderRadius: '50%', flexShrink: 0,
+            background: 'var(--white)', boxShadow: '0 3px 10px rgba(40,28,18,0.15)',
+            cursor: 'pointer', overflow: 'hidden',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24,
+          }}>
+            {photo ? <img src={photo} alt="Esha" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : '👶'}
           </div>
+          <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoChange} />
 
           {/* Name + age */}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 20, fontWeight: 700, lineHeight: 1.2 }}>Esha</div>
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--coral-d)', marginTop: 2 }}>{eshaAge()}</div>
+            <div className="serif" style={{ fontSize: 25, color: 'var(--text)', lineHeight: 1.1 }}>Esha</div>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: '#9C6B45', marginTop: 2 }}>{eshaAge()}</div>
           </div>
 
-          {/* Right actions: refresh + who */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
-
-
-            <div
-              onClick={() => { const n = prompt('Your name:', who); if (n?.trim()) setWho(n.trim()) }}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 5,
-                fontSize: 12, fontWeight: 700, color: 'var(--text-med)',
-                background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.5)',
-                padding: '5px 11px', borderRadius: 20, cursor: 'pointer',
-              }}
-            >
-              👤 <span style={{ maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{who}</span>
-            </div>
+          {/* Who selector */}
+          <div
+            onClick={() => { const n = prompt('Your name:', who); if (n?.trim()) setWho(n.trim()) }}
+            style={{
+              width: 34, height: 34, borderRadius: 10,
+              background: 'rgba(36,28,22,0.06)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              cursor: 'pointer', fontSize: 13, fontWeight: 800, color: 'var(--text-med)', flexShrink: 0,
+            }}
+            title={who}
+          >
+            {who ? who.charAt(0).toUpperCase() : '?'}
           </div>
         </div>
 
-        {/* Row 2: Feed timing */}
+        {/* Timing pills */}
         {lf && (
-          <div style={{ display: 'flex', gap: 7 }}>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <div style={{
-              display: 'flex', alignItems: 'center', gap: 5,
-              fontSize: 11, fontWeight: 700, padding: '5px 12px', borderRadius: 20,
-              background: 'rgba(255,255,255,0.65)', color: '#8a4e28',
-              border: '1px solid rgba(255,255,255,0.4)',
+              display: 'flex', alignItems: 'center', gap: 6,
+              fontSize: 11.5, fontWeight: 700, padding: '6px 12px', borderRadius: 999,
+              background: 'rgba(255,255,255,0.65)', color: '#6B5A44',
+              border: '1px solid rgba(36,28,22,0.06)',
             }}>
-              🕐 Last feed {timeSince(lf)}
+              Last feed {timeSince(lf)}
             </div>
             {nfIn !== null && (
               <div style={{
-                display: 'flex', alignItems: 'center', gap: 5,
-                fontSize: 11, fontWeight: 700, padding: '5px 12px', borderRadius: 20,
-                background: 'rgba(74,159,212,0.18)', color: '#2a7ab0',
-                border: '1px solid rgba(74,159,212,0.25)',
+                display: 'flex', alignItems: 'center', gap: 6,
+                fontSize: 11.5, fontWeight: 700, padding: '6px 12px', borderRadius: 999,
+                background: 'rgba(76,122,147,0.13)', color: '#3D6274',
+                border: '1px solid rgba(76,122,147,0.15)',
               }}>
-                ⏱ Next in {timeUntil(nfIn)}
+                Next in {timeUntil(nfIn)}
               </div>
             )}
           </div>
@@ -146,12 +126,12 @@ export function Header() {
       {/* Feed reminder banner */}
       {showReminder && (
         <div style={{
-          background: 'linear-gradient(135deg,#fff3e0,#ffebe0)',
-          borderBottom: '1px solid rgba(240,117,96,0.2)',
-          padding: '11px 16px',
+          background: '#F3E9DA',
+          borderBottom: '1px solid var(--border)',
+          padding: '11px 20px',
           display: 'flex', alignItems: 'center', gap: 10,
         }}>
-          <span style={{ fontSize: 20, flexShrink: 0 }}>⏰</span>
+          <span style={{ fontSize: 18, flexShrink: 0 }}>⏰</span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--coral-d)' }}>Time to pump — feed due in 30 mins</div>
             <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginTop: 1 }}>
@@ -164,10 +144,6 @@ export function Header() {
           >✕</button>
         </div>
       )}
-
-      <style>{`
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-      `}</style>
     </>
   )
 }

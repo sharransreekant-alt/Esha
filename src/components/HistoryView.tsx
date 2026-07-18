@@ -65,7 +65,7 @@ export function HistoryView() {
             {/* Header */}
             <div onClick={() => setOpenDay(isOpen ? null : k)} style={{ padding: '14px 15px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 14, fontWeight: 700, marginBottom: 9 }}>{g.label}</div>
+                <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 14, fontWeight: 700, marginBottom: 9 }}>{g.label}</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
                   {pills.map(p => {
                     const c = counts[p.key as keyof typeof counts]

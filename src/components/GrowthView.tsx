@@ -67,7 +67,7 @@ export function GrowthView() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 8, marginBottom: 16 }}>
           {latest.weight && (
             <div style={{ background: 'var(--cream2)', borderRadius: 'var(--r-xs)', padding: 10, textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 16, fontWeight: 700 }}>
+              <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 16, fontWeight: 700 }}>
                 {latest.weight >= 1000 ? `${(latest.weight / 1000).toFixed(2)}` : latest.weight}
                 <span style={{ fontSize: 11 }}>{latest.weight >= 1000 ? 'kg' : 'g'}</span>
               </div>
@@ -81,13 +81,13 @@ export function GrowthView() {
           )}
           {latest.length && (
             <div style={{ background: 'var(--cream2)', borderRadius: 'var(--r-xs)', padding: 10, textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 16, fontWeight: 700 }}>{latest.length}<span style={{ fontSize: 11 }}>cm</span></div>
+              <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 16, fontWeight: 700 }}>{latest.length}<span style={{ fontSize: 11 }}>cm</span></div>
               <div style={{ fontSize: 10, color: 'var(--muted)', fontWeight: 700, marginTop: 2 }}>Length</div>
             </div>
           )}
           {latest.head && (
             <div style={{ background: 'var(--cream2)', borderRadius: 'var(--r-xs)', padding: 10, textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 16, fontWeight: 700 }}>{latest.head}<span style={{ fontSize: 11 }}>cm</span></div>
+              <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 16, fontWeight: 700 }}>{latest.head}<span style={{ fontSize: 11 }}>cm</span></div>
               <div style={{ fontSize: 10, color: 'var(--muted)', fontWeight: 700, marginTop: 2 }}>Head circ.</div>
             </div>
           )}
@@ -117,7 +117,7 @@ export function GrowthView() {
                     <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, fontWeight: 600 }}>{parts}{m.notes ? ` · ${m.notes}` : ''}</div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5 }}>
-                    <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 12, fontWeight: 700, color: 'var(--text-med)' }}>{fmtTime(m.timestamp)}</div>
+                    <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 12, fontWeight: 700, color: 'var(--text-med)' }}>{fmtTime(m.timestamp)}</div>
                     <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--muted)', background: 'var(--cream2)', border: '1px solid var(--border)', padding: '2px 7px', borderRadius: 7 }}>{m.loggedBy}</div>
                     <button className="del-btn" onClick={() => { if (confirm('Delete?')) removeGrowth(m.id) }}>Delete</button>
                   </div>
@@ -132,7 +132,7 @@ export function GrowthView() {
         <div onClick={() => setShowModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(46,28,18,0.45)', zIndex: 100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(8px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--white)', borderRadius: 'var(--r) var(--r) 0 0', width: '100%', maxWidth: 430, margin: '0 auto', padding: '8px 20px 48px', boxShadow: '0 -8px 40px rgba(100,60,20,0.18)' }}>
             <div style={{ width: 36, height: 4, background: '#e0d4cc', borderRadius: 2, margin: '12px auto 20px' }} />
-            <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 20, fontWeight: 700, textAlign: 'center', marginBottom: 20 }}>📏 Log Measurement</div>
+            <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 20, fontWeight: 700, textAlign: 'center', marginBottom: 20 }}>📏 Log Measurement</div>
             <div className="info-box">All fields optional — log what you have.</div>
             <div className="fg"><label className="flbl">Weight (grams)</label><input className="finput" type="number" inputMode="numeric" placeholder="e.g. 3600" value={weight} onChange={e => setWeight(e.target.value)} /></div>
             <div className="fg"><label className="flbl">Length (cm)</label><input className="finput" type="number" inputMode="decimal" placeholder="e.g. 52.5" value={length} onChange={e => setLength(e.target.value)} /></div>

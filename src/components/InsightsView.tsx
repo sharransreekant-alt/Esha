@@ -55,7 +55,7 @@ export function InsightsView() {
         <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.8px' }}>{label}</div>
         <div style={{ fontSize: 24 }}>{icon}</div>
       </div>
-      <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 22, fontWeight: 700, color: 'var(--text)' }}>{value}</div>
+      <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 22, fontWeight: 700, color: 'var(--text)' }}>{value}</div>
       <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginTop: 2 }}>{sub}</div>
     </div>
   )

@@ -6,6 +6,7 @@ import { LeapCard } from './LeapCard'
 import { GuidanceCard } from './GuidanceCard'
 import { GoalUpdateCard } from './GoalUpdateCard'
 import { todayOnly, feedVolume } from '../utils/helpers'
+import { CATEGORY_ICON, CATEGORY_FG, CATEGORY_BG } from './Icons'
 
 export function TodayView() {
   const { entries, activeGoals } = useApp()
@@ -22,51 +23,62 @@ export function TodayView() {
   const totalMl = td.reduce((s, e) => s + feedVolume(e), 0)
 
   const goalsConfig = [
-    { key: 'feed',      goalKey: 'feedsPerDay',    emoji: '🍼', label: 'Feeds',      bar: 'linear-gradient(90deg,#7bc4f0,#4a9fd4)', bg: 'var(--feed-bg)', extra: totalMl ? `${totalMl} ml total` : '' },
-    { key: 'wee',       goalKey: 'weesPerDay',     emoji: '💧', label: 'Wees',       bar: 'linear-gradient(90deg,#f5d060,#e8a820)', bg: 'var(--wee-bg)',  extra: '' },
-    { key: 'poo',       goalKey: 'poosPerDay',     emoji: '💩', label: 'Poos',       bar: 'linear-gradient(90deg,#6dd8a0,#3eb876)', bg: 'var(--poo-bg)',  extra: '' },
-    { key: 'massage',   goalKey: 'massagesPerDay', emoji: '🤲', label: 'Massages',   bar: 'linear-gradient(90deg,#c4a0f0,#8a5ec8)', bg: 'var(--mas-bg)',  extra: '' },
-    { key: 'vitaminD',  goalKey: 'vitaminDPerDay', emoji: '☀️', label: 'Vitamin D',  bar: 'linear-gradient(90deg,#f5a07a,#f07560)', bg: 'var(--vit-bg)',  extra: '' },
-    { key: 'tummyTime', goalKey: 'tummyTimeMins',  emoji: '🏋️', label: 'Tummy time', bar: 'linear-gradient(90deg,#a0d4f0,#5ab4e8)', bg: 'var(--feed-bg)', extra: '' },
+    { key: 'feed',      goalKey: 'feedsPerDay',    label: 'Feeds',      extra: totalMl ? `${totalMl} ml total` : '' },
+    { key: 'wee',       goalKey: 'weesPerDay',     label: 'Wees',       extra: '' },
+    { key: 'poo',       goalKey: 'poosPerDay',     label: 'Poos',       extra: '' },
+    { key: 'massage',   goalKey: 'massagesPerDay', label: 'Massages',   extra: '' },
+    { key: 'tummyTime', goalKey: 'tummyTimeMins',  label: 'Tummy time', extra: '' },
+    { key: 'vitaminD',  goalKey: 'vitaminDPerDay', label: 'Vitamin D',  extra: '' },
   ]
 
+  const today = new Date().toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long' })
+
   return (
-    <div style={{ padding: '18px 16px 72px' }}>
+    <div style={{ padding: '22px 20px 72px' }}>
+      <div className="serif" style={{ fontSize: 27, color: 'var(--text)', marginBottom: 3 }}>Today</div>
+      <div style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--muted)', marginBottom: 22 }}>{today}</div>
+
       <GoalUpdateCard />
       <LeapCard />
       <GuidanceCard />
-      <div className="sec">Today's Goals</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 24 }}>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 26 }}>
         {goalsConfig.map(g => {
-          const goalVal = activeGoals[g.goalKey as keyof typeof activeGoals]
+          const goalVal  = activeGoals[g.goalKey as keyof typeof activeGoals]
           const countVal = counts[g.key as keyof typeof counts]
-          // Skip poos if goalVal is -1 (variable age)
+          const Icon = CATEGORY_ICON[g.key]
+          const fg = CATEGORY_FG[g.key]
+          const bg = CATEGORY_BG[g.key]
+
           if (goalVal === -1) return (
-            <div key={g.key} style={{ background: 'var(--white)', borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow)', padding: '13px 15px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <div style={{ width: 28, height: 28, borderRadius: 8, background: g.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14 }}>{g.emoji}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 800 }}>{g.label}</div>
-                  <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginTop: 1 }}>Today: {countVal} · Variable at this age — see guidance</div>
-                </div>
+            <div key={g.key} style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--white)', borderRadius: 'var(--r)', padding: '13px 15px', boxShadow: 'var(--shadow)' }}>
+              <div style={{ width: 46, height: 46, borderRadius: '50%', background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon color={fg} size={18} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 13.5, fontWeight: 800 }}>{g.label}</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginTop: 2 }}>Today: {countVal} · Variable at this age — see guidance</div>
               </div>
             </div>
           )
+
           return (
             <GoalCard
               key={g.key}
-              emoji={g.emoji}
+              categoryKey={g.key}
+              icon={<Icon color={fg} size={18} />}
               label={g.label}
               count={countVal}
               goal={goalVal}
-              barColor={g.bar}
-              iconBg={g.bg}
+              color={fg}
+              track={bg}
               extra={g.extra}
             />
           )
         })}
       </div>
-      <div className="sec">Today's Log — {td.length} entries</div>
+
+      <div className="sec">Today's log · {td.length} entries</div>
       <EntryList entries={td} />
     </div>
   )

@@ -2,16 +2,7 @@ import React, { useState } from 'react'
 import { Entry } from '../types'
 import { fmtTime, feedDetail } from '../utils/helpers'
 import { useApp } from '../context/AppContext'
-
-const ICO: Record<string, { icon: string; bg: string }> = {
-  feed:      { icon: '🍼', bg: 'var(--feed-bg)' },
-  wee:       { icon: '💧', bg: 'var(--wee-bg)'  },
-  poo:       { icon: '💩', bg: 'var(--poo-bg)'  },
-  massage:   { icon: '🤲', bg: 'var(--mas-bg)'  },
-  tummyTime: { icon: '🏋️', bg: 'var(--feed-bg)' },
-  vitaminD:  { icon: '☀️', bg: 'var(--vit-bg)'  },
-  note:      { icon: '📝', bg: 'var(--note-bg)' },
-}
+import { CATEGORY_ICON, CATEGORY_BG, CATEGORY_FG } from './Icons'
 
 function entryTitle(e: Entry): string {
   if (e.type === 'feed')      return 'Feed'
@@ -51,7 +42,9 @@ export function EntryList({ entries, onEditFeed }: Props) {
     <>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
         {entries.map(e => {
-          const ico = ICO[e.type] || ICO.note
+          const Icon = CATEGORY_ICON[e.type] || CATEGORY_ICON.note
+          const iconBg = CATEGORY_BG[e.type] || CATEGORY_BG.note
+          const iconFg = CATEGORY_FG[e.type] || CATEGORY_FG.note
           const detail = entryDetail(e)
           const isNote = e.type === 'note' && !!e.notes
 
@@ -66,8 +59,8 @@ export function EntryList({ entries, onEditFeed }: Props) {
                 cursor: isNote ? 'pointer' : 'default',
               }}
             >
-              <div style={{ width: 40, height: 40, borderRadius: 12, background: ico.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
-                {ico.icon}
+              <div style={{ width: 32, height: 32, borderRadius: 10, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Icon color={iconFg} size={15} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 14, fontWeight: 700 }}>
@@ -77,7 +70,7 @@ export function EntryList({ entries, onEditFeed }: Props) {
                 {detail && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{detail}</div>}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0 }}>
-                <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 12, fontWeight: 700, color: 'var(--text-med)' }}>{fmtTime(e.timestamp)}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-med)' }}>{fmtTime(e.timestamp)}</div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--muted)', background: 'var(--cream2)', border: '1px solid var(--border)', padding: '2px 7px', borderRadius: 7 }}>{e.loggedBy || '?'}</div>
                 {e.type === 'feed' && onEditFeed && (
                   <button className="del-btn" onClick={ev => { ev.stopPropagation(); onEditFeed(e) }}
@@ -99,7 +92,7 @@ export function EntryList({ entries, onEditFeed }: Props) {
         <div onClick={() => setViewingNote(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(46,28,18,0.45)', zIndex: 100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(8px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--white)', borderRadius: 'var(--r) var(--r) 0 0', width: '100%', maxWidth: 430, margin: '0 auto', padding: '8px 20px 48px', boxShadow: '0 -8px 40px rgba(100,60,20,0.18)' }}>
             <div style={{ width: 36, height: 4, background: '#e0d4cc', borderRadius: 2, margin: '12px auto 20px' }} />
-            <div style={{ fontFamily: 'Comfortaa, sans-serif', fontSize: 20, fontWeight: 700, textAlign: 'center', marginBottom: 20 }}>📝 Note</div>
+            <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 20, fontWeight: 700, textAlign: 'center', marginBottom: 20 }}>📝 Note</div>
             <div style={{ background: 'var(--cream2)', borderRadius: 'var(--r-sm)', padding: 16, fontSize: 15, color: 'var(--text)', fontWeight: 600, lineHeight: 1.6, marginBottom: 16 }}>
               {viewingNote.notes}
             </div>
