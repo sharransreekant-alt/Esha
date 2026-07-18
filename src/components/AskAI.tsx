@@ -156,7 +156,7 @@ Guidelines:
       }
       const data = await res.json()
       setMessages(m => {
-        const updated = [...m, { role: 'assistant', content: data.choices[0]?.message?.content || 'No response' }]
+        const updated: Message[] = [...m, { role: 'assistant' as const, content: data.choices[0]?.message?.content || 'No response' }]
         const trimmed = updated.slice(-10)
         try { localStorage.setItem('esha_ai_chat', JSON.stringify(trimmed)) } catch {}
         return trimmed
