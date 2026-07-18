@@ -3,7 +3,7 @@ import { useApp } from '../context/AppContext'
 import { eshaAge, timeSince, timeUntil, toDate } from '../utils/helpers'
 
 export function Header() {
-  const { who, setWho, entries, reminderActive, nextFeedIn, dismissReminder } = useApp()
+  const { who, setWho, entries, reminderActive, nextFeedIn, dismissReminder, theme, toggleTheme } = useApp()
   const fileRef = useRef<HTMLInputElement>(null)
 
   const lastFeedEntry = entries.find(e => e.type === 'feed')
@@ -80,53 +80,84 @@ export function Header() {
           {/* Name + age */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div className="serif" style={{ fontSize: 25, color: 'var(--text)', lineHeight: 1.1 }}>Esha</div>
-            <div style={{ fontSize: 12.5, fontWeight: 700, color: '#9C6B45', marginTop: 2 }}>{eshaAge()}</div>
+            <div style={{ fontSize: 12.5, fontWeight: 700, color: 'var(--coral-d)', marginTop: 2 }}>{eshaAge()}</div>
           </div>
 
-          {/* Who selector */}
-          <div
-            onClick={() => { const n = prompt('Your name:', who); if (n?.trim()) setWho(n.trim()) }}
+          {/* Theme toggle */}
+          <button
+            onClick={toggleTheme}
             style={{
-              width: 34, height: 34, borderRadius: 10,
+              width: 34, height: 34, borderRadius: 10, border: 'none',
               background: 'rgba(36,28,22,0.06)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', fontSize: 13, fontWeight: 800, color: 'var(--text-med)', flexShrink: 0,
+              cursor: 'pointer', flexShrink: 0,
             }}
-            title={who}
+            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to night mode'}
           >
-            {who ? who.charAt(0).toUpperCase() : '?'}
-          </div>
+            {theme === 'dark' ? (
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="var(--text-med)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="var(--text-med)" strokeWidth="1.75" strokeLinecap="round">
+                <circle cx="12" cy="12" r="4.5" />
+                <line x1="12" y1="2.5" x2="12" y2="5" />
+                <line x1="12" y1="19" x2="12" y2="21.5" />
+                <line x1="2.5" y1="12" x2="5" y2="12" />
+                <line x1="19" y1="12" x2="21.5" y2="12" />
+                <line x1="5.1" y1="5.1" x2="6.9" y2="6.9" />
+                <line x1="17.1" y1="17.1" x2="18.9" y2="18.9" />
+                <line x1="5.1" y1="18.9" x2="6.9" y2="17.1" />
+                <line x1="17.1" y1="6.9" x2="18.9" y2="5.1" />
+              </svg>
+            )}
+          </button>
         </div>
 
         {/* Timing pills */}
-        {lf && (
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {lf && (
             <div style={{
               display: 'flex', alignItems: 'center', gap: 6,
               fontSize: 11.5, fontWeight: 700, padding: '6px 12px', borderRadius: 999,
-              background: 'rgba(255,255,255,0.65)', color: '#6B5A44',
+              background: 'var(--hdr-pill-bg)', color: 'var(--hdr-pill-fg)',
               border: '1px solid rgba(36,28,22,0.06)',
             }}>
               Last feed {timeSince(lf)}
             </div>
-            {nfIn !== null && (
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 6,
-                fontSize: 11.5, fontWeight: 700, padding: '6px 12px', borderRadius: 999,
-                background: 'rgba(76,122,147,0.13)', color: '#3D6274',
-                border: '1px solid rgba(76,122,147,0.15)',
-              }}>
-                Next in {timeUntil(nfIn)}
-              </div>
-            )}
+          )}
+          {nfIn !== null && (
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              fontSize: 11.5, fontWeight: 700, padding: '6px 12px', borderRadius: 999,
+              background: 'var(--hdr-pill-blue-bg)', color: 'var(--hdr-pill-blue-fg)',
+              border: '1px solid rgba(76,122,147,0.15)',
+            }}>
+              Next in {timeUntil(nfIn)}
+            </div>
+          )}
+          <div
+            onClick={() => { const n = prompt('Your name:', who); if (n?.trim()) setWho(n.trim()) }}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              fontSize: 11.5, fontWeight: 700, padding: '6px 12px', borderRadius: 999,
+              background: 'var(--hdr-pill-bg)', color: 'var(--hdr-pill-fg)',
+              border: '1px solid rgba(36,28,22,0.06)', cursor: 'pointer',
+            }}
+          >
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="3.5" />
+              <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" />
+            </svg>
+            {who || 'Set your name'}
           </div>
-        )}
+        </div>
       </header>
 
       {/* Feed reminder banner */}
       {showReminder && (
         <div style={{
-          background: '#F3E9DA',
+          background: 'var(--reminder-bg)',
           borderBottom: '1px solid var(--border)',
           padding: '11px 20px',
           display: 'flex', alignItems: 'center', gap: 10,
