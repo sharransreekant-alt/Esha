@@ -99,7 +99,7 @@ export const MILESTONES: Milestone[] = [
     feedVolume:   '90–150ml per feed',
     totalDailyMl: '720–900ml per day',
     feedFreq:     'Every 3 hours, 7–9 times per day',
-    poosNote:     'Goal set to 1 per day as a general guide. Breastfed babies can sometimes go several days without a poo and this is completely normal — don\'t worry if she misses this goal some days. Formula-fed babies should poo at least once per day.'
+    poosNote:     'Goal set to 1 per day as a general guide. Breastfed babies can sometimes go several days without a poo and this is completely normal — don\'t worry if she misses this goal some days. Formula-fed babies should poo at least once per day.',
     growthNote:   'Weight gain slows slightly to 100–150g per week from around 3 months. Still expect steady upward tracking.',
     whatToExpect: [
       'Breastfed poo frequency drops dramatically — do not panic if she skips days',
@@ -130,7 +130,7 @@ export const MILESTONES: Milestone[] = [
     feedVolume:   '120–180ml per feed',
     totalDailyMl: '840–1080ml per day',
     feedFreq:     'Every 3–3.5 hours, 6–8 times per day',
-    poosNote:     'Goal set to 1 per day. Breastfed babies remain variable — some days none, some days more. Formula-fed: 1–3 times per day is normal.'
+    poosNote:     'Goal set to 1 per day. Breastfed babies remain variable — some days none, some days more. Formula-fed: 1–3 times per day is normal.',
     growthNote:   'Weight gain continues at 100–150g per week. By 4 months most babies have doubled their birth weight.',
     whatToExpect: [
       '4-month sleep regression is real — more night waking after better stretches is typical',
@@ -191,7 +191,7 @@ export const MILESTONES: Milestone[] = [
     feedVolume:   '180–240ml per feed',
     totalDailyMl: '900–1080ml milk + solids starting',
     feedFreq:     'Every 4 hours, 4–6 times per day (plus solids 1–2x)',
-    poosNote:     'Goal set to 1 per day. Poos change significantly with solids — more solid, stronger smelling, varied frequency.'
+    poosNote:     'Goal set to 1 per day. Poos change significantly with solids — more solid, stronger smelling, varied frequency.',
     growthNote:   'Weight gain continues to slow — 60–100g per week. Focus shifts from milk volume to variety of solid foods.',
     whatToExpect: [
       'Solids are well underway — iron-rich foods are the priority',
