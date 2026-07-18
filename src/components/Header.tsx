@@ -145,6 +145,10 @@ export function Header() {
               border: '1px solid rgba(36,28,22,0.06)', cursor: 'pointer',
             }}
           >
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="8" r="3.5" />
+              <path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" />
+            </svg>
             {who || 'Set your name'}
           </div>
         </div>
