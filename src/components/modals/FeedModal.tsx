@@ -88,7 +88,7 @@ export function FeedModal({ onSave, onClose, initial, isEdit }: Props) {
         WebkitOverflowScrolling: 'touch' as any,
         boxShadow: '0 -20px 50px rgba(40,28,18,0.22)',
       }}>
-        <div style={{ width: 38, height: 4, background: '#E7DFD2', borderRadius: 2, margin: '10px auto 18px' }} />
+        <div style={{ width: 38, height: 4, background: 'var(--handle)', borderRadius: 2, margin: '10px auto 18px' }} />
         <div className="serif" style={{ fontSize: 21, textAlign: 'center', color: 'var(--text)', marginBottom: 18 }}>
           {isEdit ? 'Edit feed' : 'Log a feed'}
         </div>

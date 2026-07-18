@@ -8,6 +8,21 @@
     <meta name="theme-color" content="#FBF6EF" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('eshaTheme');
+          var theme;
+          if (stored === 'light' || stored === 'dark') {
+            theme = stored;
+          } else {
+            var h = new Date().getHours();
+            theme = (h >= 19 || h < 7) ? 'dark' : 'light';
+          }
+          document.documentElement.setAttribute('data-theme', theme);
+        } catch (e) {}
+      })();
+    </script>
     <title>Esha 🍼</title>
   </head>
   <body>

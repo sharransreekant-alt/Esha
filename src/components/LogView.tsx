@@ -48,7 +48,7 @@ function SimpleModal({ emoji, title, onClose, onSave, hasDuration, durationLabel
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(46,28,18,0.45)', zIndex: 100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(8px)' }}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--white)', borderRadius: 'var(--r) var(--r) 0 0', width: '100%', maxWidth: 430, margin: '0 auto', padding: '8px 20px 48px', boxShadow: '0 -8px 40px rgba(100,60,20,0.18)' }}>
-        <div style={{ width: 36, height: 4, background: '#e0d4cc', borderRadius: 2, margin: '12px auto 20px' }} />
+        <div style={{ width: 36, height: 4, background: 'var(--handle)', borderRadius: 2, margin: '12px auto 20px' }} />
         <div className="serif" style={{ fontSize: 20, textAlign: 'center', color: 'var(--text)', marginBottom: 20 }}>{title}</div>
         {hasDuration && (
           <div className="fg">
@@ -119,7 +119,7 @@ function TummyTimeModal({ onClose, onSave }: { onClose: () => void; onSave: (t: 
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(46,28,18,0.45)', zIndex: 100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(8px)' }}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--white)', borderRadius: 'var(--r) var(--r) 0 0', width: '100%', maxWidth: 430, margin: '0 auto', padding: '8px 20px 48px', boxShadow: '0 -8px 40px rgba(100,60,20,0.18)' }}>
-        <div style={{ width: 36, height: 4, background: '#e0d4cc', borderRadius: 2, margin: '12px auto 20px' }} />
+        <div style={{ width: 36, height: 4, background: 'var(--handle)', borderRadius: 2, margin: '12px auto 20px' }} />
         <div className="serif" style={{ fontSize: 20, textAlign: 'center', color: 'var(--text)', marginBottom: 20 }}>Tummy time</div>
 
         {/* Timer */}

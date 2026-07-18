@@ -12,9 +12,9 @@ export function GuidanceCard() {
       <div
         onClick={() => setExpanded(true)}
         style={{
-          background: 'linear-gradient(135deg, #fff8f0, #fff3e8)',
+          background: 'var(--tip-bg)',
           borderRadius: 'var(--r-sm)',
-          border: '1px solid rgba(240,117,96,0.15)',
+          border: '1px solid var(--tip-border)',
           padding: '13px 14px',
           marginBottom: 16,
           cursor: 'pointer',
@@ -41,7 +41,7 @@ export function GuidanceCard() {
       {expanded && (
         <div onClick={() => setExpanded(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(46,28,18,0.45)', zIndex: 100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(8px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--white)', borderRadius: 'var(--r) var(--r) 0 0', width: '100%', maxWidth: 430, margin: '0 auto', padding: '8px 20px 48px', maxHeight: '88vh', overflowY: 'auto', boxShadow: '0 -8px 40px rgba(100,60,20,0.18)' }}>
-            <div style={{ width: 36, height: 4, background: '#e0d4cc', borderRadius: 2, margin: '12px auto 20px' }} />
+            <div style={{ width: 36, height: 4, background: 'var(--handle)', borderRadius: 2, margin: '12px auto 20px' }} />
             <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 18, fontWeight: 700, textAlign: 'center', marginBottom: 4 }}>
               📖 {milestone.label}
             </div>

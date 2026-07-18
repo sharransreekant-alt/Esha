@@ -30,7 +30,7 @@ export function EveningSummary({ onClose }: Props) {
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(46,28,18,0.45)', zIndex: 100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(8px)' }}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--white)', borderRadius: 'var(--r) var(--r) 0 0', width: '100%', maxWidth: 430, margin: '0 auto', padding: '8px 20px 48px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 -8px 40px rgba(100,60,20,0.18)' }}>
-        <div style={{ width: 36, height: 4, background: '#e0d4cc', borderRadius: 2, margin: '12px auto 20px' }} />
+        <div style={{ width: 36, height: 4, background: 'var(--handle)', borderRadius: 2, margin: '12px auto 20px' }} />
         <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 20, fontWeight: 700, textAlign: 'center', marginBottom: 6 }}>
           {allMet ? '🎉 Amazing day!' : '🌙 Evening Check-in'}
         </div>
@@ -43,7 +43,7 @@ export function EveningSummary({ onClose }: Props) {
           const count = counts[key as keyof typeof counts]
           const met = count >= goal, part = !met && count > 0
           const bc = met ? 'var(--green-s)' : part ? 'var(--amber-s)' : 'var(--red-s)'
-          const fc = met ? 'var(--green)'   : part ? '#8a6200'        : 'var(--red)'
+          const fc = met ? 'var(--green)'   : part ? 'var(--amber)'        : 'var(--red)'
           const sub = met ? 'Goal reached!' : count === 0 ? `Get ${goal} done today` : `${goal - count} more needed`
 
           return (

@@ -111,7 +111,7 @@ export function GrowthView() {
               ].filter(Boolean).join(' · ')
               return (
                 <div key={m.id} style={{ background: 'var(--white)', borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow)', padding: '12px 13px', display: 'flex', alignItems: 'center', gap: 11 }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: '#f0e8ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>📏</div>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: 'var(--mas-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>📏</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 700 }}>Measurement</div>
                     <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2, fontWeight: 600 }}>{parts}{m.notes ? ` · ${m.notes}` : ''}</div>
@@ -131,7 +131,7 @@ export function GrowthView() {
       {showModal && (
         <div onClick={() => setShowModal(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(46,28,18,0.45)', zIndex: 100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(8px)' }}>
           <div onClick={e => e.stopPropagation()} style={{ background: 'var(--white)', borderRadius: 'var(--r) var(--r) 0 0', width: '100%', maxWidth: 430, margin: '0 auto', padding: '8px 20px 48px', boxShadow: '0 -8px 40px rgba(100,60,20,0.18)' }}>
-            <div style={{ width: 36, height: 4, background: '#e0d4cc', borderRadius: 2, margin: '12px auto 20px' }} />
+            <div style={{ width: 36, height: 4, background: 'var(--handle)', borderRadius: 2, margin: '12px auto 20px' }} />
             <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 20, fontWeight: 700, textAlign: 'center', marginBottom: 20 }}>📏 Log Measurement</div>
             <div className="info-box">All fields optional — log what you have.</div>
             <div className="fg"><label className="flbl">Weight (grams)</label><input className="finput" type="number" inputMode="numeric" placeholder="e.g. 3600" value={weight} onChange={e => setWeight(e.target.value)} /></div>

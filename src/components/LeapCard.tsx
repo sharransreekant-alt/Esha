@@ -8,7 +8,7 @@ function LeapDetail({ leap, phase, onClose }: { leap: Leap; phase: 'fussy' | 'sk
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(46,28,18,0.45)', zIndex: 100, display: 'flex', alignItems: 'flex-end', backdropFilter: 'blur(8px)' }}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--white)', borderRadius: 'var(--r) var(--r) 0 0', width: '100%', maxWidth: 430, margin: '0 auto', padding: '8px 20px 48px', maxHeight: '85vh', overflowY: 'auto', boxShadow: '0 -8px 40px rgba(100,60,20,0.18)' }}>
-        <div style={{ width: 36, height: 4, background: '#e0d4cc', borderRadius: 2, margin: '12px auto 20px' }} />
+        <div style={{ width: 36, height: 4, background: 'var(--handle)', borderRadius: 2, margin: '12px auto 20px' }} />
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
@@ -19,7 +19,7 @@ function LeapDetail({ leap, phase, onClose }: { leap: Leap; phase: 'fussy' | 'sk
           <div style={{
             display: 'inline-block', fontSize: 12, fontWeight: 800, padding: '4px 12px', borderRadius: 20,
             background: phase === 'fussy' ? 'var(--amber-s)' : 'var(--green-s)',
-            color: phase === 'fussy' ? '#8a6200' : 'var(--green)',
+            color: phase === 'fussy' ? 'var(--amber)' : 'var(--green)',
             border: `1px solid ${phase === 'fussy' ? 'rgba(245,166,35,0.3)' : 'rgba(62,184,118,0.3)'}`,
           }}>
             {phase === 'fussy' ? '🌊 Fussy phase — this is normal' : '🌟 Skills phase — watch her grow'}
@@ -46,8 +46,8 @@ function LeapDetail({ leap, phase, onClose }: { leap: Leap; phase: 'fussy' | 'sk
         {/* Tab content */}
         {tab === 'whats-happening' && (
           <div>
-            <div style={{ background: phase === 'fussy' ? '#fff9f0' : '#f0fff6', borderRadius: 'var(--r-sm)', padding: 14, marginBottom: 12 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: phase === 'fussy' ? '#8a6200' : 'var(--green)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+            <div style={{ background: phase === 'fussy' ? 'var(--leap-fussy-bg)' : 'var(--leap-skills-bg)', borderRadius: 'var(--r-sm)', padding: 14, marginBottom: 12 }}>
+              <div style={{ fontSize: 12, fontWeight: 800, color: phase === 'fussy' ? 'var(--amber)' : 'var(--green)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                 {phase === 'fussy' ? 'Why she might seem difficult' : 'What she\'s learning'}
               </div>
               <div style={{ fontSize: 14, color: 'var(--text)', fontWeight: 600, lineHeight: 1.6 }}>

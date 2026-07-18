@@ -27,6 +27,7 @@ interface AppState {
   refreshKey:     number
   appointments:   Appointment[]
   activeGoals:    GoalSet
+  theme:          'light' | 'dark'
 }
 
 interface AppContextValue extends AppState {
@@ -57,9 +58,17 @@ interface AppContextValue extends AppState {
   removeAppointment:  (id: string) => Promise<void>
   activeGoals:        GoalSet
   acceptGoalUpdate:   (goals: GoalSet) => Promise<void>
+  toggleTheme:        () => void
 }
 
 const Ctx = createContext<AppContextValue | null>(null)
+
+function computeDefaultTheme(): 'light' | 'dark' {
+  const stored = localStorage.getItem('eshaTheme')
+  if (stored === 'light' || stored === 'dark') return stored
+  const hour = new Date().getHours()
+  return (hour >= 19 || hour < 7) ? 'dark' : 'light'
+}
 
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AppState>({
@@ -75,10 +84,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     refreshKey: 0,
     appointments: [],
     activeGoals: DEFAULT_GOALS,
+    theme: computeDefaultTheme(),
   })
 
   const set = useCallback((patch: Partial<AppState>) =>
     setState(s => ({ ...s, ...patch })), [])
+
+  // Apply theme to <html> whenever it changes
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', state.theme)
+  }, [state.theme])
+
+  const toggleTheme = () => {
+    const next = state.theme === 'dark' ? 'light' : 'dark'
+    localStorage.setItem('eshaTheme', next)
+    set({ theme: next })
+  }
 
   // Firebase subscriptions
   useEffect(() => {
@@ -244,6 +265,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       refresh,
       activeGoals: state.activeGoals,
       acceptGoalUpdate,
+      toggleTheme,
       appointments: state.appointments,
       saveAppointment, updateAppointment, removeAppointment,
     }}>

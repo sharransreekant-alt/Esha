@@ -47,7 +47,7 @@ export function GoalUpdateCard() {
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #eef6ff, #e8f4ff)',
+      background: 'var(--update-bg)',
       borderRadius: 'var(--r-sm)',
       border: '1.5px solid rgba(74,159,212,0.3)',
       padding: '14px 15px',
@@ -73,7 +73,7 @@ export function GoalUpdateCard() {
       {/* Changes */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
         {pending.changes.map((c, i) => (
-          <div key={i} style={{ background: 'rgba(255,255,255,0.7)', borderRadius: 'var(--r-xs)', padding: '10px 12px' }}>
+          <div key={i} style={{ background: 'var(--cream2)', borderRadius: 'var(--r-xs)', padding: '10px 12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                 <span style={{ fontSize: 14 }}>{FIELD_EMOJI[c.field] || '📊'}</span>

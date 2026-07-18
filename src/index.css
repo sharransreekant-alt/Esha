@@ -40,9 +40,77 @@
   --hdr-from:   #F3E9DA;
   --hdr-to:     #FBF6EF;
 
+  /* ── Header pills (sit on gradient header) ── */
+  --hdr-pill-bg:      rgba(255,255,255,0.65);
+  --hdr-pill-fg:      #6B5A44;
+  --hdr-pill-blue-bg: rgba(76,122,147,0.13);
+  --hdr-pill-blue-fg: #3D6274;
+  --reminder-bg:      #F3E9DA;
+
+  /* ── Tinted highlight cards ── */
+  --tip-bg:      #FFF8F0;
+  --tip-border:  rgba(240,117,96,0.15);
+  --update-bg:   #EEF6FF;
+  --leap-fussy-bg:  #FFF9F0;
+  --leap-skills-bg: #F0FFF6;
+  --handle:      #E7DFD2;
+
   --r:     22px;
   --r-sm:  16px;
   --r-xs:  12px;
+}
+
+/* ══════════════════════════════════════
+   NIGHT MODE — same tokens, dark values
+   ══════════════════════════════════════ */
+html[data-theme='dark'] {
+  --cream:      #1A1620;
+  --cream2:     #241F2C;
+  --white:      #241F2C;
+  --border:     rgba(255,255,255,0.08);
+  --shadow:     0 3px 16px rgba(0,0,0,0.35);
+  --shadow-md:  0 10px 26px rgba(0,0,0,0.4);
+
+  --text:       #F2ECE4;
+  --text-med:   #C9BFCE;
+  --muted:      #736C81;
+
+  --coral:      #DE8C63;
+  --coral-s:    rgba(222,140,99,0.15);
+  --coral-d:    #C97850;
+
+  --plum:       #4B3550;
+  --plum-label: #D8B7E8;
+
+  --feed-bg:    rgba(143,180,214,0.16); --feed-fg: #8FB4D6;
+  --wee-bg:     rgba(216,197,122,0.16); --wee-fg:  #D8C57A;
+  --poo-bg:     rgba(180,155,120,0.16); --poo-fg:  #C9AE8C;
+  --mas-bg:     rgba(138,94,200,0.18);  --mas-fg:  #B79BE0;
+  --tummy-bg:   rgba(63,122,104,0.22);  --tummy-fg:#7FC7AE;
+  --vit-bg:     rgba(184,134,58,0.18);  --vit-fg:  #D8A85E;
+  --note-bg:    rgba(255,255,255,0.06); --note-fg: #C9C2D6;
+
+  --green:      #7FAF8C; --green-s: rgba(127,175,140,0.15);
+  --amber:      #D3A863; --amber-s: rgba(211,168,99,0.15);
+  --red:        #D98B75; --red-s:   rgba(217,139,117,0.15);
+  --blue:       #7FA6C4; --blue-s:  rgba(127,166,196,0.15);
+  --purple:     #B79BE0; --purple-s:rgba(183,155,224,0.15);
+
+  --hdr-from:   #241F2C;
+  --hdr-to:     #1A1620;
+
+  --hdr-pill-bg:      rgba(255,255,255,0.06);
+  --hdr-pill-fg:      #C9BFCE;
+  --hdr-pill-blue-bg: rgba(127,166,196,0.14);
+  --hdr-pill-blue-fg: #8FB4D6;
+  --reminder-bg:      #2A2130;
+
+  --tip-bg:      #2A2130;
+  --tip-border:  rgba(222,140,99,0.2);
+  --update-bg:   #1E2A38;
+  --leap-fussy-bg:  #2A2130;
+  --leap-skills-bg: #1E2A22;
+  --handle:      rgba(255,255,255,0.15);
 }
 
 *, *::before, *::after {
