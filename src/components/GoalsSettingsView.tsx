@@ -14,9 +14,13 @@ const FIELD_CONFIG: { key: keyof GoalSet; label: string; emoji: string; unit: st
 ]
 
 export function GoalsSettingsView() {
-  const { activeGoals, acceptGoalUpdate, setView } = useApp()
+  const { activeGoals, acceptGoalUpdate, setView, feedCycleHours, setFeedCycleHours } = useApp()
   const weekAge = (Date.now() - ESHA_BORN.getTime()) / (7 * 24 * 60 * 60 * 1000)
   const suggested = getMilestoneForAge(weekAge).goals
+
+  const [cycleDraft, setCycleDraft] = useState(feedCycleHours)
+  const [cycleSaving, setCycleSaving] = useState(false)
+  const [cycleSaved, setCycleSaved] = useState(false)
 
   const [draft, setDraft] = useState<GoalSet>({ ...activeGoals })
   const [saving, setSaving] = useState(false)
@@ -48,11 +52,47 @@ export function GoalsSettingsView() {
     setTimeout(() => setSaved(false), 2500)
   }
 
+  async function handleSaveCycle() {
+    setCycleSaving(true)
+    await setFeedCycleHours(cycleDraft)
+    setCycleSaving(false)
+    setCycleSaved(true)
+    setTimeout(() => setCycleSaved(false), 2500)
+  }
+
   return (
     <div style={{ padding: '18px 16px 72px' }}>
       <div onClick={() => setView('more')} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18, cursor: 'pointer' }}>
         <span style={{ fontSize: 18, color: 'var(--muted)' }}>←</span>
         <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--muted)' }}>Back</span>
+      </div>
+
+      <div className="sec" style={{ marginBottom: 6 }}>Feed Timing</div>
+      <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginBottom: 10, lineHeight: 1.5 }}>
+        How often Esha typically feeds — controls the "Next in" pill and the pump reminder.
+      </div>
+      <div style={{ background: 'var(--white)', borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow)', padding: '13px 14px', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <input
+            className="finput"
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={12}
+            value={cycleDraft}
+            onChange={e => { setCycleDraft(parseFloat(e.target.value) || 0); setCycleSaved(false) }}
+            style={{ flex: 1, padding: '9px 12px', fontSize: 15 }}
+          />
+          <span style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 700, flexShrink: 0 }}>hours between feeds</span>
+        </div>
+        <button
+          className="btn-primary"
+          onClick={handleSaveCycle}
+          disabled={cycleDraft === feedCycleHours || cycleSaving}
+          style={{ marginTop: 12 }}
+        >
+          {cycleSaving ? 'Saving…' : cycleSaved ? '✓ Saved' : cycleDraft === feedCycleHours ? 'No Changes' : 'Save'}
+        </button>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>

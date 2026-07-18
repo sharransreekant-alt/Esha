@@ -6,7 +6,7 @@ import {
 import { db } from '../firebase'
 import {
   Entry, GrowthEntry, JournalEntry, HandoverEntry, Appointment,
-  View, FEED_CYCLE_MS, REMIND_AT_MS
+  View, DEFAULT_FEED_CYCLE_HOURS
 } from '../types'
 import { GoalSet, DEFAULT_GOALS } from '../utils/milestones'
 import { toDate } from '../utils/helpers'
@@ -28,6 +28,7 @@ interface AppState {
   appointments:   Appointment[]
   activeGoals:    GoalSet
   theme:          'light' | 'dark'
+  feedCycleHours: number
 }
 
 interface AppContextValue extends AppState {
@@ -59,6 +60,7 @@ interface AppContextValue extends AppState {
   activeGoals:        GoalSet
   acceptGoalUpdate:   (goals: GoalSet) => Promise<void>
   toggleTheme:        () => void
+  setFeedCycleHours:  (hours: number) => Promise<void>
 }
 
 const Ctx = createContext<AppContextValue | null>(null)
@@ -85,6 +87,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     appointments: [],
     activeGoals: DEFAULT_GOALS,
     theme: computeDefaultTheme(),
+    feedCycleHours: DEFAULT_FEED_CYCLE_HOURS,
   })
 
   const set = useCallback((patch: Partial<AppState>) =>
@@ -129,7 +132,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         () => {}
       ),
       onSnapshot(doc(db, 'esha_settings', 'config'),
-        snap => { if (snap.exists()) { const d = snap.data(); if (d) set({ aiKey: d.aiKey || '', activeGoals: d.activeGoals || DEFAULT_GOALS }) } },
+        snap => { if (snap.exists()) { const d = snap.data(); if (d) set({ aiKey: d.aiKey || '', activeGoals: d.activeGoals || DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS }) } },
         () => {}
       ),
     ]
@@ -147,16 +150,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (state.reminderDismissed) return false
     const lf = lastFeed()
     if (!lf) return false
+    const cycleMs = state.feedCycleHours * 60 * 60 * 1000
+    const remindAtMs = cycleMs - 30 * 60000
     const el = Date.now() - lf.getTime()
-    return el >= REMIND_AT_MS && el < FEED_CYCLE_MS + 30 * 60000
-  }, [state.reminderDismissed, lastFeed])
+    return el >= remindAtMs && el < cycleMs + 30 * 60000
+  }, [state.reminderDismissed, state.feedCycleHours, lastFeed])
 
   const nextFeedIn = useCallback((): number | null => {
     const lf = lastFeed()
     if (!lf) return null
-    const ms = lf.getTime() + FEED_CYCLE_MS - Date.now()
+    const cycleMs = state.feedCycleHours * 60 * 60 * 1000
+    const ms = lf.getTime() + cycleMs - Date.now()
     return ms > 0 ? ms : 0
-  }, [lastFeed])
+  }, [lastFeed, state.feedCycleHours])
 
   const hasUnreadHandover = useCallback((): boolean => {
     const h = state.handovers[0]
@@ -227,6 +233,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     set({ activeGoals: goals })
   }
 
+  const setFeedCycleHours = async (hours: number) => {
+    await setDoc(doc(db, 'esha_settings', 'config'), { feedCycleHours: hours }, { merge: true })
+    set({ feedCycleHours: hours })
+  }
+
   const saveAiKey = async (key: string) => {
     await setDoc(doc(db, 'esha_settings', 'config'), { aiKey: key }, { merge: true })
     set({ aiKey: key })
@@ -266,6 +277,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       activeGoals: state.activeGoals,
       acceptGoalUpdate,
       toggleTheme,
+      setFeedCycleHours,
       appointments: state.appointments,
       saveAppointment, updateAppointment, removeAppointment,
     }}>

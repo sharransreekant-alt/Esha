@@ -69,8 +69,7 @@ export const FEED_EMOJI: Record<FeedType, string> = {
 }
 
 export const ESHA_BORN = new Date('2026-03-03T01:50:00Z')
-export const FEED_CYCLE_MS = 3 * 60 * 60 * 1000
-export const REMIND_AT_MS  = 2.5 * 60 * 60 * 1000
+export const DEFAULT_FEED_CYCLE_HOURS = 4
 
 export interface Appointment {
   id:          string

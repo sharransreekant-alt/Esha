@@ -21,7 +21,7 @@ export function MoreView() {
   const cards: { id: View; icon: string; name: string; sub: string }[] = [
     { id: 'appointments', icon: '🏥', name: 'Appointments', sub: apptCount > 0 ? `${apptCount} upcoming` : 'None scheduled' },
     { id: 'notes', icon: '📝', name: 'Notes', sub: `${entries.filter((e: any) => e.type === 'note').length} notes` },
-    { id: 'goals', icon: '🎯', name: 'Goals', sub: 'View & customise' },
+    { id: 'goals', icon: '🎯', name: 'Goals', sub: 'Goals & feed timing' },
     { id: 'growth',   icon: '📏', name: 'Growth',   sub: daysAgo === null ? 'Not started yet' : daysAgo === 0 ? 'Logged today' : `Last: ${daysAgo}d ago` },
     { id: 'insights', icon: '📊', name: 'Insights', sub: 'Feeding patterns' },
     { id: 'journal',  icon: '📖', name: 'Journal',  sub: `${journal.length} entr${journal.length === 1 ? 'y' : 'ies'}` },
