@@ -164,7 +164,7 @@ export function Header() {
         }}>
           <span style={{ fontSize: 18, flexShrink: 0 }}>⏰</span>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--coral-d)' }}>Time to pump — feed due in 30 mins</div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--coral-d)' }}>Feed coming up — due in 30 mins</div>
             <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginTop: 1 }}>
               Last feed {lf ? timeSince(lf) : ''} · Next in {nfIn !== null ? timeUntil(nfIn) : 'soon'}
             </div>

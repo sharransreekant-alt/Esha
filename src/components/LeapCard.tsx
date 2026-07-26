@@ -100,20 +100,34 @@ export function LeapCard() {
   // Between leaps — show a subtle upcoming card
   if (status.phase === 'between' && status.nextLeap) {
     const days = status.daysUntilNext || 0
+    const nextLeap = status.nextLeap
     if (days > 14) return null // don't show until 2 weeks out
     return (
-      <div style={{
-        background: 'var(--plum)',
-        borderRadius: 'var(--r)', padding: '14px 16px',
-        marginBottom: 16, boxShadow: '0 10px 26px rgba(75,53,80,0.28)',
-      }}>
-        <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--plum-label)', textTransform: 'uppercase', letterSpacing: '0.9px', marginBottom: 4 }}>
-          Leap {status.nextLeap.number} coming up
+      <>
+        <div
+          onClick={() => setShowDetail(true)}
+          style={{
+            background: 'var(--plum)',
+            borderRadius: 'var(--r)', padding: '14px 16px',
+            marginBottom: 16, boxShadow: '0 10px 26px rgba(75,53,80,0.28)',
+            cursor: 'pointer',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <span style={{ fontSize: 11, fontWeight: 800, color: 'var(--plum-label)', textTransform: 'uppercase', letterSpacing: '0.9px' }}>
+              Leap {nextLeap.number} coming up
+            </span>
+            <span style={{ fontSize: 17, color: 'rgba(255,255,255,0.4)' }}>›</span>
+          </div>
+          <div style={{ fontSize: 12.5, color: 'rgba(251,246,239,0.72)', fontWeight: 500 }}>
+            "{nextLeap.name}" starts in about {days} day{days !== 1 ? 's' : ''}. A fussy phase may begin — totally normal. Tap to see what's ahead.
+          </div>
         </div>
-        <div style={{ fontSize: 12.5, color: 'rgba(251,246,239,0.72)', fontWeight: 500 }}>
-          "{status.nextLeap.name}" starts in about {days} day{days !== 1 ? 's' : ''}. A fussy phase may begin — totally normal.
-        </div>
-      </div>
+
+        {showDetail && (
+          <LeapDetail leap={nextLeap} phase="fussy" onClose={() => setShowDetail(false)} />
+        )}
+      </>
     )
   }
 

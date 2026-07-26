@@ -69,7 +69,7 @@ export function GoalsSettingsView() {
 
       <div className="sec" style={{ marginBottom: 6 }}>Feed Timing</div>
       <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginBottom: 10, lineHeight: 1.5 }}>
-        How often Esha typically feeds — controls the "Next in" pill and the pump reminder.
+        How often Esha typically feeds — controls the "Next in" pill and the feed reminder.
       </div>
       <div style={{ background: 'var(--white)', borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow)', padding: '13px 14px', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
