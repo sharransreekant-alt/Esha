@@ -10,6 +10,6 @@ ALLOWED_ORIGINS = "https://sharransreekant-alt.github.io,http://localhost:5173"
 # Create with `npx wrangler kv namespace create RATE` and paste the id it prints.
 [[kv_namespaces]]
 binding = "RATE"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "21f4542a77274d55a9b1d19a0b8d0c2f"
 
 # Secret, set with `npx wrangler secret put OPENAI_API_KEY` (provider is chosen in src/config.ts). For local dev put it in .dev.vars.
