@@ -3,10 +3,10 @@ import {
   collection, addDoc, deleteDoc, updateDoc, doc, setDoc,
   query, orderBy, onSnapshot, Timestamp, writeBatch
 } from 'firebase/firestore'
-import { db } from '../firebase'
+import { db, ensureSignedIn } from '../firebase'
 import {
   Entry, GrowthEntry, JournalEntry, HandoverEntry, Appointment,
-  View, DEFAULT_FEED_CYCLE_HOURS
+  View, DEFAULT_FEED_CYCLE_HOURS, ESHA_BORN
 } from '../types'
 import { GoalSet, DEFAULT_GOALS } from '../utils/milestones'
 import { toDate } from '../utils/helpers'
@@ -29,12 +29,13 @@ interface AppState {
   activeGoals:    GoalSet
   theme:          'light' | 'dark'
   feedCycleHours: number
+  babyDob:        Date
 }
 
 interface AppContextValue extends AppState {
   setView:       (v: View) => void
   setWho:        (w: string) => void
-  saveEntry:     (data: Omit<Entry, 'id' | 'loggedBy' | 'timestamp'> & { _t?: Date }) => Promise<void>
+  saveEntry:     (data: Omit<Entry, 'id' | 'loggedBy' | 'timestamp'> & { _t?: Date }) => Promise<string>
   updateEntry:   (id: string, data: Partial<Entry>) => Promise<void>
   removeEntry:   (id: string) => Promise<void>
   saveGrowth:    (data: Omit<GrowthEntry, 'id' | 'loggedBy' | 'timestamp'>) => Promise<void>
@@ -65,6 +66,12 @@ interface AppContextValue extends AppState {
 
 const Ctx = createContext<AppContextValue | null>(null)
 
+// Settings may carry the date of birth as an ISO string; fall back to the built-in one
+function parseDob(v: unknown): Date {
+  const d = typeof v === 'string' ? new Date(v) : null
+  return d && !isNaN(d.getTime()) ? d : ESHA_BORN
+}
+
 function computeDefaultTheme(): 'light' | 'dark' {
   const stored = localStorage.getItem('eshaTheme')
   if (stored === 'light' || stored === 'dark') return stored
@@ -88,6 +95,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     activeGoals: DEFAULT_GOALS,
     theme: computeDefaultTheme(),
     feedCycleHours: DEFAULT_FEED_CYCLE_HOURS,
+    babyDob: ESHA_BORN,
   })
 
   const set = useCallback((patch: Partial<AppState>) =>
@@ -104,9 +112,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     set({ theme: next })
   }
 
+  // Sign in before reading anything, so the database rules can require it.
+  // If sign-in fails we still try to subscribe; the rules decide what happens.
+  const [authReady, setAuthReady] = useState(false)
+  useEffect(() => {
+    ensureSignedIn().catch(() => {}).finally(() => setAuthReady(true))
+  }, [])
+
   // Firebase subscriptions
   useEffect(() => {
-    if (!state.who) return
+    if (!state.who || !authReady) return
     let loaded = { entries: false, growth: false, journal: false, handover: false }
     const checkDone = () => {
       if (loaded.entries) set({ loading: false })
@@ -132,13 +147,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         () => {}
       ),
       onSnapshot(doc(db, 'esha_settings', 'config'),
-        snap => { if (snap.exists()) { const d = snap.data(); if (d) set({ aiKey: d.aiKey || '', activeGoals: d.activeGoals || DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS }) } },
+        snap => { if (snap.exists()) { const d = snap.data(); if (d) set({ aiKey: d.aiKey || '', activeGoals: d.activeGoals || DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob) }) } },
         () => {}
       ),
     ]
 
     return () => { clearTimeout(t); unsubs.forEach(u => u()) }
-  }, [state.who, state.refreshKey, set])
+  }, [state.who, authReady, state.refreshKey, set])
 
   // Helpers
   const lastFeed = useCallback((): Date | null => {
@@ -173,10 +188,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Write ops
   const saveEntry = async (data: Omit<Entry, 'id' | 'loggedBy' | 'timestamp'> & { _t?: Date }) => {
     const { _t, ...rest } = data as any
-    await addDoc(collection(db, 'esha_entries'), {
+    const ref = await addDoc(collection(db, 'esha_entries'), {
       ...rest, loggedBy: state.who,
       timestamp: Timestamp.fromDate(_t || new Date()),
     })
+    return ref.id
   }
 
   const updateEntry = async (id: string, data: Partial<Entry>) => {

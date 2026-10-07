@@ -1,0 +1,114 @@
+{
+  "model": "gpt-5.4-mini",
+  "threshold": 0.85,
+  "rows": [
+    {
+      "band": "6-9m",
+      "cases": 26,
+      "failed": 0,
+      "typeAccuracy": "77% (20/26)",
+      "exactQuantities": "100% (29/29)",
+      "timeWithin2Min": "92% (22/24)",
+      "falseSilentSaves": "6 of 28 silent",
+      "redFlagRecall": "100% (3/3)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "9-12m",
+      "cases": 3,
+      "failed": 0,
+      "typeAccuracy": "67% (2/3)",
+      "exactQuantities": "100% (4/4)",
+      "timeWithin2Min": "100% (1/1)",
+      "falseSilentSaves": "1 of 5 silent",
+      "redFlagRecall": "100% (1/1)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "12m+",
+      "cases": 1,
+      "failed": 0,
+      "typeAccuracy": "100% (1/1)",
+      "exactQuantities": "100% (2/2)",
+      "timeWithin2Min": "n/a",
+      "falseSilentSaves": "0 of 2 silent",
+      "redFlagRecall": "n/a",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "0-6w",
+      "cases": 18,
+      "failed": 0,
+      "typeAccuracy": "89% (16/18)",
+      "exactQuantities": "100% (20/20)",
+      "timeWithin2Min": "100% (16/16)",
+      "falseSilentSaves": "1 of 21 silent",
+      "redFlagRecall": "100% (5/5)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "6w-3m",
+      "cases": 4,
+      "failed": 0,
+      "typeAccuracy": "75% (3/4)",
+      "exactQuantities": "100% (6/6)",
+      "timeWithin2Min": "100% (5/5)",
+      "falseSilentSaves": "1 of 7 silent",
+      "redFlagRecall": "100% (2/2)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "3-6m",
+      "cases": 6,
+      "failed": 0,
+      "typeAccuracy": "100% (6/6)",
+      "exactQuantities": "100% (9/9)",
+      "timeWithin2Min": "100% (4/4)",
+      "falseSilentSaves": "0 of 7 silent",
+      "redFlagRecall": "100% (1/1)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "ALL",
+      "cases": 58,
+      "failed": 0,
+      "typeAccuracy": "83% (48/58)",
+      "exactQuantities": "100% (70/70)",
+      "timeWithin2Min": "96% (48/50)",
+      "falseSilentSaves": "9 of 70 silent",
+      "redFlagRecall": "100% (12/12)",
+      "redFlagFalsePositives": 0
+    }
+  ],
+  "cost": {
+    "model": "gpt-5.4-mini",
+    "calls": 58,
+    "avgInputTokens": 1624,
+    "avgOutputTokens": 189,
+    "usdPerParse": null,
+    "usdPerFamilyMonth": null
+  },
+  "problems": [
+    "c05 time: expected 2026-10-07T03:12 got 2026-10-07T02:45",
+    "c05 FALSE SILENT SAVE: poo \"then she did a poo\"",
+    "c07 time: expected 2026-10-07T03:12 got 2026-10-07T08:05",
+    "c07 FALSE SILENT SAVE: vitaminD \"vitamin d done\"",
+    "c12 types: expected [wee,poo|] got [note|]",
+    "c12 FALSE SILENT SAVE: note \"wet and dirty nappy ten minutes ago\"",
+    "c18 types: expected [|] got [feed|]",
+    "c20 types: expected [|] got [note|]",
+    "c22 types: expected [solids|] got [note|]",
+    "c22 FALSE SILENT SAVE: note \"she came up in hives after the peanut butter\"",
+    "c23 types: expected [feed|] got [note,feed|]",
+    "c23 FALSE SILENT SAVE: note \"vomited three times since midnight\"",
+    "c24 types: expected [wee|] got [wee,note|]",
+    "c24 FALSE SILENT SAVE: note \"she has a fever of 38.5\"",
+    "c26 types: expected [feed|] got [note,feed|]",
+    "c26 FALSE SILENT SAVE: note \"feels a bit warm after her nap\"",
+    "c36 types: expected [|] got [|timer_start]",
+    "c42 types: expected [feed|] got [note,feed|]",
+    "c42 FALSE SILENT SAVE: note \"feels warm\"",
+    "c48 types: expected [feed|] got [note,feed|]",
+    "c48 FALSE SILENT SAVE: note \"she seems a bit off and warm\""
+  ]
+}

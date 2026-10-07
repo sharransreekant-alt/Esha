@@ -13,6 +13,8 @@ import { LeapCard } from './LeapCard'
 import { GuidanceCard } from './GuidanceCard'
 import { GoalUpdateCard } from './GoalUpdateCard'
 import { CATEGORY_ICON, CATEGORY_BG, CATEGORY_FG } from './Icons'
+import { SayIt } from './SayIt'
+import { voiceEnabled } from '../voice/parseClient'
 
 interface SimpleModalProps {
   emoji: string
@@ -218,6 +220,7 @@ export function LogView() {
       <LeapCard />
       <GuidanceCard />
       <div className="sec">Log activity</div>
+      {voiceEnabled && <SayIt />}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 26 }}>
         {actions.map(a => {
           const Icon = CATEGORY_ICON[a.key]

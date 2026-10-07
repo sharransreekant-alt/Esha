@@ -22,6 +22,10 @@ export interface Entry {
   volume?:    number | null
   // shared optional
   notes?:     string | null
+  // set on entries created from a spoken or typed sentence
+  source?:      'voice'
+  rawSpan?:     string
+  utteranceId?: string
 }
 
 export interface GrowthEntry {

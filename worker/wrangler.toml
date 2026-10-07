@@ -1,0 +1,15 @@
+name = "esha-parse"
+main = "src/index.ts"
+compatibility_date = "2026-09-01"
+
+[vars]
+FIREBASE_PROJECT_ID = "esha-tracker"
+# Comma separated. GitHub Pages serves the app from this origin; localhost is for `npm run dev`.
+ALLOWED_ORIGINS = "https://sharransreekant-alt.github.io,http://localhost:5173"
+
+# Create with `npx wrangler kv namespace create RATE` and paste the id it prints.
+[[kv_namespaces]]
+binding = "RATE"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# Secret, set with `npx wrangler secret put OPENAI_API_KEY` (provider is chosen in src/config.ts). For local dev put it in .dev.vars.

@@ -1,0 +1,1467 @@
+[
+ {
+  "id": "c01",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "wee and poo",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    },
+    {
+     "type": "poo",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c02",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "60ml formula at 3am",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:00",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 60
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c03",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "she had 180 of formula about twenty minutes ago",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T02:52",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 180
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c04",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "formula 150 just now and a wet nappy",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 150
+      }
+     ]
+    },
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c05",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "gave her 120 mils formula at quarter to three then she did a poo",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T02:45",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 120
+      }
+     ]
+    },
+    {
+     "type": "poo",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c06",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "bottle 160 at half past one",
+  "timerState": null,
+  "recent": [
+   {
+    "type": "feed",
+    "at": "2026-10-06T21:40",
+    "by": "Sam",
+    "components": [
+     {
+      "feedType": "formula",
+      "minutes": null,
+      "ml": 180
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T01:30",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 160
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": false
+  }
+ },
+ {
+  "id": "c07",
+  "band": "6-9m",
+  "now": "2026-10-07T08:05",
+  "utterance": "vitamin d done",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "vitaminD",
+     "at": "2026-10-07T08:05"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c08",
+  "band": "6-9m",
+  "now": "2026-10-07T12:40",
+  "utterance": "had pumpkin and avocado for lunch",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "solids",
+     "at": null,
+     "foods": [
+      "pumpkin",
+      "avocado"
+     ],
+     "firstTime": false
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c09",
+  "band": "6-9m",
+  "now": "2026-10-07T10:15",
+  "utterance": "tried egg for the first time this morning",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "solids",
+     "at": null,
+     "foods": [
+      "egg"
+     ],
+     "firstTime": true
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": false
+  }
+ },
+ {
+  "id": "c10",
+  "band": "6-9m",
+  "now": "2026-10-07T08:20",
+  "utterance": "porridge and banana at 7 30 then 150 formula at 8",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "solids",
+     "at": "2026-10-07T07:30",
+     "foods": [
+      "porridge",
+      "banana"
+     ],
+     "firstTime": false
+    },
+    {
+     "type": "feed",
+     "at": "2026-10-07T08:00",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 150
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c11",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "dirty nappy",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "poo",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c12",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "wet and dirty nappy ten minutes ago",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:02"
+    },
+    {
+     "type": "poo",
+     "at": "2026-10-07T03:02"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c13",
+  "band": "6-9m",
+  "now": "2026-10-07T10:00",
+  "utterance": "tummy time 8 minutes",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "tummyTime",
+     "at": null,
+     "minutes": 8
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c14",
+  "band": "6-9m",
+  "now": "2026-10-07T18:45",
+  "utterance": "massage for ten minutes after her bath",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "massage",
+     "at": null,
+     "minutes": 10
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c15",
+  "band": "6-9m",
+  "now": "2026-10-07T15:00",
+  "utterance": "she rolled from her back to her tummy",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c16",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "formula 90 no wait 120",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 120
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c17",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "um she had like a hundred and eighty formula and uh a wee",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 180
+      }
+     ]
+    },
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c18",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "fed at 2",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": false
+  }
+ },
+ {
+  "id": "c19",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "wee",
+  "timerState": null,
+  "recent": [
+   {
+    "type": "wee",
+    "at": "2026-10-07T03:10",
+    "by": "Sam",
+    "components": null
+   }
+  ],
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": false
+  }
+ },
+ {
+  "id": "c20",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "180",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": false
+  }
+ },
+ {
+  "id": "c21",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "formula 150 at 11",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-06T23:00",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 150
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c22",
+  "band": "6-9m",
+  "now": "2026-10-07T12:30",
+  "utterance": "she came up in hives after the peanut butter",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": false
+  }
+ },
+ {
+  "id": "c23",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "vomited three times since midnight, 60 formula",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 60
+      }
+     ]
+    },
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": true
+  }
+ },
+ {
+  "id": "c24",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "she has a fever of 38.5, wee",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    },
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": true
+  }
+ },
+ {
+  "id": "c25",
+  "band": "9-12m",
+  "now": "2026-10-07T16:00",
+  "utterance": "she fell off the couch and bumped her head, seems ok",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": true
+  }
+ },
+ {
+  "id": "c26",
+  "band": "9-12m",
+  "now": "2026-10-07T14:00",
+  "utterance": "feels a bit warm after her nap, 150 formula",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T14:00",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 150
+      }
+     ]
+    },
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c27",
+  "band": "9-12m",
+  "now": "2026-10-07T07:45",
+  "utterance": "toast and scrambled egg for breakfast, wee",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "solids",
+     "at": null,
+     "foods": [
+      "toast",
+      "scrambled egg"
+     ],
+     "firstTime": false
+    },
+    {
+     "type": "wee",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c28",
+  "band": "12m+",
+  "now": "2026-10-07T12:30",
+  "utterance": "lunch was pasta and peas and 100 of formula",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "solids",
+     "at": null,
+     "foods": [
+      "pasta",
+      "peas"
+     ],
+     "firstTime": false
+    },
+    {
+     "type": "feed",
+     "at": null,
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 100
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c29",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "left side ten minutes then 60ml expressed, wee",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "leftBreast",
+       "minutes": 10
+      },
+      {
+       "feedType": "expressed",
+       "ml": 60
+      }
+     ]
+    },
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c30",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "left 8 right 6",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "leftBreast",
+       "minutes": 8
+      },
+      {
+       "feedType": "rightBreast",
+       "minutes": 6
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c31",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "right side twelve minutes wee and a poo",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "rightBreast",
+       "minutes": 12
+      }
+     ]
+    },
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    },
+    {
+     "type": "poo",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c32",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "30 expressed at two",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T02:00",
+     "components": [
+      {
+       "feedType": "expressed",
+       "ml": 30
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c33",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "she fed left for 5 at 1 15 and again left 7 at 2 then 25 expressed just now",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T01:15",
+     "components": [
+      {
+       "feedType": "leftBreast",
+       "minutes": 5
+      }
+     ]
+    },
+    {
+     "type": "feed",
+     "at": "2026-10-07T02:00",
+     "components": [
+      {
+       "feedType": "leftBreast",
+       "minutes": 7
+      }
+     ]
+    },
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "expressed",
+       "ml": 25
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c34",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "right 15 minutes finished ten minutes ago",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:02",
+     "components": [
+      {
+       "feedType": "rightBreast",
+       "minutes": 15
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c35",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "20 mils formula top up and a wet nappy",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 20
+      }
+     ]
+    },
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c36",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "left side",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [],
+   "commands": [
+    "timer_start"
+   ],
+   "redFlag": false,
+   "silent": false
+  }
+ },
+ {
+  "id": "c37",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "start left feed",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [],
+   "commands": [
+    "timer_start"
+   ],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c38",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "switch to right",
+  "timerState": {
+   "kind": "feed_left",
+   "startedAt": "2026-10-07T03:02"
+  },
+  "recent": [],
+  "expect": {
+   "events": [],
+   "commands": [
+    "timer_switch"
+   ],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c39",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "stop",
+  "timerState": {
+   "kind": "feed_right",
+   "startedAt": "2026-10-07T03:05"
+  },
+  "recent": [],
+  "expect": {
+   "events": [],
+   "commands": [
+    "timer_stop"
+   ],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c40",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "she's been feeding on the left since ten to three",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [],
+   "commands": [
+    "timer_start"
+   ],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c41",
+  "band": "0-6w",
+  "now": "2026-10-07T09:30",
+  "utterance": "vitamin d and tummy time 2 minutes on my chest",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "vitaminD",
+     "at": null
+    },
+    {
+     "type": "tummyTime",
+     "at": null,
+     "minutes": 2
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c42",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "feels warm, left 5 minutes",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "leftBreast",
+       "minutes": 5
+      }
+     ]
+    },
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": true
+  }
+ },
+ {
+  "id": "c43",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "no wet nappies since yesterday afternoon",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": true
+  }
+ },
+ {
+  "id": "c44",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "she won't take the breast or the bottle at all tonight",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": true
+  }
+ },
+ {
+  "id": "c45",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "really sleepy and hard to wake for feeds, 20 expressed",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "expressed",
+       "ml": 20
+      }
+     ]
+    },
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": true
+  }
+ },
+ {
+  "id": "c46",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "bit of blood in her nappy, poo",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "poo",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": true
+  }
+ },
+ {
+  "id": "c47",
+  "band": "6w-3m",
+  "now": "2026-10-07T03:12",
+  "utterance": "left 10 right 10 then 40 expressed, poo",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "leftBreast",
+       "minutes": 10
+      },
+      {
+       "feedType": "rightBreast",
+       "minutes": 10
+      },
+      {
+       "feedType": "expressed",
+       "ml": 40
+      }
+     ]
+    },
+    {
+     "type": "poo",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c48",
+  "band": "6w-3m",
+  "now": "2026-10-07T03:12",
+  "utterance": "she seems a bit off and warm, 60 formula",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 60
+      }
+     ]
+    },
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": true
+  }
+ },
+ {
+  "id": "c49",
+  "band": "6w-3m",
+  "now": "2026-10-07T03:12",
+  "utterance": "90 expressed at midnight and 60 formula at half two",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T00:00",
+     "components": [
+      {
+       "feedType": "expressed",
+       "ml": 90
+      }
+     ]
+    },
+    {
+     "type": "feed",
+     "at": "2026-10-07T02:30",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 60
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c50",
+  "band": "6w-3m",
+  "now": "2026-10-07T03:12",
+  "utterance": "breathing fast and sucking in under her ribs",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": true
+  }
+ },
+ {
+  "id": "c51",
+  "band": "3-6m",
+  "now": "2026-10-07T03:12",
+  "utterance": "120 expressed and 30 formula top up",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "expressed",
+       "ml": 120
+      },
+      {
+       "feedType": "formula",
+       "ml": 30
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c52",
+  "band": "3-6m",
+  "now": "2026-10-07T03:12",
+  "utterance": "right 9 minutes at four fifteen",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-06T16:15",
+     "components": [
+      {
+       "feedType": "rightBreast",
+       "minutes": 9
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c53",
+  "band": "3-6m",
+  "now": "2026-10-07T11:00",
+  "utterance": "massage and vitamin d this morning",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "massage",
+     "at": null
+    },
+    {
+     "type": "vitaminD",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": false
+  }
+ },
+ {
+  "id": "c54",
+  "band": "3-6m",
+  "now": "2026-10-07T06:40",
+  "utterance": "tummy time five minutes, wee, 150 formula at 6",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "tummyTime",
+     "at": null,
+     "minutes": 5
+    },
+    {
+     "type": "wee",
+     "at": null
+    },
+    {
+     "type": "feed",
+     "at": "2026-10-07T06:00",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 150
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c55",
+  "band": "3-6m",
+  "now": "2026-10-07T03:12",
+  "utterance": "choked on her milk and went blue for a bit, 90 formula",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 90
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": true,
+   "silent": true
+  }
+ },
+ {
+  "id": "c56",
+  "band": "3-6m",
+  "now": "2026-10-07T10:00",
+  "utterance": "happy and giggling after her feed",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "note",
+     "at": null
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c57",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "V",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": false
+  }
+ },
+ {
+  "id": "c58",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "V and a pooh and 120 mils formula",
+  "timerState": null,
+  "recent": [],
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    },
+    {
+     "type": "poo",
+     "at": "2026-10-07T03:12"
+    },
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 120
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ }
+]

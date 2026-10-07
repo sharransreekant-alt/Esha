@@ -1,0 +1,96 @@
+{
+  "model": "gpt-5.4-mini",
+  "threshold": 0.85,
+  "rows": [
+    {
+      "band": "6-9m",
+      "cases": 26,
+      "failed": 0,
+      "typeAccuracy": "100% (26/26)",
+      "exactQuantities": "100% (36/36)",
+      "timeWithin2Min": "100% (25/25)",
+      "falseSilentSaves": "0 of 28 silent",
+      "redFlagRecall": "100% (3/3)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "9-12m",
+      "cases": 3,
+      "failed": 0,
+      "typeAccuracy": "100% (3/3)",
+      "exactQuantities": "100% (5/5)",
+      "timeWithin2Min": "100% (1/1)",
+      "falseSilentSaves": "0 of 5 silent",
+      "redFlagRecall": "100% (1/1)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "12m+",
+      "cases": 1,
+      "failed": 0,
+      "typeAccuracy": "100% (1/1)",
+      "exactQuantities": "100% (2/2)",
+      "timeWithin2Min": "n/a",
+      "falseSilentSaves": "0 of 2 silent",
+      "redFlagRecall": "n/a",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "0-6w",
+      "cases": 18,
+      "failed": 0,
+      "typeAccuracy": "94% (17/18)",
+      "exactQuantities": "100% (21/21)",
+      "timeWithin2Min": "100% (16/16)",
+      "falseSilentSaves": "1 of 22 silent",
+      "redFlagRecall": "100% (5/5)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "6w-3m",
+      "cases": 4,
+      "failed": 0,
+      "typeAccuracy": "100% (4/4)",
+      "exactQuantities": "100% (7/7)",
+      "timeWithin2Min": "100% (5/5)",
+      "falseSilentSaves": "0 of 7 silent",
+      "redFlagRecall": "100% (2/2)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "3-6m",
+      "cases": 6,
+      "failed": 0,
+      "typeAccuracy": "100% (6/6)",
+      "exactQuantities": "100% (9/9)",
+      "timeWithin2Min": "75% (3/4)",
+      "falseSilentSaves": "0 of 6 silent",
+      "redFlagRecall": "100% (1/1)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "ALL",
+      "cases": 58,
+      "failed": 0,
+      "typeAccuracy": "98% (57/58)",
+      "exactQuantities": "100% (80/80)",
+      "timeWithin2Min": "98% (50/51)",
+      "falseSilentSaves": "1 of 70 silent",
+      "redFlagRecall": "100% (12/12)",
+      "redFlagFalsePositives": 0
+    }
+  ],
+  "cost": {
+    "model": "gpt-5.4-mini",
+    "calls": 58,
+    "avgInputTokens": 1649,
+    "avgOutputTokens": 189,
+    "usdPerParse": null,
+    "usdPerFamilyMonth": null
+  },
+  "problems": [
+    "c45 types: expected [feed|] got [note,feed|]",
+    "c45 FALSE SILENT SAVE: note \"really sleepy and hard to wake for feeds\"",
+    "c52 time: expected 2026-10-06T16:15 got 2026-10-06T04:15"
+  ]
+}
