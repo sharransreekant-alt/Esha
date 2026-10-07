@@ -19,7 +19,7 @@ interface ExpPart  { feedType: string; minutes?: number; ml?: number }
 interface ExpEvent { type: string; at: string | null; components?: ExpPart[]; minutes?: number; foods?: string[]; firstTime?: boolean }
 interface Case {
   id: string; band: ParseRequest['ageBand']; now: string; utterance: string
-  timerState: ParseRequest['timerState']; recent: ParseRequest['recentEvents']
+  timerState: ParseRequest['timerState']; recent: ParseRequest['recentEvents']; lastBottleType?: ParseRequest['lastBottleType']
   expect: { events: ExpEvent[]; commands: string[]; redFlag: boolean; silent: boolean }
 }
 
@@ -77,7 +77,9 @@ function score(c: Case, log: ParsedLog, s: Score, problems: string[]) {
       if (qty) s.qtyOk++; else { correct = false; problems.push(`${c.id} quantities: "${got.rawSpan}"`) }
       if (match.at) {
         s.timed++
-        const ok = minutesBetween(match.at, got.at) <= 2
+        // The app treats a time up to 5 minutes ahead as now, so score it the same way
+        const at = got.at > c.now && minutesBetween(got.at, c.now) <= 5 ? c.now : got.at
+        const ok = minutesBetween(match.at, at) <= 2
         if (ok) s.timeOk++; else { correct = false; problems.push(`${c.id} time: expected ${match.at} got ${got.at}`) }
       }
     }
@@ -102,7 +104,7 @@ async function main() {
   let inputTokens = 0, outputTokens = 0, calls = 0
 
   for (const c of cases) {
-    const req: ParseRequest = { utterance: c.utterance, nowLocal: c.now, timeZone: 'Australia/Sydney', ageBand: c.band, timerState: c.timerState, recentEvents: c.recent }
+    const req: ParseRequest = { utterance: c.utterance, nowLocal: c.now, timeZone: 'Australia/Sydney', ageBand: c.band, timerState: c.timerState, lastBottleType: c.lastBottleType ?? null, recentEvents: c.recent }
     const result = await parseLog(call, req)
     inputTokens += result.usage.inputTokens; outputTokens += result.usage.outputTokens; calls += result.usage.attempts
     for (const s of [total, (byBand[c.band] ||= blank())]) {

@@ -32,6 +32,18 @@ export function recentEvents(entries: Entry[]): RecentEvent[] {
   }))
 }
 
+// Whichever of expressed or formula this family last put in a bottle.
+export function lastBottleType(entries: Entry[]): 'expressed' | 'formula' | null {
+  for (const e of entries) {
+    if (e.type !== 'feed') continue
+    const parts = e.components?.length ? e.components : e.feedType ? [{ feedType: e.feedType }] : []
+    for (const c of [...parts].reverse()) {
+      if (c.feedType === 'expressed' || c.feedType === 'formula') return c.feedType
+    }
+  }
+  return null
+}
+
 export async function requestParse(utterance: string, entries: Entry[], band: AgeBand, now: Date): Promise<ParsedLog> {
   let token: string
   try { token = await ensureSignedIn() } catch { throw new ParseError('sign_in') }
@@ -42,6 +54,7 @@ export async function requestParse(utterance: string, entries: Entry[], band: Ag
     timeZone:  Intl.DateTimeFormat().resolvedOptions().timeZone || 'Australia/Sydney',
     ageBand:   band,
     timerState: null,
+    lastBottleType: lastBottleType(entries),
     recentEvents: recentEvents(entries),
   }
 

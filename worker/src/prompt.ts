@@ -9,13 +9,14 @@ Event types: feed, solids, wee, poo, massage, vitaminD, tummyTime, note.
 
 Mis-heard words
 - Dictation often gets short baby words wrong. Read these as the intended word when the sentence is about baby care: "V", "we", "wii", "whee", "wheat" mean wee; "pooh", "Pu", "poop", "number two" mean poo; "vitamin the", "vitamin tea", "vit D" mean vitaminD; "mls", "mils", "mill" mean ml; "form you la" means formula.
-- If the whole utterance is only a mis-heard fragment such as "V", record the intended event but set confidence to 0.7 and ask.
+- These substitutions are expected and reliable. Do not lower confidence or ask because of them, even when the whole utterance is just "V".
 
 Feeds
 - One feeding session is ONE feed event with a components list, in the order given. "Left side ten minutes then 60ml expressed" is one feed with two components.
 - Component feedType is leftBreast, rightBreast, expressed or formula.
 - Breast components use minutes and ml is null. Expressed and formula components use ml and minutes is null.
-- "Bottle" without saying expressed or formula: pick the source used in the most recent bottle feed in recent events and lower confidence; if there is none, ask.
+- A volume with no source ("180 ml", "a bottle of 120", "180 ml of feed"): use the family's usual bottle source given in the context. That is what they mean, so keep confidence high and do not ask. Only if the usual bottle source is unknown, guess formula, set confidence to 0.6 and ask.
+- Filler such as "add a feed" before the actual details is part of the same feed, not a second one.
 - Only start a second feed event when the parent clearly describes a separate feed at a different time.
 
 Other events
@@ -36,6 +37,8 @@ Time
 - Resolve relative phrases against the current local time you are given: "twenty minutes ago", "just now", "at ten past two", "this morning".
 - Never output a time later than the current local time. If an hour could be am or pm, choose the most recent one that is in the past.
 - When no time is given the event happened now. Several untimed events in one sentence all get the current time.
+- When the sentence gives exactly one time, it applies to every event in the sentence, wherever in the sentence it appears. "180 ml and a wee at 11:30 pm" puts both the feed and the wee at 11:30 pm. Use different times only when the parent gives different times for different events.
+- An explicit am or pm is always honoured. If the parent says a clock time that is up to 15 minutes later than the current time, they are rounding: use the current time and keep confidence high. Never move it to a different half of the day.
 - A duration with no stated time ended now: the event time is the current time.
 - If the time is still unclear after these rules, give your best guess and set confidence below 0.85.
 
@@ -71,6 +74,7 @@ export function buildUserMessage(req: ParseRequest): string {
 
   return `Current local time: ${weekday} ${req.nowLocal} (${req.timeZone})
 Baby's age band: ${req.ageBand}
+Usual bottle source: ${req.lastBottleType ?? 'unknown'}
 Timer state: ${timer}
 Recent events, newest first:
 ${recent}

@@ -85,6 +85,12 @@ describe('planSaves', () => {
     expect(plan.confirm[0].payload._t).toEqual(NOW)
   })
 
+  it('treats a time a few minutes ahead as now and still saves it', () => {
+    const plan = planSaves(log([ev({ at: '2026-10-07T03:15' })]), NOW, 'u1')
+    expect(plan.confirm).toEqual([])
+    expect(plan.save[0].payload._t).toEqual(NOW)
+  })
+
   it('never silently saves a feed with no usable quantity', () => {
     const plan = planSaves(log([ev({
       type: 'feed', rawSpan: 'had a feed',

@@ -89,6 +89,8 @@ export const ParseRequestSchema = z.object({
   timeZone:     z.string().max(64),
   ageBand:      AgeBandSchema,
   timerState:   TimerStateSchema.nullable(),
+  // Source of the family's most recent bottle feed, so "180 ml" needs no follow-up question
+  lastBottleType: z.enum(['expressed', 'formula']).nullable().optional(),
   recentEvents: z.array(RecentEventSchema).max(12),
 })
 export type ParseRequest = z.infer<typeof ParseRequestSchema>

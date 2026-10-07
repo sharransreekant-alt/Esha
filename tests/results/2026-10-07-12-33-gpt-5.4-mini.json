@@ -1,0 +1,101 @@
+{
+  "model": "gpt-5.4-mini",
+  "threshold": 0.85,
+  "rows": [
+    {
+      "band": "6-9m",
+      "cases": 32,
+      "failed": 0,
+      "typeAccuracy": "97% (31/32)",
+      "exactQuantities": "100% (46/46)",
+      "timeWithin2Min": "94% (34/36)",
+      "falseSilentSaves": "2 of 42 silent",
+      "redFlagRecall": "100% (3/3)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "9-12m",
+      "cases": 3,
+      "failed": 0,
+      "typeAccuracy": "100% (3/3)",
+      "exactQuantities": "100% (5/5)",
+      "timeWithin2Min": "100% (1/1)",
+      "falseSilentSaves": "0 of 5 silent",
+      "redFlagRecall": "100% (1/1)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "12m+",
+      "cases": 1,
+      "failed": 0,
+      "typeAccuracy": "100% (1/1)",
+      "exactQuantities": "100% (2/2)",
+      "timeWithin2Min": "n/a",
+      "falseSilentSaves": "0 of 2 silent",
+      "redFlagRecall": "n/a",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "0-6w",
+      "cases": 19,
+      "failed": 0,
+      "typeAccuracy": "100% (19/19)",
+      "exactQuantities": "100% (24/24)",
+      "timeWithin2Min": "100% (18/18)",
+      "falseSilentSaves": "0 of 24 silent",
+      "redFlagRecall": "100% (5/5)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "6w-3m",
+      "cases": 4,
+      "failed": 0,
+      "typeAccuracy": "100% (4/4)",
+      "exactQuantities": "100% (7/7)",
+      "timeWithin2Min": "100% (5/5)",
+      "falseSilentSaves": "0 of 7 silent",
+      "redFlagRecall": "100% (2/2)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "3-6m",
+      "cases": 6,
+      "failed": 0,
+      "typeAccuracy": "100% (6/6)",
+      "exactQuantities": "100% (9/9)",
+      "timeWithin2Min": "100% (4/4)",
+      "falseSilentSaves": "0 of 6 silent",
+      "redFlagRecall": "100% (1/1)",
+      "redFlagFalsePositives": 0
+    },
+    {
+      "band": "ALL",
+      "cases": 65,
+      "failed": 0,
+      "typeAccuracy": "98% (64/65)",
+      "exactQuantities": "100% (93/93)",
+      "timeWithin2Min": "97% (62/64)",
+      "falseSilentSaves": "2 of 86 silent",
+      "redFlagRecall": "100% (12/12)",
+      "redFlagFalsePositives": 0
+    }
+  ],
+  "cost": {
+    "model": "gpt-5.4-mini",
+    "calls": 65,
+    "avgInputTokens": 1836,
+    "avgOutputTokens": 181,
+    "usdPerParse": 0.00219,
+    "usdPerFamilyMonth": {
+      "newborn_25_per_day": 1.64,
+      "sevenMonths_12_per_day": 0.79
+    }
+  },
+  "problems": [
+    "c20 types: expected [note|] got [feed|]",
+    "c60 time: expected 2026-10-07T23:26 got 2026-10-07T23:30",
+    "c60 FALSE SILENT SAVE: feed \"Add a feed, add 180 mL of feed\"",
+    "c60 time: expected 2026-10-07T23:26 got 2026-10-07T23:30",
+    "c60 FALSE SILENT SAVE: wee \"and a V at 11:30 pm\""
+  ]
+}

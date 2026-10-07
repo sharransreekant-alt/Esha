@@ -165,8 +165,9 @@
    ],
    "commands": [],
    "redFlag": false,
-   "silent": false
-  }
+   "silent": true
+  },
+  "lastBottleType": "formula"
  },
  {
   "id": "c07",
@@ -478,8 +479,14 @@
   "expect": {
    "events": [
     {
-     "type": "note",
-     "at": null
+     "type": "feed",
+     "at": null,
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 180
+      }
+     ]
     }
    ],
    "commands": [],
@@ -1428,7 +1435,7 @@
    ],
    "commands": [],
    "redFlag": false,
-   "silent": false
+   "silent": true
   }
  },
  {
@@ -1457,6 +1464,212 @@
        "ml": 120
       }
      ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c59",
+  "band": "6-9m",
+  "now": "2026-10-07T23:45",
+  "utterance": "Add a feed, add 180 mL of feed, and a V at 11:30 pm",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "formula",
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T23:30",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 180
+      }
+     ]
+    },
+    {
+     "type": "wee",
+     "at": "2026-10-07T23:30"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c60",
+  "band": "6-9m",
+  "now": "2026-10-07T23:26",
+  "utterance": "Add a feed, add 180 mL of feed, and a V at 11:30 pm",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "formula",
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T23:26",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 180
+      }
+     ]
+    },
+    {
+     "type": "wee",
+     "at": "2026-10-07T23:26"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c61",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "150 ml",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "formula",
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 150
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c62",
+  "band": "0-6w",
+  "now": "2026-10-07T03:12",
+  "utterance": "bottle of 60 and a poo at half two",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "expressed",
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T02:30",
+     "components": [
+      {
+       "feedType": "expressed",
+       "ml": 60
+      }
+     ]
+    },
+    {
+     "type": "poo",
+     "at": "2026-10-07T02:30"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c63",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "120 ml",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": null,
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 120
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": false
+  }
+ },
+ {
+  "id": "c64",
+  "band": "6-9m",
+  "now": "2026-10-07T09:10",
+  "utterance": "at 8 she had a wee a poo and 180",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "formula",
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T08:00"
+    },
+    {
+     "type": "poo",
+     "at": "2026-10-07T08:00"
+    },
+    {
+     "type": "feed",
+     "at": "2026-10-07T08:00",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 180
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c65",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "60 formula at 2 and a wee just now",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "formula",
+  "expect": {
+   "events": [
+    {
+     "type": "feed",
+     "at": "2026-10-07T02:00",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 60
+      }
+     ]
+    },
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
     }
    ],
    "commands": [],

@@ -115,6 +115,19 @@ export function SayIt() {
     }
   }
 
+  async function addAllPending() {
+    const items = pending
+    const ids: string[] = []
+    try {
+      for (const item of items) ids.push(await saveEntry(item.payload))
+    } catch {
+      setError('Save failed. Check your connection')
+    }
+    const saved = items.slice(0, ids.length)
+    setPending(p => p.filter(x => !saved.includes(x)))
+    if (ids.length) showToast(`Saved ${ids.length} ${ids.length === 1 ? 'entry' : 'entries'}`, { label: 'Undo', onAction: () => { ids.forEach(id => removeEntry(id)) } })
+  }
+
   async function addPending(item: PlannedItem) {
     try {
       const id = await saveEntry(item.payload)
@@ -161,6 +174,10 @@ export function SayIt() {
           <button onClick={() => setPending(p => p.filter(x => x !== item))} className="pill" style={{ flexShrink: 0 }}>Skip</button>
         </div>
       ))}
+
+      {pending.length > 1 && (
+        <button onClick={addAllPending} className="btn-secondary" style={{ marginTop: 8 }}>Add all {pending.length}</button>
+      )}
 
       {skipped.length > 0 && (
         <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginTop: 8 }}>

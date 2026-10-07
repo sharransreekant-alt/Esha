@@ -94,7 +94,8 @@ export function planSaves(log: ParsedLog, now: Date, utteranceId: string, thresh
   log.events.forEach((e, i) => {
     const parsedAt = fromLocalTime(e.at)
     const inFuture = !!parsedAt && parsedAt.getTime() > now.getTime() + FUTURE_TOLERANCE_MS
-    const at = !parsedAt || inFuture ? now : parsedAt
+    // A time a few minutes ahead is the parent rounding ("11:30" said at 11:26): treat it as now
+    const at = !parsedAt || parsedAt.getTime() > now.getTime() ? now : parsedAt
     const built = toPayload(e, at, utteranceId)
 
     if (!built) {
