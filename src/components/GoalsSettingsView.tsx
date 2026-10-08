@@ -6,6 +6,7 @@ import { GoalSet } from '../utils/milestones'
 
 const FIELD_CONFIG: { key: keyof GoalSet; label: string; emoji: string; unit: string }[] = [
   { key: 'feedsPerDay',    label: 'Feeds per day',     emoji: '🍼', unit: '' },
+  { key: 'solidsPerDay',   label: 'Solids meals per day', emoji: '🥣', unit: '' },
   { key: 'weesPerDay',     label: 'Wees per day',      emoji: '💧', unit: '' },
   { key: 'poosPerDay',     label: 'Poos per day',      emoji: '💩', unit: '' },
   { key: 'massagesPerDay', label: 'Massages per day',  emoji: '🤲', unit: '' },

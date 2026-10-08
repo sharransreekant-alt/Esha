@@ -10,17 +10,19 @@ export function EveningSummary({ onClose }: Props) {
 
   const counts = {
     feed:     td.filter(e => e.type === 'feed').length,
+    solids:   td.filter(e => e.type === 'solids').length,
     wee:      td.filter(e => e.type === 'wee').length,
     poo:      td.filter(e => e.type === 'poo').length,
     massage:  td.filter(e => e.type === 'massage').length,
     vitaminD: td.filter(e => e.type === 'vitaminD').length,
   }
   const totalMl = td.reduce((s, e) => s + feedVolume(e), 0)
-  const allMet  = Object.keys(counts).every(k => { const g = (activeGoals as any)[k === 'feed' ? 'feedsPerDay' : k === 'wee' ? 'weesPerDay' : k === 'poo' ? 'poosPerDay' : k === 'massage' ? 'massagesPerDay' : 'vitaminDPerDay']; return g === -1 || counts[k as keyof typeof counts] >= g })
+  const goalKeyMap: Record<string, keyof typeof activeGoals> = { feed: 'feedsPerDay', solids: 'solidsPerDay', wee: 'weesPerDay', poo: 'poosPerDay', massage: 'massagesPerDay', vitaminD: 'vitaminDPerDay' }
+  const allMet  = Object.keys(counts).every(k => { const g = activeGoals[goalKeyMap[k]] ?? 0; return g === -1 || counts[k as keyof typeof counts] >= g })
 
-  const goalKeyMap: Record<string, keyof typeof activeGoals> = { feed: 'feedsPerDay', wee: 'weesPerDay', poo: 'poosPerDay', massage: 'massagesPerDay', vitaminD: 'vitaminDPerDay' }
   const items = [
     { key: 'feed',     emoji: '🍼', label: 'Feeds',     bg: 'var(--feed-bg)', extra: totalMl ? ` · ${totalMl} ml` : '' },
+    ...(activeGoals.solidsPerDay > 0 ? [{ key: 'solids', emoji: '🥣', label: 'Solids', bg: 'var(--solids-bg)', extra: '' }] : []),
     { key: 'wee',      emoji: '💧', label: 'Wees',      bg: 'var(--wee-bg)',  extra: '' },
     { key: 'poo',      emoji: '💩', label: 'Poos',      bg: 'var(--poo-bg)',  extra: '' },
     { key: 'massage',  emoji: '🤲', label: 'Massages',  bg: 'var(--mas-bg)',  extra: '' },

@@ -8,6 +8,7 @@ export interface GoalSet {
   massagesPerDay:  number
   vitaminDPerDay:  number
   tummyTimeMins:   number  // new goal — minutes per day total
+  solidsPerDay:    number  // solids meals per day; 0 hides the goal
 }
 
 export interface Milestone {
@@ -42,6 +43,7 @@ export const MILESTONES: Milestone[] = [
     goals: {
       feedsPerDay:    10, weesPerDay: 6, poosPerDay:   3,
       massagesPerDay: 1,  vitaminDPerDay: 1, tummyTimeMins: 5,
+      solidsPerDay: 0,
     },
     feedVolume:   '45–90ml per feed',
     totalDailyMl: '500–600ml per day (formula/expressed)',
@@ -69,6 +71,7 @@ export const MILESTONES: Milestone[] = [
     goals: {
       feedsPerDay:    9, weesPerDay: 6, poosPerDay:   3,
       massagesPerDay: 1, vitaminDPerDay: 1, tummyTimeMins: 10,
+      solidsPerDay: 0,
     },
     feedVolume:   '60–120ml per feed',
     totalDailyMl: '540–720ml per day',
@@ -95,6 +98,7 @@ export const MILESTONES: Milestone[] = [
     goals: {
       feedsPerDay:    8, weesPerDay: 6, poosPerDay:   1,
       massagesPerDay: 1, vitaminDPerDay: 1, tummyTimeMins: 15,
+      solidsPerDay: 0,
     },
     feedVolume:   '90–150ml per feed',
     totalDailyMl: '720–900ml per day',
@@ -126,6 +130,7 @@ export const MILESTONES: Milestone[] = [
     goals: {
       feedsPerDay:    7, weesPerDay: 6, poosPerDay:   1,
       massagesPerDay: 1, vitaminDPerDay: 1, tummyTimeMins: 20,
+      solidsPerDay: 0,
     },
     feedVolume:   '120–180ml per feed',
     totalDailyMl: '840–1080ml per day',
@@ -157,6 +162,7 @@ export const MILESTONES: Milestone[] = [
     goals: {
       feedsPerDay:    6, weesPerDay: 6, poosPerDay:   1,
       massagesPerDay: 1, vitaminDPerDay: 1, tummyTimeMins: 30,
+      solidsPerDay: 0,
     },
     feedVolume:   '150–210ml per feed',
     totalDailyMl: '900–1200ml per day',
@@ -187,6 +193,7 @@ export const MILESTONES: Milestone[] = [
     goals: {
       feedsPerDay:    5, weesPerDay: 6, poosPerDay: 1,
       massagesPerDay: 1, vitaminDPerDay: 1, tummyTimeMins: 30,
+      solidsPerDay: 1,
     },
     feedVolume:   '180–240ml per feed',
     totalDailyMl: '900–1080ml milk + solids starting',
@@ -206,6 +213,7 @@ export const MILESTONES: Milestone[] = [
     ],
     goalChanges: [
       { field: 'feedsPerDay', from: 6, to: 5, reason: 'With solids now being introduced, 5 milk feeds per day is appropriate.' },
+      { field: 'solidsPerDay', from: 0, to: 1, reason: 'Adds a daily solids meal to your goals. Set it to 0 in Goals if you would rather not track solids.' },
     ],
   },
 ]
@@ -235,6 +243,11 @@ export function getPendingGoalUpdate(
   return { milestone, changes: actualChanges }
 }
 
+// Saved goals from before a goal existed are missing its field; fill those from the age suggestion.
+export function fillGoals(saved: Partial<GoalSet> | undefined, weekAge: number): GoalSet {
+  return { ...getMilestoneForAge(weekAge).goals, ...(saved || {}) }
+}
+
 export const DEFAULT_GOALS: GoalSet = {
   feedsPerDay:    10,
   weesPerDay:     6,
@@ -242,4 +255,5 @@ export const DEFAULT_GOALS: GoalSet = {
   massagesPerDay: 1,
   vitaminDPerDay: 1,
   tummyTimeMins:  5,
+  solidsPerDay:   0,
 }

@@ -6,6 +6,7 @@ import { getPendingGoalUpdate } from '../utils/milestones'
 
 const FIELD_LABELS: Record<string, string> = {
   feedsPerDay:    'Feeds per day',
+  solidsPerDay:   'Solids meals per day',
   weesPerDay:     'Wees per day',
   poosPerDay:     'Poos per day',
   massagesPerDay: 'Massages per day',
@@ -15,6 +16,7 @@ const FIELD_LABELS: Record<string, string> = {
 
 const FIELD_EMOJI: Record<string, string> = {
   feedsPerDay:    '🍼',
+  solidsPerDay:   '🥣',
   weesPerDay:     '💧',
   poosPerDay:     '💩',
   massagesPerDay: '🤲',

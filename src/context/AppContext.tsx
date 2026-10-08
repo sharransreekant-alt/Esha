@@ -8,7 +8,7 @@ import {
   Entry, GrowthEntry, JournalEntry, HandoverEntry, Appointment,
   View, DEFAULT_FEED_CYCLE_HOURS, ESHA_BORN
 } from '../types'
-import { GoalSet, DEFAULT_GOALS } from '../utils/milestones'
+import { GoalSet, DEFAULT_GOALS, fillGoals } from '../utils/milestones'
 import { toDate } from '../utils/helpers'
 
 interface AppState {
@@ -147,7 +147,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         () => {}
       ),
       onSnapshot(doc(db, 'esha_settings', 'config'),
-        snap => { if (snap.exists()) { const d = snap.data(); if (d) set({ aiKey: d.aiKey || '', activeGoals: d.activeGoals || DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob) }) } },
+        snap => { if (snap.exists()) { const d = snap.data(); if (d) set({ aiKey: d.aiKey || '', activeGoals: d.activeGoals ? fillGoals(d.activeGoals, (Date.now() - parseDob(d.babyDob).getTime()) / (7 * 86400000)) : DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob) }) } },
         () => {}
       ),
     ]

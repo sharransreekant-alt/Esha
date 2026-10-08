@@ -14,6 +14,7 @@ export function TodayView() {
 
   const counts = {
     feed:      td.filter(e => e.type === 'feed').length,
+    solids:    td.filter(e => e.type === 'solids').length,
     wee:       td.filter(e => e.type === 'wee').length,
     poo:       td.filter(e => e.type === 'poo').length,
     massage:   td.filter(e => e.type === 'massage').length,
@@ -24,6 +25,7 @@ export function TodayView() {
 
   const goalsConfig = [
     { key: 'feed',      goalKey: 'feedsPerDay',    label: 'Feeds',      extra: totalMl ? `${totalMl} ml total` : '' },
+    { key: 'solids',    goalKey: 'solidsPerDay',   label: 'Solids',     extra: '' },
     { key: 'wee',       goalKey: 'weesPerDay',     label: 'Wees',       extra: '' },
     { key: 'poo',       goalKey: 'poosPerDay',     label: 'Poos',       extra: '' },
     { key: 'massage',   goalKey: 'massagesPerDay', label: 'Massages',   extra: '' },
@@ -49,6 +51,9 @@ export function TodayView() {
           const Icon = CATEGORY_ICON[g.key]
           const fg = CATEGORY_FG[g.key]
           const bg = CATEGORY_BG[g.key]
+
+          // A solids goal of 0 means solids aren't being tracked yet
+          if (g.key === 'solids' && !goalVal) return null
 
           if (goalVal === -1) return (
             <div key={g.key} style={{ display: 'flex', alignItems: 'center', gap: 14, background: 'var(--white)', borderRadius: 'var(--r)', padding: '13px 15px', boxShadow: 'var(--shadow)' }}>
