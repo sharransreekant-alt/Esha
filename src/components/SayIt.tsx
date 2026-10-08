@@ -5,6 +5,7 @@ import { SafetyNotice } from './SafetyNotice'
 import { ageBand } from '../utils/ageBand'
 import { requestParse, ParseError } from '../voice/parseClient'
 import { planSaves, PlannedItem } from '../voice/applyParsedLog'
+import { foodsTried } from '../utils/solids'
 
 const ERRORS: Record<ParseError['kind'], string> = {
   unparsed: "Couldn't catch that, try again",
@@ -80,7 +81,7 @@ export function SayIt() {
     let plan
     try {
       const log = await requestParse(utterance, entries, ageBand(babyDob, now), now)
-      plan = planSaves(log, now, `${now.getTime()}-${Math.random().toString(36).slice(2, 8)}`)
+      plan = planSaves(log, now, `${now.getTime()}-${Math.random().toString(36).slice(2, 8)}`, new Set(foodsTried(entries).map(f => f.name)))
     } catch (e) {
       // Nothing saved; the words stay in the field
       setError(ERRORS[e instanceof ParseError ? e.kind : 'unparsed'])

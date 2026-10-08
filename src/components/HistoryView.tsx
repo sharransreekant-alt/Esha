@@ -25,7 +25,7 @@ export function HistoryView() {
   })
 
   const CATS = [
-    { key: 'feed', label: '🍼 Feeds' }, { key: 'wee', label: '💧 Wees' },
+    { key: 'feed', label: '🍼 Feeds' }, { key: 'solids', label: '🥣 Solids' }, { key: 'wee', label: '💧 Wees' },
     { key: 'poo', label: '💩 Poos' }, { key: 'massage', label: '🤲 Massage' },
     { key: 'vitaminD', label: '☀️ Vit D' }, { key: 'note', label: '📝 Notes' },
   ]

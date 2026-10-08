@@ -29,6 +29,7 @@
   --tummy-bg:   #E1EEEA; --tummy-fg:#3F7A68;
   --vit-bg:     #F4EAD7; --vit-fg:  #B8863A;
   --note-bg:    #F0EEEB; --note-fg: #7A6E64;
+  --solids-bg:  #E6F0DD; --solids-fg: #5E8A3C;
 
   /* ── Status ── */
   --green:      #5C8368; --green-s: rgba(92,131,104,0.12);
@@ -89,6 +90,7 @@ html[data-theme='dark'] {
   --tummy-bg:   rgba(63,122,104,0.22);  --tummy-fg:#7FC7AE;
   --vit-bg:     rgba(184,134,58,0.18);  --vit-fg:  #D8A85E;
   --note-bg:    rgba(255,255,255,0.06); --note-fg: #C9C2D6;
+  --solids-bg:  rgba(120,170,80,0.18);  --solids-fg: #A6CC80;
 
   --green:      #7FAF8C; --green-s: rgba(127,175,140,0.15);
   --amber:      #D3A863; --amber-s: rgba(211,168,99,0.15);

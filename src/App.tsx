@@ -14,6 +14,7 @@ import { JournalView } from './components/JournalView'
 import { HandoverView } from './components/HandoverView'
 import { AppointmentsView } from './components/AppointmentsView'
 import { NotesView } from './components/NotesView'
+import { FoodsView } from './components/FoodsView'
 import { GoalsSettingsView } from './components/GoalsSettingsView'
 import { AskAI } from './components/AskAI'
 import { EveningSummary } from './components/EveningSummary'
@@ -57,7 +58,7 @@ function AppShell() {
   // Loading
   if (loading) return <div className="spin" />
 
-  const subViews = ['growth', 'insights', 'journal', 'handover', 'appointments', 'notes', 'goals']
+  const subViews = ['growth', 'insights', 'journal', 'handover', 'appointments', 'notes', 'goals', 'foods']
   const isSubView = subViews.includes(view)
   const unread = hasUnreadHandover()
 
@@ -88,6 +89,7 @@ function AppShell() {
         {view === 'handover'     && <HandoverView />}
         {view === 'appointments' && <AppointmentsView />}
         {view === 'notes'        && <NotesView />}
+        {view === 'foods'        && <FoodsView />}
         {view === 'goals'         && <GoalsSettingsView />}
 
       {/* Evening summary */}

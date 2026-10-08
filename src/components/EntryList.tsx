@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
 import { Entry } from '../types'
 import { fmtTime, feedDetail } from '../utils/helpers'
+import { solidsDetail } from '../utils/solids'
 import { useApp } from '../context/AppContext'
 import { CATEGORY_ICON, CATEGORY_BG, CATEGORY_FG } from './Icons'
 
 function entryTitle(e: Entry): string {
   if (e.type === 'feed')      return 'Feed'
+  if (e.type === 'solids')    return 'Solids'
   if (e.type === 'wee')       return 'Wee'
   if (e.type === 'poo')       return 'Poo'
   if (e.type === 'massage')   return 'Massage'
@@ -17,6 +19,7 @@ function entryTitle(e: Entry): string {
 
 function entryDetail(e: Entry): string {
   if (e.type === 'feed')     return feedDetail(e)
+  if (e.type === 'solids')   return solidsDetail(e)
   if (e.type === 'massage')  return e.duration ? `${e.duration} min` : ''
   if (e.type === 'note')     return e.notes || ''
   return e.notes || ''

@@ -100,16 +100,29 @@ describe('planSaves', () => {
     expect(plan.confirm[0].payload).toMatchObject({ type: 'note', notes: 'had a feed' })
   })
 
-  it('stores solids as a facts-only note for now', () => {
+  it('saves solids as one entry with a food list', () => {
     const plan = planSaves(log([ev({
-      type: 'solids', foods: ['pumpkin', 'avocado'], firstTime: false, rawSpan: 'had pumpkin and avocado',
-    })]), NOW, 'u1')
-    expect(plan.save[0].payload).toMatchObject({ type: 'note', notes: 'Solids: pumpkin, avocado' })
+      type: 'solids', foods: ['Pumpkin', ' avocado '], firstTime: false, rawSpan: 'had pumpkin and avocado',
+    })]), NOW, 'u1', new Set(['pumpkin', 'avocado']))
+    expect(plan.save).toHaveLength(1)
+    expect(plan.save[0].payload).toMatchObject({ type: 'solids', foods: ['pumpkin', 'avocado'] })
+    expect(plan.save[0].payload).not.toHaveProperty('firstFoods')
   })
 
-  it('marks first-time foods', () => {
-    const plan = planSaves(log([ev({ type: 'solids', foods: ['egg'], firstTime: true, rawSpan: 'tried egg for the first time' })]), NOW, 'u1')
-    expect(plan.save[0].payload.notes).toBe('Solids: egg (first time)')
+  it('marks a food as first time when the parent says so', () => {
+    const plan = planSaves(log([ev({ type: 'solids', foods: ['egg'], firstTime: true, rawSpan: 'tried egg for the first time' })]), NOW, 'u1', new Set(['egg']))
+    expect(plan.save[0].payload.firstFoods).toEqual(['egg'])
+  })
+
+  it('marks only never-logged foods as first time otherwise', () => {
+    const plan = planSaves(log([ev({ type: 'solids', foods: ['oats', 'pear'], firstTime: false, rawSpan: 'oats and pear' })]), NOW, 'u1', new Set(['oats']))
+    expect(plan.save[0].payload.firstFoods).toEqual(['pear'])
+  })
+
+  it('asks rather than saving solids with no foods', () => {
+    const plan = planSaves(log([ev({ type: 'solids', foods: [], firstTime: false, rawSpan: 'she had lunch' })]), NOW, 'u1')
+    expect(plan.save).toEqual([])
+    expect(plan.confirm[0].payload).toMatchObject({ type: 'note', notes: 'she had lunch' })
   })
 
   it('saves durations for massage and tummy time', () => {

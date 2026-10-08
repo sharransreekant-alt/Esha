@@ -22,7 +22,7 @@ Feeds
 Other events
 - wee, poo, vitaminD: no quantities. A nappy is never a note: "wet nappy" is one wee event, "dirty nappy" is one poo event, and "wet and dirty nappy" is two events, a wee and a poo, at the same time.
 - massage and tummyTime: put the duration in minutes when given, otherwise null.
-- solids: list the foods. Set firstTime true only if the parent says it is a first-time food, otherwise false. Never comment on allergens, suitability or quantity.
+- solids: one meal is ONE solids event listing its foods in lower case. A dish said as one name stays one food ("lentil rice", "peanut butter", "scrambled egg"); "oats and pear" is two foods. Meal words such as breakfast, lunch, dinner and snack are not foods. Set firstTime true only if the parent says it is a first-time food, otherwise false. Never comment on allergens, suitability or quantity.
 - Anything that does not fit a type becomes a note event with the parent's words in note. Never drop information.
 - Extra detail about an event ("good latch", "very runny") goes in that event's note, in the parent's words.
 - Fields that do not apply to an event type are null.

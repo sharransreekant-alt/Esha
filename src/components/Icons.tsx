@@ -97,8 +97,19 @@ export function LeapSparkIcon({ color = 'currentColor', size = 16 }: IconProps) 
   )
 }
 
+export function SolidsIcon({ color = 'currentColor', size = 21 }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" width={size} height={size} fill="none" stroke={color} strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 11.5h17a8.5 8.5 0 0 1-17 0z" />
+      <line x1="9" y1="20.5" x2="15" y2="20.5" />
+      <path d="M13 8.5l5.5-5" />
+    </svg>
+  )
+}
+
 export const CATEGORY_ICON: Record<string, (p: IconProps) => JSX.Element> = {
   feed:      FeedIcon,
+  solids:    SolidsIcon,
   wee:       WeeIcon,
   poo:       PooIcon,
   massage:   MassageIcon,
@@ -109,6 +120,7 @@ export const CATEGORY_ICON: Record<string, (p: IconProps) => JSX.Element> = {
 
 export const CATEGORY_BG: Record<string, string> = {
   feed:      'var(--feed-bg)',
+  solids:    'var(--solids-bg)',
   wee:       'var(--wee-bg)',
   poo:       'var(--poo-bg)',
   massage:   'var(--mas-bg)',
@@ -119,6 +131,7 @@ export const CATEGORY_BG: Record<string, string> = {
 
 export const CATEGORY_FG: Record<string, string> = {
   feed:      'var(--feed-fg)',
+  solids:    'var(--solids-fg)',
   wee:       'var(--wee-fg)',
   poo:       'var(--poo-fg)',
   massage:   'var(--mas-fg)',

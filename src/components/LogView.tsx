@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { EntryList } from './EntryList'
 import { FeedModal } from './modals/FeedModal'
+import { SolidsModal } from './modals/SolidsModal'
 import { Entry, FeedComponent } from '../types'
 import { inputToDate, fmtTime, fmtMs } from '../utils/helpers'
 
@@ -205,8 +206,20 @@ export function LogView() {
     close()
   }
 
+  async function saveSolids(foods: string[], firstFoods: string[], time: string, notes: string) {
+    await saveEntry({
+      type: 'solids',
+      foods,
+      ...(firstFoods.length ? { firstFoods } : {}),
+      notes: notes || null,
+      _t: inputToDate(time),
+    })
+    close()
+  }
+
   const actions: { key: string; name: string; sub: string; action: () => void }[] = [
     { key: 'feed',      name: 'Feed',        sub: 'Live timer',      action: () => setModal('feed') },
+    { key: 'solids',    name: 'Solids',      sub: 'Foods eaten',     action: () => setModal('solids') },
     { key: 'wee',       name: 'Wee',         sub: 'Wet nappy',       action: () => setModal('wee') },
     { key: 'poo',       name: 'Poo',         sub: 'Bowel movement',  action: () => setModal('poo') },
     { key: 'massage',   name: 'Massage',     sub: 'Log duration',    action: () => setModal('massage') },
@@ -258,6 +271,7 @@ export function LogView() {
           } : undefined}
         />
       )}
+      {modal === 'solids'   && <SolidsModal onClose={close} onSave={saveSolids} />}
       {modal === 'wee'      && <SimpleModal emoji="" title="Log wee"        onClose={close} onSave={(t,n)   => saveSimple('wee',      t, n)}    />}
       {modal === 'poo'      && <SimpleModal emoji="" title="Log poo"        onClose={close} onSave={(t,n)   => saveSimple('poo',      t, n)}    />}
       {modal === 'massage'   && <SimpleModal emoji="" title="Log massage"    onClose={close} onSave={(t,n,d) => saveSimple('massage',   t, n, d)} hasDuration />}

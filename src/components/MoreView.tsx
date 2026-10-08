@@ -1,12 +1,23 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { View } from '../types'
 import { timeSince } from '../utils/helpers'
 import { toDate } from '../utils/helpers'
+import { foodsTried } from '../utils/solids'
+import { auth, ensureSignedIn } from '../firebase'
+import { useToast } from './Toast'
 
 export function MoreView() {
   const { setView, growth, journal, handovers, hasUnreadHandover, importEntries, appointments, entries } = useApp()
   const fileRef = useRef<HTMLInputElement>(null)
+  const { showToast } = useToast()
+
+  // This install's sign-in identity, shown so it can be added to the database allow-list
+  const [deviceId, setDeviceId] = useState('')
+  useEffect(() => {
+    ensureSignedIn().then(() => setDeviceId(auth.currentUser?.uid || '')).catch(() => {})
+  }, [])
+  const foodCount = foodsTried(entries).length
 
   const lastGrowthDaysAgo = () => {
     if (!growth.length) return null
@@ -20,6 +31,7 @@ export function MoreView() {
 
   const cards: { id: View; icon: string; name: string; sub: string }[] = [
     { id: 'appointments', icon: '🏥', name: 'Appointments', sub: apptCount > 0 ? `${apptCount} upcoming` : 'None scheduled' },
+    { id: 'foods', icon: '🥣', name: 'Foods tried', sub: foodCount ? `${foodCount} food${foodCount === 1 ? '' : 's'}` : 'None yet' },
     { id: 'notes', icon: '📝', name: 'Notes', sub: `${entries.filter((e: any) => e.type === 'note').length} notes` },
     { id: 'goals', icon: '🎯', name: 'Goals', sub: 'Goals & feed timing' },
     { id: 'growth',   icon: '📏', name: 'Growth',   sub: daysAgo === null ? 'Not started yet' : daysAgo === 0 ? 'Logged today' : `Last: ${daysAgo}d ago` },
@@ -55,6 +67,15 @@ export function MoreView() {
         📥 Import Google Sheet history
       </button>
       <input ref={fileRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImport} />
+
+      {deviceId && (
+        <div
+          onClick={() => { navigator.clipboard?.writeText(deviceId).then(() => showToast('Device ID copied')).catch(() => {}) }}
+          style={{ marginTop: 22, textAlign: 'center', fontSize: 11, color: 'var(--muted)', fontWeight: 600, cursor: 'pointer', wordBreak: 'break-all' }}
+        >
+          This device's ID (tap to copy)<br />{deviceId}
+        </div>
+      )}
     </div>
   )
 }

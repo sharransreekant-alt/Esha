@@ -8,7 +8,7 @@ export interface FeedComponent {
   volume?:   number | null
 }
 
-export type EntryType = 'feed' | 'wee' | 'poo' | 'massage' | 'tummyTime' | 'vitaminD' | 'note'
+export type EntryType = 'feed' | 'solids' | 'wee' | 'poo' | 'massage' | 'tummyTime' | 'vitaminD' | 'note'
 
 export interface Entry {
   id:         string
@@ -20,6 +20,9 @@ export interface Entry {
   components?: FeedComponent[]
   duration?:  number | null
   volume?:    number | null
+  // solids-specific: foods are lower-case; firstFoods are the ones logged for the first time
+  foods?:      string[]
+  firstFoods?: string[]
   // shared optional
   notes?:     string | null
   // set on entries created from a spoken or typed sentence
@@ -55,7 +58,7 @@ export interface HandoverEntry {
   lastFeedAgo?: string | null
 }
 
-export type View = 'home' | 'today' | 'history' | 'more' | 'growth' | 'insights' | 'journal' | 'handover' | 'askai' | 'appointments' | 'notes' | 'goals'
+export type View = 'home' | 'today' | 'history' | 'more' | 'growth' | 'insights' | 'journal' | 'handover' | 'askai' | 'appointments' | 'notes' | 'goals' | 'foods'
 
 
 export const FEED_LABELS: Record<FeedType, string> = {
