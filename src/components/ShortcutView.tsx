@@ -89,10 +89,10 @@ export function ShortcutView() {
             Tap the arrow to show more, then set {b('Method')} to {b('POST')}.<br />
             Under {b('Headers')} add one named {b('Authorization')} with this value:
             <Copyable label="Authorization value" value={`Bearer ${key}`} />
-            Under {b('Request Body')} choose {b('JSON')}, add a {b('Text')} field named {b('text')}, and set its value to the {b('Dictated Text')} variable.
+            Under {b('Request Body')} choose {b('JSON')} and tap {b('Add new field')} → {b('Text')}. In the {b('Key')} box type {b('text')}. Tap the {b('Text')} value box and choose {b('Dictated Text')} from the variables above the keyboard, so it shows as a blue bubble.
           </Step>
           <Step n={4}>Add the action {b('Speak Text')} and set it to speak {b('Contents of URL')}.</Step>
-          <Step n={5}>Say “Hey Siri, log baby” to try it. To use the side button, go to Settings → Action Button → Shortcut → Log baby.</Step>
+          <Step n={5}>Tap the play button to test it first. Then say “Hey Siri, log baby”. Siri matches the shortcut's exact name, so if Siri offers a web search instead, rename the shortcut to something Siri hears clearly. To use the side button, go to Settings → Action Button → Shortcut → Log baby.</Step>
 
           <div className="sec" style={{ marginTop: 12 }}>Optional: an undo shortcut</div>
           <Step n={6}>

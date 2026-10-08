@@ -30,17 +30,44 @@ function modelError(error: unknown): 'busy' | 'upstream' | null {
   return null
 }
 
+// Shortcuts are built by hand, so accept the sentence however it arrives: a JSON field
+// called text (any capitalisation), the only field in the body, a form field, or plain text.
+export function spokenText(raw: string, contentType: string): string | null {
+  const body = raw.trim()
+  if (!body) return null
+  let found: unknown = body
+  try {
+    const json = JSON.parse(body)
+    if (typeof json === 'string') found = json
+    else if (json && typeof json === 'object') {
+      const entries = Object.entries(json as Record<string, unknown>)
+      const named = entries.find(([k]) => k.trim().toLowerCase() === 'text')
+      const strings = entries.filter(([, v]) => typeof v === 'string')
+      found = named ? named[1] : strings.length === 1 ? strings[0][1] : null
+    } else found = null
+  } catch {
+    if (contentType.includes('form')) {
+      const form = new URLSearchParams(body)
+      found = form.get('text') ?? form.get('Text') ?? ([...form.values()].length === 1 ? [...form.values()][0] : null)
+    }
+  }
+  return typeof found === 'string' && found.trim() ? found.trim() : null
+}
+
 // Called by a phone shortcut, not a browser: authenticated by the shortcut's private key,
 // answers in plain text for the phone to read aloud.
 async function shortcutRoute(request: Request, env: Env, path: string): Promise<Response> {
-  const say = (status: number, text: string) => new Response(text, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
+  // Always HTTP 200: the Shortcuts app shows a bare error for anything else and never reads
+  // the explanation aloud. The real outcome is in the X-Outcome header.
+  const say = (status: number, text: string) => new Response(text, { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Outcome': String(status) } })
   try {
     if (path === '/quickUndo') {
       const r = await quickUndo(env, request.headers.get('Authorization'))
       return say(r.status, r.say)
     }
-    const body = await request.json().catch(() => null) as { text?: unknown } | null
-    const r = await quickLog(env, request.headers.get('Authorization'), typeof body?.text === 'string' ? body.text : '')
+    const text = spokenText(await request.text(), request.headers.get('Content-Type') || '')
+    if (text === null) return say(400, "The shortcut didn't send any words. In Get Contents of URL, the request body needs a field named text, set to Dictated Text.")
+    const r = await quickLog(env, request.headers.get('Authorization'), text)
     return say(r.status, r.say)
   } catch (error) {
     if (!modelError(error)) console.error('quick_failed')

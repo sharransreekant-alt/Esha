@@ -50,8 +50,10 @@ export async function createShortcutKey(env: Env, uid: string, body: z.infer<typ
 }
 
 async function loadShortcut(env: Env, authHeader: string | null): Promise<{ sc: Shortcut; hash: string } | null> {
-  if (!authHeader?.startsWith('Bearer ')) return null
-  const hash = await sha256(authHeader.slice(7).trim())
+  // Tolerate a pasted key with or without the word Bearer, and stray spaces or line breaks
+  const key = (authHeader || '').replace(/^\s*Bearer\s+/i, '').replace(/\s+/g, '')
+  if (!key) return null
+  const hash = await sha256(key)
   const raw = await env.RATE.get(`sc:${hash}`)
   return raw ? { sc: JSON.parse(raw) as Shortcut, hash } : null
 }
@@ -117,7 +119,8 @@ export interface QuickResult { status: number; say: string }
 
 export async function quickLog(env: Env, authHeader: string | null, text: string): Promise<QuickResult> {
   const found = await loadShortcut(env, authHeader)
-  if (!found) return { status: 401, say: "This shortcut's key isn't recognised. Create a new one in the app under More." }
+  if (!authHeader) return { status: 401, say: 'The shortcut is missing its key. In Get Contents of URL, add a header named Authorization with the value shown in the app.' }
+  if (!found) return { status: 401, say: "This shortcut's key isn't recognised. Create a new one in the app under More, and paste the new Authorization value into the shortcut." }
   const { sc, hash } = found
 
   const utterance = text.trim().slice(0, 600)
