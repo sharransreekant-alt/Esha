@@ -4,10 +4,9 @@ import { EntryList } from './EntryList'
 import { FeedModal } from './modals/FeedModal'
 import { SolidsModal } from './modals/SolidsModal'
 import { Entry, FeedComponent } from '../types'
-import { inputToDate, fmtTime, fmtMs } from '../utils/helpers'
+import { inputToDate, fmtTime, fmtMs, toDate } from '../utils/helpers'
 
-function localDateStr(): string {
-  const d = new Date()
+function localDateStr(d: Date = new Date()): string {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
 }
 import { LeapCard } from './LeapCard'
@@ -207,13 +206,17 @@ export function LogView() {
   }
 
   async function saveSolids(foods: string[], firstFoods: string[], time: string, notes: string) {
-    await saveEntry({
-      type: 'solids',
-      foods,
-      ...(firstFoods.length ? { firstFoods } : {}),
-      notes: notes || null,
-      _t: inputToDate(time),
-    })
+    if (editEntry) {
+      await updateEntry(editEntry.id, { foods, firstFoods, notes: notes || null, timestamp: inputToDate(time) as any })
+    } else {
+      await saveEntry({
+        type: 'solids',
+        foods,
+        ...(firstFoods.length ? { firstFoods } : {}),
+        notes: notes || null,
+        _t: inputToDate(time),
+      })
+    }
     close()
   }
 
@@ -257,7 +260,7 @@ export function LogView() {
       </div>
 
       <div className="sec">Recent</div>
-      <EntryList entries={entries.slice(0, 10)} onEditFeed={e => { setEditEntry(e); setModal('feed') }} />
+      <EntryList entries={entries.slice(0, 10)} onEdit={e => { setEditEntry(e); setModal(e.type) }} />
 
       {modal === 'feed' && (
         <FeedModal
@@ -266,12 +269,27 @@ export function LogView() {
           isEdit={!!editEntry}
           initial={editEntry ? {
             components: editEntry.components || (editEntry.feedType ? [{ feedType: editEntry.feedType, duration: editEntry.duration, volume: editEntry.volume }] : []),
+            // Without the date, saving an edit to an older feed would move it to today
+            date:  localDateStr(toDate(editEntry.timestamp)),
             time:  fmtTime(editEntry.timestamp),
             notes: editEntry.notes || '',
           } : undefined}
         />
       )}
-      {modal === 'solids'   && <SolidsModal onClose={close} onSave={saveSolids} />}
+      {modal === 'solids'   && (
+        <SolidsModal
+          onClose={close}
+          onSave={saveSolids}
+          initial={editEntry ? {
+            id:         editEntry.id,
+            foods:      editEntry.foods || [],
+            firstFoods: editEntry.firstFoods || [],
+            date:       localDateStr(toDate(editEntry.timestamp)),
+            time:       fmtTime(editEntry.timestamp),
+            notes:      editEntry.notes || '',
+          } : undefined}
+        />
+      )}
       {modal === 'wee'      && <SimpleModal emoji="" title="Log wee"        onClose={close} onSave={(t,n)   => saveSimple('wee',      t, n)}    />}
       {modal === 'poo'      && <SimpleModal emoji="" title="Log poo"        onClose={close} onSave={(t,n)   => saveSimple('poo',      t, n)}    />}
       {modal === 'massage'   && <SimpleModal emoji="" title="Log massage"    onClose={close} onSave={(t,n,d) => saveSimple('massage',   t, n, d)} hasDuration />}

@@ -117,7 +117,7 @@ export function spokenSummary(plan: SavePlan, now: Date, timeZone: string): stri
 
 export interface QuickResult { status: number; say: string }
 
-export async function quickLog(env: Env, authHeader: string | null, text: string): Promise<QuickResult> {
+export async function quickLog(env: Env, ctx: ExecutionContext, authHeader: string | null, text: string): Promise<QuickResult> {
   const found = await loadShortcut(env, authHeader)
   if (!authHeader) return { status: 401, say: 'The shortcut is missing its key. Copy the full address from the app under More, Siri shortcut, and paste it into Get Contents of URL.' }
   if (!found) return { status: 401, say: "This shortcut's key isn't recognised. Create a new one in the app under More, and paste the new address into the shortcut." }
@@ -127,7 +127,8 @@ export async function quickLog(env: Env, authHeader: string | null, text: string
   if (!utterance) return { status: 400, say: "I didn't hear anything, so nothing was saved." }
 
   const rate = await checkRate(env.RATE, sc.uid)
-  if (rate !== 'ok') return { status: 429, say: rate === 'day' ? "Today's voice limit is reached. Please log in the app." : 'Too many in a row. Try again in a minute.' }
+  ctx.waitUntil(rate.record)
+  if (rate.verdict !== 'ok') return { status: 429, say: rate.verdict === 'day' ? "Today's voice limit is reached. Please log in the app." : 'Too many in a row. Try again in a minute.' }
 
   const session = await exchangeRefreshToken(sc.refreshToken, env.FIREBASE_API_KEY)
   if (!session) return { status: 401, say: 'This shortcut needs setting up again. Create a new key in the app under More.' }
@@ -163,7 +164,7 @@ export async function quickLog(env: Env, authHeader: string | null, text: string
         return { ...rest, loggedBy: sc.who, timestamp: _t }
       })
       const ids = await db.createAll(ENTRIES, docs)
-      await env.RATE.put(`sc-last:${hash}`, JSON.stringify(ids), { expirationTtl: UNDO_WINDOW_SECONDS })
+      ctx.waitUntil(env.RATE.put(`sc-last:${hash}`, JSON.stringify(ids), { expirationTtl: UNDO_WINDOW_SECONDS }))
     }
     return { status: 200, say: spokenSummary(plan, now, sc.timeZone) }
   } catch (error) {

@@ -11,21 +11,27 @@ function localDateStr(): string {
 interface Props {
   onSave:  (foods: string[], firstFoods: string[], time: string, notes: string) => Promise<void>
   onClose: () => void
+  // Set when editing an existing entry
+  initial?: { id: string; foods: string[]; firstFoods: string[]; date: string; time: string; notes: string }
 }
 
-export function SolidsModal({ onSave, onClose }: Props) {
+export function SolidsModal({ onSave, onClose, initial }: Props) {
   const { entries } = useApp()
-  const known = useMemo(() => quickFoods(entries), [entries])
-  const [foods,    setFoods]    = useState<string[]>([])
-  const [notFirst, setNotFirst] = useState<string[]>([])   // new foods the parent says are not a first time
+  // Foods logged in any other entry; the one being edited doesn't count as "logged before"
+  const known = useMemo(() => quickFoods(entries.filter(e => e.id !== initial?.id)), [entries, initial?.id])
+  const [foods,    setFoods]    = useState<string[]>(initial?.foods || [])
+  // The parent's own choice per food; without one, a never-logged food counts as a first time
+  const [firstChoice, setFirstChoice] = useState<Record<string, boolean>>(
+    () => Object.fromEntries((initial?.foods || []).map(f => [f, initial!.firstFoods.includes(f)])))
   const [draft,    setDraft]    = useState('')
-  const [date,     setDate]     = useState(localDateStr())
-  const [time,     setTime]     = useState(nowInput())
-  const [notes,    setNotes]    = useState('')
+  const [date,     setDate]     = useState(initial?.date || localDateStr())
+  const [time,     setTime]     = useState(initial?.time || nowInput())
+  const [notes,    setNotes]    = useState(initial?.notes || '')
   const [saving,   setSaving]   = useState(false)
   const [error,    setError]    = useState('')
 
-  const isNew = (f: string) => !known.includes(f)
+  const isNew   = (f: string) => !known.includes(f)
+  const isFirst = (f: string) => firstChoice[f] ?? isNew(f)
 
   function toggle(f: string) {
     setFoods(fs => fs.includes(f) ? fs.filter(x => x !== f) : [...fs, f])
@@ -43,7 +49,7 @@ export function SolidsModal({ onSave, onClose }: Props) {
     if (!all.length) { setError('Add at least one food'); return }
     setSaving(true); setError('')
     try {
-      await onSave(all, all.filter(f => isNew(f) && !notFirst.includes(f)), date + 'T' + time, notes)
+      await onSave(all, all.filter(isFirst), date + 'T' + time, notes)
     } catch (e: any) {
       console.error('Save failed:', e)
       setError('Save failed — check your connection')
@@ -63,7 +69,7 @@ export function SolidsModal({ onSave, onClose }: Props) {
         boxShadow: '0 -20px 50px rgba(40,28,18,0.22)',
       }}>
         <div style={{ width: 38, height: 4, background: 'var(--handle)', borderRadius: 2, margin: '10px auto 18px' }} />
-        <div className="serif" style={{ fontSize: 21, textAlign: 'center', color: 'var(--text)', marginBottom: 18 }}>Log solids</div>
+        <div className="serif" style={{ fontSize: 21, textAlign: 'center', color: 'var(--text)', marginBottom: 18 }}>{initial ? 'Edit solids' : 'Log solids'}</div>
 
         {/* Chosen foods */}
         {foods.length > 0 && (
@@ -72,10 +78,10 @@ export function SolidsModal({ onSave, onClose }: Props) {
               <div key={f} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--cream2)', borderRadius: 12, padding: '10px 13px', marginBottom: 6 }}>
                 <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--text)' }}>{showFood(f)}</span>
                 <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {isNew(f) && (
+                  {(isNew(f) || f in firstChoice) && (
                     <button
-                      onClick={() => setNotFirst(n => n.includes(f) ? n.filter(x => x !== f) : [...n, f])}
-                      className={`pill${notFirst.includes(f) ? '' : ' on'}`}
+                      onClick={() => setFirstChoice(c => ({ ...c, [f]: !isFirst(f) }))}
+                      className={`pill${isFirst(f) ? ' on' : ''}`}
                       style={{ padding: '4px 10px', fontSize: 11 }}
                     >
                       First time
@@ -125,7 +131,7 @@ export function SolidsModal({ onSave, onClose }: Props) {
 
         {error && <div style={{ color: 'var(--red)', fontSize: 13, fontWeight: 700, marginBottom: 8, textAlign: 'center' }}>{error}</div>}
         <button className="btn-primary" onClick={handleSave} disabled={saving} style={{ marginBottom: 8 }}>
-          {saving ? 'Saving…' : 'Save'}
+          {saving ? 'Saving…' : initial ? 'Update' : 'Save'}
         </button>
         <button className="btn-secondary" onClick={onClose} disabled={saving}>Cancel</button>
       </div>

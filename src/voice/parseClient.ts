@@ -32,35 +32,14 @@ export function recentEvents(entries: Entry[]): RecentEvent[] {
   }))
 }
 
-// Whichever of expressed or formula this family last put in a bottle.
-export function lastBottleType(entries: Entry[]): 'expressed' | 'formula' | null {
-  for (const e of entries) {
-    if (e.type !== 'feed') continue
-    const parts = e.components?.length ? e.components : e.feedType ? [{ feedType: e.feedType }] : []
-    for (const c of [...parts].reverse()) {
-      if (c.feedType === 'expressed' || c.feedType === 'formula') return c.feedType
-    }
-  }
-  return null
-}
-
-export async function requestParse(utterance: string, entries: Entry[], band: AgeBand, now: Date): Promise<ParsedLog> {
+// Signed-in POST to the worker. Throws ParseError for every failure the UI words differently.
+export async function callWorker(path: string, body: unknown): Promise<any> {
   let token: string
   try { token = await ensureSignedIn() } catch { throw new ParseError('sign_in') }
 
-  const body: ParseRequest = {
-    utterance: utterance.trim().slice(0, 600),
-    nowLocal:  toLocalTime(now),
-    timeZone:  Intl.DateTimeFormat().resolvedOptions().timeZone || 'Australia/Sydney',
-    ageBand:   band,
-    timerState: null,
-    lastBottleType: lastBottleType(entries),
-    recentEvents: recentEvents(entries),
-  }
-
   let res: Response
   try {
-    res = await fetch(`${PARSE_URL}/parseLog`, {
+    res = await fetch(`${PARSE_URL}${path}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify(body),
@@ -74,8 +53,33 @@ export async function requestParse(utterance: string, entries: Entry[], band: Ag
   }
   if (res.status === 422) throw new ParseError('unparsed')
   if (!res.ok) throw new ParseError('network')
+  return res.json().catch(() => null)
+}
 
-  const data = await res.json().catch(() => null)
+// Whichever of expressed or formula this family last put in a bottle.
+export function lastBottleType(entries: Entry[]): 'expressed' | 'formula' | null {
+  for (const e of entries) {
+    if (e.type !== 'feed') continue
+    const parts = e.components?.length ? e.components : e.feedType ? [{ feedType: e.feedType }] : []
+    for (const c of [...parts].reverse()) {
+      if (c.feedType === 'expressed' || c.feedType === 'formula') return c.feedType
+    }
+  }
+  return null
+}
+
+export async function requestParse(utterance: string, entries: Entry[], band: AgeBand, now: Date): Promise<ParsedLog> {
+  const body: ParseRequest = {
+    utterance: utterance.trim().slice(0, 600),
+    nowLocal:  toLocalTime(now),
+    timeZone:  Intl.DateTimeFormat().resolvedOptions().timeZone || 'Australia/Sydney',
+    ageBand:   band,
+    timerState: null,
+    lastBottleType: lastBottleType(entries),
+    recentEvents: recentEvents(entries),
+  }
+
+  const data = await callWorker('/parseLog', body)
   const parsed = ParsedLogSchema.safeParse(data?.log)
   if (!parsed.success || validateParsedLog(parsed.data) !== null) throw new ParseError('unparsed')
   return parsed.data

@@ -23,7 +23,6 @@ interface AppState {
   eveningSeen:    string
   handoverSeen:   number
   notifPermission: NotificationPermission | 'unsupported'
-  aiKey:          string
   refreshKey:     number
   appointments:   Appointment[]
   activeGoals:    GoalSet
@@ -54,7 +53,6 @@ interface AppContextValue extends AppState {
   reminderActive: () => boolean
   nextFeedIn:    () => number | null
   hasUnreadHandover: () => boolean
-  saveAiKey:     (key: string) => Promise<void>
   refresh:            () => void
   appointments:       Appointment[]
   saveAppointment:    (data: Partial<Appointment>) => Promise<void>
@@ -96,7 +94,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     eveningSeen:  localStorage.getItem('eveningSeen') || '',
     handoverSeen: parseInt(localStorage.getItem('handoverSeen') || '0'),
     notifPermission: typeof Notification !== 'undefined' ? Notification.permission : 'unsupported',
-    aiKey: '',
     refreshKey: 0,
     appointments: [],
     activeGoals: DEFAULT_GOALS,
@@ -180,7 +177,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         () => {}
       ),
       onSnapshot(doc(db, 'esha_settings', 'config'),
-        snap => { set({ settingsLoaded: true }); if (snap.exists()) { const d = snap.data(); if (d) set({ aiKey: d.aiKey || '', activeGoals: d.activeGoals ? fillGoals(d.activeGoals, (Date.now() - parseDob(d.babyDob).getTime()) / (7 * 86400000)) : DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob) }) } },
+        snap => { set({ settingsLoaded: true }); if (snap.exists()) { const d = snap.data(); if (d) set({ activeGoals: d.activeGoals ? fillGoals(d.activeGoals, (Date.now() - parseDob(d.babyDob).getTime()) / (7 * 86400000)) : DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob) }) } },
         () => {}
       ),
     ]
@@ -291,11 +288,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     set({ feedCycleHours: hours })
   }
 
-  const saveAiKey = async (key: string) => {
-    await setDoc(doc(db, 'esha_settings', 'config'), { aiKey: key }, { merge: true })
-    set({ aiKey: key })
-  }
-
   const requestNotifPermission = async () => {
     if (typeof Notification === 'undefined') return
     const p = await Notification.requestPermission()
@@ -325,7 +317,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       dismissReminder, markEveningSeen, markHandoverSeen,
       requestNotifPermission,
       reminderActive, nextFeedIn, hasUnreadHandover,
-      saveAiKey,
       refresh,
       activeGoals: state.activeGoals,
       acceptGoalUpdate,

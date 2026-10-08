@@ -1,78 +1,35 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useApp } from '../context/AppContext'
-import { Entry } from '../types'
-import { eshaAge, toDate, feedVolume, feedDetail } from '../utils/helpers'
-import { getLeapStatus, leapContextForAI } from '../utils/leaps'
-import { getMilestoneForAge } from '../utils/milestones'
-import { ESHA_BORN } from '../types'
+import { buildFacts } from '../ai/facts'
+import { ageBand } from '../utils/ageBand'
+import { callWorker, voiceEnabled, ParseError } from '../voice/parseClient'
+import { SafetyNotice } from './SafetyNotice'
 
 interface Message {
   role: 'user' | 'assistant'
   content: string
 }
 
+// Questions the assistant can answer from the log. It does not judge what is normal.
 const SUGGESTED = [
-  "Is Esha feeding enough today?",
-  "She's been fussy after feeds — is that normal?",
-  "How much expressed milk should she have at her age?",
-  "We've only had 2 poos today, should we be worried?",
-  "What's a normal feed gap for a newborn?",
-  "Tips for settling a fussy baby at night?",
+  'Summarise today so far',
+  'When was the last feed, and how much?',
+  "What's the average gap between feeds this week?",
+  'How many wet and dirty nappies today?',
+  'What solids has she had this week?',
+  'What should I have ready for a GP appointment?',
 ]
 
-function buildContext(entries: Entry[], age: string): string {
-  const today      = new Date().toDateString()
-  const td         = entries.filter(e => toDate(e.timestamp).toDateString() === today)
-  const feeds      = td.filter(e => e.type === 'feed')
-  const wees       = td.filter(e => e.type === 'wee')
-  const poos       = td.filter(e => e.type === 'poo')
-  const massages   = td.filter(e => e.type === 'massage')
-  const vitD       = td.filter(e => e.type === 'vitaminD')
-  const totalMl    = td.reduce((s, e) => s + feedVolume(e), 0)
-  const lastFeedE  = entries.find(e => e.type === 'feed')
-  const lastFeedAgo = lastFeedE ? Math.round((Date.now() - toDate(lastFeedE.timestamp).getTime()) / 60000) : null
-  const recentFeeds = entries.filter(e => e.type === 'feed').slice(0, 7)
-  let avgGapMins: number | null = null
-  if (recentFeeds.length >= 2) {
-    const gaps: number[] = []
-    for (let i = 0; i < recentFeeds.length - 1; i++) {
-      const gap = (toDate(recentFeeds[i].timestamp).getTime() - toDate(recentFeeds[i+1].timestamp).getTime()) / 60000
-      if (gap > 0 && gap < 360) gaps.push(gap)
-    }
-    if (gaps.length) avgGapMins = Math.round(gaps.reduce((s, g) => s + g, 0) / gaps.length)
-  }
-  const feedSummary = feeds.map(f => feedDetail(f)).join('; ')
-  const leapStatus = getLeapStatus(ESHA_BORN)
-  const leapContext = leapContextForAI(leapStatus)
-  const milestone = getMilestoneForAge((Date.now() - ESHA_BORN.getTime()) / (7 * 24 * 60 * 60 * 1000))
-  const milestoneContext = `Age guidance (${milestone.label}):
-- Feed frequency: ${milestone.feedFreq}
-- Per feed volume: ${milestone.feedVolume}
-- Daily total: ${milestone.totalDailyMl}
-- Poo guidance: ${milestone.poosNote}`
-
-  return `ESHA'S DATA:
-Age: ${age}
-Date: ${new Date().toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-
-TODAY:
-- Feeds: ${feeds.length} today${totalMl > 0 ? ` (${totalMl}ml)` : ''}${feedSummary ? `\n  ${feedSummary}` : ''}
-- Wees: ${wees.length} today
-- Poos: ${poos.length} today
-- Massages: ${massages.length} today
-- Vitamin D: ${vitD.length > 0 ? 'Done ✓' : 'Not yet'}
-- Last feed: ${lastFeedAgo !== null ? `${lastFeedAgo} mins ago` : 'No feeds today'}
-
-PATTERNS:
-- Avg feed gap (last 7): ${avgGapMins !== null ? `${avgGapMins} mins` : 'Not enough data'}
-
-${leapContext}
-
-${milestoneContext}`.trim()
+const ERRORS: Record<ParseError['kind'], string> = {
+  unparsed: "Couldn't answer that one. Try asking another way",
+  network:  'Network error — check your connection',
+  rate:     'Too many questions in a row. Try again in a minute',
+  daily:    "Today's limit is reached. Try again tomorrow",
+  sign_in:  "Couldn't sign in. Close and reopen the app",
 }
 
 export function AskAI() {
-  const { entries, aiKey, saveAiKey, activeGoals } = useApp()
+  const { entries, babyDob, feedCycleHours } = useApp()
   const [open,     setOpen]     = useState(false)
   const [messages, setMessages] = useState<Message[]>(() => {
     try {
@@ -83,8 +40,7 @@ export function AskAI() {
   const [input,    setInput]    = useState('')
   const [loading,  setLoading]  = useState(false)
   const [error,    setError]    = useState('')
-  const [showKeyInput, setShowKeyInput] = useState(false)
-  const [keyDraft, setKeyDraft] = useState('')
+  const [redFlag,  setRedFlag]  = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef  = useRef<HTMLInputElement>(null)
 
@@ -95,98 +51,46 @@ export function AskAI() {
     }
   }, [messages, loading, open])
 
-  async function handleSaveKey() {
-    if (!keyDraft.trim()) return
-    await saveAiKey(keyDraft.trim())
-    setShowKeyInput(false)
-    setKeyDraft('')
+  function remember(next: Message[]): Message[] {
+    const trimmed = next.slice(-10)
+    try { localStorage.setItem('esha_ai_chat', JSON.stringify(trimmed)) } catch {}
+    return trimmed
   }
 
   async function send(text: string) {
     if (!text.trim() || loading) return
-    if (!aiKey) { setShowKeyInput(true); return }
 
-    const userMsg: Message = { role: 'user', content: text }
-    setMessages(m => {
-      const updated = [...m, userMsg]
-      const trimmed = updated.slice(-10)
-      try { localStorage.setItem('esha_ai_chat', JSON.stringify(trimmed)) } catch {}
-      return trimmed
-    })
+    const userMsg: Message = { role: 'user', content: text.trim().slice(0, 2000) }
+    const history = [...messages, userMsg].slice(-10)
+    setMessages(remember(history))
     setInput('')
     setLoading(true)
     setError('')
 
-    const systemPrompt = `You are a warm, knowledgeable baby care assistant for new parents of a baby named Esha.
-You have real-time data about Esha. Use it to give specific, personalised answers.
-
-${buildContext(entries, eshaAge())}
-
-Guidelines:
-- Be warm and reassuring — these are sleep-deprived new parents
-- Reference Esha's actual data when relevant
-- For medical concerns always recommend consulting their paediatrician
-- Keep answers concise and practical
-- Calibrate advice to Esha's specific age`
-
     try {
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${aiKey}` },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          max_tokens: 500,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            ...[...messages, userMsg].slice(-10),
-          ],
-        }),
+      // The server holds the model key and the assistant's instructions. It is sent
+      // counts, times and amounts from the log and the age band; never the name or birth date.
+      const data = await callWorker('/ask', {
+        messages: history,
+        facts:    buildFacts(entries, feedCycleHours),
+        ageBand:  ageBand(babyDob),
       })
-      if (!res.ok) {
-        const err = await res.json()
-        if (res.status === 401) {
-          setError('Invalid API key. Tap 🔑 to update it.')
-          await saveAiKey('')
-          setShowKeyInput(true)
-        } else {
-          setError(err.error?.message || 'Something went wrong')
-        }
-        setLoading(false)
-        return
-      }
-      const data = await res.json()
-      setMessages(m => {
-        const updated: Message[] = [...m, { role: 'assistant' as const, content: data.choices[0]?.message?.content || 'No response' }]
-        const trimmed = updated.slice(-10)
-        try { localStorage.setItem('esha_ai_chat', JSON.stringify(trimmed)) } catch {}
-        return trimmed
-      })
-    } catch {
-      setError('Network error — check your connection')
+      if (typeof data?.reply !== 'string') throw new ParseError('unparsed')
+      setMessages(m => remember([...m, { role: 'assistant', content: data.reply }]))
+      if (data.redFlag?.reason) setRedFlag(data.redFlag.reason)
+    } catch (e) {
+      setError(ERRORS[e instanceof ParseError ? e.kind : 'network'])
     }
     setLoading(false)
   }
 
-  const longPressTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
-  function handleLongPressStart() {
-    longPressTimer.current = setTimeout(() => {
-      setShowKeyInput(true)
-      setKeyDraft(aiKey)
-      setOpen(true)
-    }, 800)
-  }
-  function handleLongPressEnd() {
-    if (longPressTimer.current) clearTimeout(longPressTimer.current)
-  }
+  if (!voiceEnabled) return null
 
   return (
     <>
       {/* Floating button — always visible */}
       <button
         onClick={() => setOpen(true)}
-        onContextMenu={e => { e.preventDefault(); setShowKeyInput(true); setKeyDraft(aiKey); setOpen(true); }}
-        onTouchStart={handleLongPressStart}
-        onTouchEnd={handleLongPressEnd}
         style={{
           position: 'fixed', bottom: 88, right: 16, zIndex: 50,
           width: 54, height: 54, borderRadius: '50%', border: 'none',
@@ -196,7 +100,7 @@ Guidelines:
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           transition: 'transform 0.15s, box-shadow 0.15s',
         }}
-        title="Ask about Esha (hold to update API key)"
+        title="Ask about the log"
       >
         <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
           {/* Chat bubble */}
@@ -229,7 +133,7 @@ Guidelines:
               ← Close
             </button>
             <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 16, fontWeight: 700 }}>
-              🤖 Ask about Esha
+              Ask about the log
             </div>
             <button onClick={() => { setMessages([]); try { localStorage.removeItem('esha_ai_chat') } catch {} }}
               style={{ background: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.5)', borderRadius: 20, padding: '6px 12px', fontSize: 12, fontWeight: 800, color: 'var(--text-med)', cursor: 'pointer' }}
@@ -238,38 +142,15 @@ Guidelines:
             </button>
           </div>
 
-          {/* API key setup banner */}
-          {(showKeyInput || !aiKey) && (
-            <div style={{ background: 'var(--white)', borderBottom: '1px solid var(--border)', padding: '14px 16px', flexShrink: 0 }}>
-              <div style={{ fontSize: 13, fontWeight: 800, marginBottom: 4 }}>OpenAI API Key</div>
-              <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginBottom: 10, lineHeight: 1.5 }}>
-                Saved to Firebase — both phones share it automatically.<br />
-                Get yours at <span style={{ color: 'var(--coral)' }}>platform.openai.com/api-keys</span>
-              </div>
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input
-                  className="finput"
-                  type="password"
-                  placeholder="sk-..."
-                  value={keyDraft}
-                  onChange={e => setKeyDraft(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && handleSaveKey()}
-                  style={{ flex: 1, fontSize: 14 }}
-                />
-                <button onClick={handleSaveKey} className="btn-primary" style={{ width: 'auto', padding: '0 16px', fontSize: 14, margin: 0 }}>Save</button>
-              </div>
-            </div>
-          )}
-
           {/* Messages */}
           <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {messages.length === 0 && aiKey && (
+            {messages.length === 0 && (
               <div>
                 <div style={{ background: 'var(--white)', borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow)', padding: 14, marginBottom: 16 }}>
                   <div style={{ fontSize: 22, marginBottom: 8 }}>👋</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>Hi! I know Esha.</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>Ask me about the log</div>
                   <div style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 600, lineHeight: 1.5 }}>
-                    I can see her feeds, wees, poos and patterns from today. Ask me anything.
+                    I can add up today's feeds, nappies and solids, work out gaps and averages, and help you get ready for appointments. I can't tell you whether something is normal — your nurse or GP can.
                   </div>
                 </div>
                 <div className="sec">Try asking…</div>
@@ -322,14 +203,14 @@ Guidelines:
           </div>
 
           {/* Input bar */}
-          {aiKey && !showKeyInput && (
+          {(
             <div style={{ padding: '10px 16px 36px', background: 'var(--white)', borderTop: '1px solid var(--border)', flexShrink: 0 }}>
               <div style={{ display: 'flex', gap: 8 }}>
                 <input
                   ref={inputRef}
                   className="finput"
                   type="text"
-                  placeholder="Ask anything about Esha…"
+                  placeholder="Ask about the log…"
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); send(input) } }}
@@ -349,12 +230,14 @@ Guidelines:
                 >↑</button>
               </div>
               <div style={{ fontSize: 10, color: 'var(--muted)', fontWeight: 600, textAlign: 'center', marginTop: 6 }}>
-                Not a substitute for medical advice. Always consult your paediatrician.
+                General information only, not medical advice. Healthdirect 1800 022 222 · Emergency 000
               </div>
             </div>
           )}
         </div>
       )}
+
+      {redFlag && <SafetyNotice title="Where to get help" reason={redFlag} onClose={() => setRedFlag(null)} />}
 
       <style>{`
         @keyframes bounce {

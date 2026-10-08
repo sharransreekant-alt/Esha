@@ -1,20 +1,19 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod'
-import { ParsedLogSchema } from '../../../shared/parsedLog'
-import type { ModelCall } from '../parseLog'
+import type { Structured } from '../parseLog'
 
-export function anthropicCall(apiKey: string | undefined, model: string, maxTokens: number): ModelCall {
+export function anthropicStructured(apiKey: string | undefined, model: string, maxTokens: number): Structured {
   const client = new Anthropic(apiKey ? { apiKey } : {})
-  return async (system, user) => {
+  return async (schema, _name, system, messages) => {
     const response = await client.messages.parse({
       model,
       max_tokens: maxTokens,
       system,
-      messages: [{ role: 'user', content: user }],
-      output_config: { format: zodOutputFormat(ParsedLogSchema) },
+      messages,
+      output_config: { format: zodOutputFormat(schema as any) },
     })
     return {
-      log:     response.stop_reason === 'end_turn' ? response.parsed_output : null,
+      value:   response.stop_reason === 'end_turn' ? (response.parsed_output as any) ?? null : null,
       refused: response.stop_reason === 'refusal',
       inputTokens:  response.usage.input_tokens,
       outputTokens: response.usage.output_tokens,

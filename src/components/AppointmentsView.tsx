@@ -3,6 +3,8 @@ import { useApp } from '../context/AppContext'
 import { Appointment } from '../types'
 import { APPOINTMENT_TEMPLATES } from '../utils/appointments'
 import { ESHA_BORN } from '../types'
+import { callWorker, voiceEnabled } from '../voice/parseClient'
+import { ageBand } from '../utils/ageBand'
 import { toDate } from '../utils/helpers'
 
 // ── Shared styles ──────────────────────────────────────────────
@@ -33,7 +35,7 @@ function AppointmentModal({
   onSave: (data: Partial<Appointment>) => Promise<void>
   onClose: () => void
 }) {
-  const { who, aiKey } = useApp()
+  const { who, babyDob } = useApp()
   const ageWeeks = Math.floor((Date.now() - ESHA_BORN.getTime()) / (7 * 24 * 60 * 60 * 1000))
   const [type,      setType]      = useState(initial?.type      || 'Midwife Visit')
   const [date,      setDate]      = useState(initial?.date      || new Date().toISOString().slice(0, 10))
@@ -48,29 +50,14 @@ function AppointmentModal({
   const template = APPOINTMENT_TEMPLATES.find(t => t.type === type)
 
   async function loadAIQuestions() {
-    if (!aiKey) { alert('Add your OpenAI API key via the chat button first'); return }
+    if (!voiceEnabled) { alert('Suggestions are not available right now'); return }
     setLoadingAI(true)
     try {
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${aiKey}` },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          max_tokens: 400,
-          messages: [{
-            role: 'user',
-            content: `Generate 6 specific, practical questions for parents to ask at a "${type}" appointment for a baby who is ${ageWeeks} weeks old. 
-Return ONLY a JSON array of strings, no other text. Example: ["Question 1?", "Question 2?"]
-Focus on what parents most commonly miss or forget to ask at this type of appointment.`
-          }]
-        }),
-      })
-      const data = await res.json()
-      const text = data.choices[0]?.message?.content || '[]'
-      const parsed = JSON.parse(text.replace(/```json|```/g, '').trim())
-      if (Array.isArray(parsed)) setQuestions(parsed)
+      const data = await callWorker('/appointmentQuestions', { type, ageBand: ageBand(babyDob) })
+      if (Array.isArray(data?.questions)) setQuestions(data.questions)
+      else throw new Error('no questions')
     } catch (e) {
-      alert('Could not load AI questions')
+      alert('Could not load suggested questions')
     }
     setLoadingAI(false)
   }

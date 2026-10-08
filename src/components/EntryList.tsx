@@ -27,10 +27,10 @@ function entryDetail(e: Entry): string {
 
 interface Props {
   entries: Entry[]
-  onEditFeed?: (entry: Entry) => void
+  onEdit?: (entry: Entry) => void   // feeds and solids
 }
 
-export function EntryList({ entries, onEditFeed }: Props) {
+export function EntryList({ entries, onEdit }: Props) {
   const { removeEntry, entries: allEntries } = useApp()
   const [viewingNote, setViewingNote] = useState<Entry | null>(null)
 
@@ -75,8 +75,8 @@ export function EntryList({ entries, onEditFeed }: Props) {
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-med)' }}>{fmtTime(e.timestamp)}</div>
                 <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--muted)', background: 'var(--cream2)', border: '1px solid var(--border)', padding: '2px 7px', borderRadius: 7 }}>{e.loggedBy || '?'}</div>
-                {e.type === 'feed' && onEditFeed && (
-                  <button className="del-btn" onClick={ev => { ev.stopPropagation(); onEditFeed(e) }}
+                {(e.type === 'feed' || e.type === 'solids') && onEdit && (
+                  <button className="del-btn" onClick={ev => { ev.stopPropagation(); onEdit(e) }}
                     style={{ background: 'var(--blue-s)', borderColor: 'rgba(74,159,212,0.25)', color: 'var(--blue)', marginBottom: 2 }}>
                     Edit
                   </button>

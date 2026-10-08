@@ -6,6 +6,9 @@ import { verifyIdToken } from './auth'
 import { checkRate } from './rateLimit'
 import { parseLog } from './parseLog'
 import { ShortcutSetupSchema, createShortcutKey, quickLog, quickUndo } from './quickLog'
+import { AskRequestSchema, QuestionsRequestSchema, ask, appointmentQuestions } from './ask'
+
+const BROWSER_ROUTES = ['/parseLog', '/shortcutKey', '/ask', '/appointmentQuestions']
 
 // Nothing in this file logs the utterance, the request body or the model output.
 
@@ -56,7 +59,7 @@ export function spokenText(raw: string, contentType: string): string | null {
 
 // Called by a phone shortcut, not a browser: authenticated by the shortcut's private key,
 // answers in plain text for the phone to read aloud.
-async function shortcutRoute(request: Request, env: Env, path: string): Promise<Response> {
+async function shortcutRoute(request: Request, env: Env, ctx: ExecutionContext, path: string): Promise<Response> {
   // The key normally rides in the address (?key=...), which needs no hand-typed header
   const auth = new URL(request.url).searchParams.get('key') || request.headers.get('Authorization')
   // Always HTTP 200: the Shortcuts app shows a bare error for anything else and never reads
@@ -69,7 +72,7 @@ async function shortcutRoute(request: Request, env: Env, path: string): Promise<
     }
     const text = spokenText(await request.text(), request.headers.get('Content-Type') || '')
     if (text === null) return say(400, "The shortcut didn't send any words. In Get Contents of URL, the request body needs a field named text, set to Dictated Text.")
-    const r = await quickLog(env, auth, text)
+    const r = await quickLog(env, ctx, auth, text)
     return say(r.status, r.say)
   } catch (error) {
     if (!modelError(error)) console.error('quick_failed')
@@ -78,16 +81,16 @@ async function shortcutRoute(request: Request, env: Env, path: string): Promise<
 }
 
 export default {
-  async fetch(request: Request, env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     const path = new URL(request.url).pathname
-    if (request.method === 'POST' && (path === '/quickLog' || path === '/quickUndo')) return shortcutRoute(request, env, path)
+    if (request.method === 'POST' && (path === '/quickLog' || path === '/quickUndo')) return shortcutRoute(request, env, ctx, path)
 
     const cors = corsHeaders(request.headers.get('Origin'), env)
     const json = (status: number, body: unknown) =>
       new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...cors } })
 
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors })
-    if (request.method !== 'POST' || (path !== '/parseLog' && path !== '/shortcutKey')) return json(404, { error: 'not_found' })
+    if (request.method !== 'POST' || !BROWSER_ROUTES.includes(path)) return json(404, { error: 'not_found' })
     // Browsers always send Origin on cross-origin POSTs; reject anything not on the list.
     if (!cors['Access-Control-Allow-Origin']) return json(403, { error: 'origin_not_allowed' })
 
@@ -104,14 +107,24 @@ export default {
       return key ? json(200, { key }) : json(403, { error: 'session_mismatch' })
     }
 
-    const req = ParseRequestSchema.safeParse(body)
+    const schema = path === '/ask' ? AskRequestSchema : path === '/appointmentQuestions' ? QuestionsRequestSchema : ParseRequestSchema
+    const req = schema.safeParse(body)
     if (!req.success) return json(400, { error: 'bad_request' })
 
     const rate = await checkRate(env.RATE, uid)
-    if (rate !== 'ok') return json(429, { error: rate === 'day' ? 'daily_limit' : 'rate_limited' })
+    if (rate.verdict !== 'ok') return json(429, { error: rate.verdict === 'day' ? 'daily_limit' : 'rate_limited' })
+    ctx.waitUntil(rate.record)
 
     try {
-      const result = await parseLog(modelCall(env), req.data)
+      if (path === '/ask') {
+        const reply = await ask(modelCall(env, 'ask'), req.data as any)
+        return reply ? json(200, reply) : json(422, { error: 'invalid_output' })
+      }
+      if (path === '/appointmentQuestions') {
+        const questions = await appointmentQuestions(modelCall(env, 'ask'), req.data as any)
+        return questions ? json(200, { questions }) : json(422, { error: 'invalid_output' })
+      }
+      const result = await parseLog(modelCall(env), req.data as any)
       if (!result.ok) return json(422, { error: result.reason })
       return json(200, { log: result.log })
     } catch (error) {
