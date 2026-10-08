@@ -119,8 +119,8 @@ export interface QuickResult { status: number; say: string }
 
 export async function quickLog(env: Env, authHeader: string | null, text: string): Promise<QuickResult> {
   const found = await loadShortcut(env, authHeader)
-  if (!authHeader) return { status: 401, say: 'The shortcut is missing its key. In Get Contents of URL, add a header named Authorization with the value shown in the app.' }
-  if (!found) return { status: 401, say: "This shortcut's key isn't recognised. Create a new one in the app under More, and paste the new Authorization value into the shortcut." }
+  if (!authHeader) return { status: 401, say: 'The shortcut is missing its key. Copy the full address from the app under More, Siri shortcut, and paste it into Get Contents of URL.' }
+  if (!found) return { status: 401, say: "This shortcut's key isn't recognised. Create a new one in the app under More, and paste the new address into the shortcut." }
   const { sc, hash } = found
 
   const utterance = text.trim().slice(0, 600)

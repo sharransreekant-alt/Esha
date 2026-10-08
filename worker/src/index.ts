@@ -57,17 +57,19 @@ export function spokenText(raw: string, contentType: string): string | null {
 // Called by a phone shortcut, not a browser: authenticated by the shortcut's private key,
 // answers in plain text for the phone to read aloud.
 async function shortcutRoute(request: Request, env: Env, path: string): Promise<Response> {
+  // The key normally rides in the address (?key=...), which needs no hand-typed header
+  const auth = new URL(request.url).searchParams.get('key') || request.headers.get('Authorization')
   // Always HTTP 200: the Shortcuts app shows a bare error for anything else and never reads
   // the explanation aloud. The real outcome is in the X-Outcome header.
   const say = (status: number, text: string) => new Response(text, { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Outcome': String(status) } })
   try {
     if (path === '/quickUndo') {
-      const r = await quickUndo(env, request.headers.get('Authorization'))
+      const r = await quickUndo(env, auth)
       return say(r.status, r.say)
     }
     const text = spokenText(await request.text(), request.headers.get('Content-Type') || '')
     if (text === null) return say(400, "The shortcut didn't send any words. In Get Contents of URL, the request body needs a field named text, set to Dictated Text.")
-    const r = await quickLog(env, request.headers.get('Authorization'), text)
+    const r = await quickLog(env, auth, text)
     return say(r.status, r.say)
   } catch (error) {
     if (!modelError(error)) console.error('quick_failed')

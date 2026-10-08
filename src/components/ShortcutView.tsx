@@ -84,11 +84,9 @@ export function ShortcutView() {
           <Step n={1}>Open the {b('Shortcuts')} app, tap {b('+')}, and rename the shortcut to {b('Log baby')}.</Step>
           <Step n={2}>Add the action {b('Dictate Text')}. Set Language to English (Australia) and Stop Listening to {b('After Pause')}.</Step>
           <Step n={3}>
-            Add the action {b('Get Contents of URL')} and paste this as the URL:
-            <Copyable label="URL" value={`${PARSE_URL}/quickLog`} />
-            Tap the arrow to show more, then set {b('Method')} to {b('POST')}.<br />
-            Under {b('Headers')} add one named {b('Authorization')} with this value:
-            <Copyable label="Authorization value" value={`Bearer ${key}`} />
+            Add the action {b('Get Contents of URL')} and paste this as the URL. It contains your key, so paste it exactly:
+            <Copyable label="URL" value={`${PARSE_URL}/quickLog?key=${key}`} />
+            Tap the arrow to show more, then set {b('Method')} to {b('POST')}. Leave {b('Headers')} empty.<br />
             Under {b('Request Body')} choose {b('JSON')} and tap {b('Add new field')} → {b('Text')}. In the {b('Key')} box type {b('text')}. Tap the {b('Text')} value box and choose {b('Dictated Text')} from the variables above the keyboard, so it shows as a blue bubble.
           </Step>
           <Step n={4}>Add the action {b('Speak Text')} and set it to speak {b('Contents of URL')}.</Step>
@@ -96,8 +94,8 @@ export function ShortcutView() {
 
           <div className="sec" style={{ marginTop: 12 }}>Optional: an undo shortcut</div>
           <Step n={6}>
-            Make a second shortcut named {b('Undo baby log')} with just {b('Get Contents of URL')} (POST, the same Authorization header, no body) and {b('Speak Text')}. It removes whatever the last spoken log added, within an hour.
-            <Copyable label="Undo URL" value={`${PARSE_URL}/quickUndo`} />
+            Make a second shortcut named {b('Undo baby log')} with just {b('Get Contents of URL')} (this URL, Method POST, nothing else) and {b('Speak Text')}. It removes whatever the last spoken log added, within an hour.
+            <Copyable label="Undo URL" value={`${PARSE_URL}/quickUndo?key=${key}`} />
           </Step>
         </div>
       )}
