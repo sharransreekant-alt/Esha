@@ -9,7 +9,7 @@ import { useToast } from './Toast'
 import { voiceEnabled } from '../voice/parseClient'
 
 export function MoreView() {
-  const { setView, growth, journal, handovers, hasUnreadHandover, importEntries, appointments, entries } = useApp()
+  const { setView, growth, journal, handovers, hasUnreadHandover, importEntries, appointments, entries, account } = useApp()
   const fileRef = useRef<HTMLInputElement>(null)
   const { showToast } = useToast()
 
@@ -39,6 +39,7 @@ export function MoreView() {
     { id: 'insights', icon: '📊', name: 'Insights', sub: 'Feeding patterns' },
     { id: 'journal',  icon: '📖', name: 'Journal',  sub: `${journal.length} entr${journal.length === 1 ? 'y' : 'ies'}` },
     { id: 'handover', icon: '🤝', name: 'Handover', sub: unread ? '📬 Unread note!' : latest ? `Last: ${timeSince(latest.timestamp)}` : 'None yet' },
+    { id: 'account', icon: '👤', name: 'Account', sub: account.signedIn ? (account.email || 'Signed in') : 'Not signed in yet' },
     ...(voiceEnabled ? [{ id: 'shortcut' as View, icon: '🎙️', name: 'Siri shortcut', sub: 'Log without opening the app' }] : []),
   ]
 

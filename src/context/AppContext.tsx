@@ -3,7 +3,8 @@ import {
   collection, addDoc, deleteDoc, updateDoc, doc, setDoc,
   query, orderBy, where, limit, onSnapshot, Timestamp, writeBatch
 } from 'firebase/firestore'
-import { db, ensureSignedIn } from '../firebase'
+import { onAuthStateChanged } from 'firebase/auth'
+import { db, auth, ensureSignedIn } from '../firebase'
 import {
   Entry, GrowthEntry, JournalEntry, HandoverEntry, Appointment,
   View, DEFAULT_FEED_CYCLE_HOURS, DEFAULT_BABY_NAME, DEFAULT_BABY_DOB
@@ -33,6 +34,9 @@ interface AppState {
   settingsLoaded: boolean   // false until saved goals and settings have arrived
   historyDays:    number    // how many days of entries are loaded
 }
+
+// Who this phone is signed in as. `email` is null until a real account is attached.
+export interface Account { uid: string; email: string | null; signedIn: boolean }
 
 interface AppContextValue extends AppState {
   setView:       (v: View) => void
@@ -64,6 +68,7 @@ interface AppContextValue extends AppState {
   toggleTheme:        () => void
   setFeedCycleHours:  (hours: number) => Promise<void>
   historyStart:       Date        // entries older than this are not loaded yet
+  account:            Account
   loadOlderEntries:   () => void
 }
 
@@ -143,6 +148,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Sign in before reading anything, so the database rules can require it.
   // If sign-in fails we still try to subscribe; the rules decide what happens.
   const [authReady, setAuthReady] = useState(false)
+  const [account, setAccount] = useState<Account>({ uid: '', email: null, signedIn: false })
+  useEffect(() => onAuthStateChanged(auth, u => {
+    setAccount({ uid: u?.uid || '', email: u?.email || null, signedIn: !!u && !u.isAnonymous })
+    // Signed out: go back to an anonymous identity so the app keeps working
+    if (!u) ensureSignedIn().catch(() => {})
+  }), [])
   useEffect(() => {
     ensureSignedIn().catch(() => {}).finally(() => setAuthReady(true))
   }, [])
@@ -185,7 +196,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     ]
 
     return () => { clearTimeout(t); unsubs.forEach(u => u()) }
-  }, [state.who, authReady, state.refreshKey, historyStart, set])
+  }, [state.who, authReady, account.uid, state.refreshKey, historyStart, set])
 
   // Helpers
   const lastFeed = useCallback((): Date | null => {
@@ -310,7 +321,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <Ctx.Provider value={{
-      ...state, entries, historyStart, loadOlderEntries, setView, setWho,
+      ...state, entries, historyStart, loadOlderEntries, account, setView, setWho,
       saveEntry, updateEntry, removeEntry,
       saveGrowth, removeGrowth,
       saveJournal, removeJournal,
