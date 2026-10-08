@@ -19,6 +19,7 @@ import { NotesView } from './components/NotesView'
 import { FoodsView } from './components/FoodsView'
 import { ShortcutView } from './components/ShortcutView'
 import { AccountView } from './components/AccountView'
+import { FamilyView } from './components/FamilyView'
 import { GoalsSettingsView } from './components/GoalsSettingsView'
 import { AskAI } from './components/AskAI'
 import { EveningSummary } from './components/EveningSummary'
@@ -28,6 +29,7 @@ function AppShell() {
     who, view, loading,
     handovers, hasUnreadHandover, setView,
     eveningSeen, markEveningSeen, refresh,
+    previewingCopy, setPreviewingCopy, family,
   } = useApp()
 
   // Auto-refresh when app comes back to foreground (fixes iOS PWA stale data)
@@ -68,7 +70,7 @@ function AppShell() {
   // Loading
   if (loading) return <div className="spin" />
 
-  const subViews = ['growth', 'insights', 'journal', 'handover', 'appointments', 'notes', 'goals', 'foods', 'shortcut', 'account']
+  const subViews = ['growth', 'insights', 'journal', 'handover', 'appointments', 'notes', 'goals', 'foods', 'shortcut', 'account', 'family']
   const isSubView = subViews.includes(view)
   const unread = hasUnreadHandover()
 
@@ -76,6 +78,17 @@ function AppShell() {
     <>
       <Header />
       <Nav />
+
+      {/* Unmissable while looking at the copy: nothing logged here would reach the live data */}
+      {previewingCopy && !family.usingFamily && (
+        <div onClick={() => { setPreviewingCopy(false); setView('family') }} style={{ background: 'var(--amber-s)', borderBottom: '1px solid var(--border)', padding: '11px 18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--amber)' }}>Viewing the copied data (read-only)</div>
+            <div style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600, marginTop: 2 }}>Tap to go back to live data</div>
+          </div>
+          <div style={{ fontSize: 20, color: 'var(--muted)' }}>›</div>
+        </div>
+      )}
 
       {/* Handover banner */}
       {unread && !isSubView && (
@@ -102,6 +115,7 @@ function AppShell() {
         {view === 'foods'        && <FoodsView />}
         {view === 'shortcut'     && <ShortcutView />}
         {view === 'account'      && <AccountView />}
+        {view === 'family'       && <FamilyView />}
         {view === 'goals'         && <GoalsSettingsView />}
 
       {/* Evening summary */}

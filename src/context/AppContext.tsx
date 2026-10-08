@@ -11,6 +11,7 @@ import {
 } from '../types'
 import { GoalSet, DEFAULT_GOALS, fillGoals } from '../utils/milestones'
 import { toDate } from '../utils/helpers'
+import { DataPaths, LEGACY, familyPaths } from '../family/paths'
 
 interface AppState {
   view:           View
@@ -34,6 +35,9 @@ interface AppState {
   settingsLoaded: boolean   // false until saved goals and settings have arrived
   historyDays:    number    // how many days of entries are loaded
 }
+
+// Which family this account belongs to, and whether the app has switched to its folder yet.
+export interface FamilyLink { id: string | null; usingFamily: boolean; loaded: boolean }
 
 // Who this phone is signed in as. `email` is null until a real account is attached.
 export interface Account { uid: string; email: string | null; name: string | null; signedIn: boolean }
@@ -81,6 +85,10 @@ interface AppContextValue extends AppState {
   setFeedCycleHours:  (hours: number) => Promise<void>
   historyStart:       Date        // entries older than this are not loaded yet
   account:            Account
+  family:             FamilyLink
+  paths:              DataPaths   // where this phone is reading and writing right now
+  previewingCopy:     boolean
+  setPreviewingCopy:  (on: boolean) => void
   refreshAccount:     () => void
   loadOlderEntries:   () => void
 }
@@ -174,6 +182,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     ensureSignedIn().catch(() => {}).finally(() => setAuthReady(true))
   }, [])
 
+  // The account's pointer to its family. Only real accounts have one.
+  const [family, setFamily] = useState<FamilyLink>({ id: null, usingFamily: false, loaded: false })
+  useEffect(() => {
+    if (!account.uid || !account.signedIn) { setFamily({ id: null, usingFamily: false, loaded: !!account.uid }); return }
+    return onSnapshot(doc(db, 'users', account.uid),
+      snap => { const d = snap.data(); setFamily({ id: d?.familyId || null, usingFamily: !!d?.usingFamily, loaded: true }) },
+      () => setFamily({ id: null, usingFamily: false, loaded: true }))
+  }, [account.uid, account.signedIn])
+
+  // Looking at the copied data before switching to it. Read-only: see assertLive below.
+  const [previewingCopy, setPreviewingCopy] = useState(false)
+  const inFamily = !!family.id && (family.usingFamily || previewingCopy)
+  const paths = useMemo(() => inFamily ? familyPaths(family.id!) : LEGACY, [inFamily, family.id])
+  const readOnlyPreview = previewingCopy && !family.usingFamily
+  const assertLive = () => {
+    if (!readOnlyPreview) return
+    alert("You're viewing the copied data, which is read-only. Go back to live in More → Family to log.")
+    throw new Error('preview is read-only')
+  }
+
   // Firebase subscriptions
   useEffect(() => {
     if (!state.who || !authReady) return
@@ -185,34 +213,34 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const t = setTimeout(() => set({ loading: false }), 5000)
 
     const unsubs = [
-      onSnapshot(query(collection(db, 'esha_entries'), where('timestamp', '>=', Timestamp.fromDate(historyStart)), orderBy('timestamp', 'desc')),
+      onSnapshot(query(collection(db, paths.entries), where('timestamp', '>=', Timestamp.fromDate(historyStart)), orderBy('timestamp', 'desc')),
         snap => { setRecentEntries(snap.docs.map(d => ({ id: d.id, ...d.data() } as Entry))); loaded.entries = true; checkDone() },
         () => { loaded.entries = true; checkDone() }),
-      onSnapshot(query(collection(db, 'esha_entries'), where('type', '==', 'note')),
+      onSnapshot(query(collection(db, paths.entries), where('type', '==', 'note')),
         snap => setNoteEntries(snap.docs.map(d => ({ id: d.id, ...d.data() } as Entry))), () => {}),
-      onSnapshot(query(collection(db, 'esha_entries'), where('type', '==', 'solids')),
+      onSnapshot(query(collection(db, paths.entries), where('type', '==', 'solids')),
         snap => setSolidsEntries(snap.docs.map(d => ({ id: d.id, ...d.data() } as Entry))), () => {}),
-      onSnapshot(query(collection(db, 'esha_growth'), orderBy('timestamp', 'desc')),
+      onSnapshot(query(collection(db, paths.growth), orderBy('timestamp', 'desc')),
         snap => { set({ growth: snap.docs.map(d => ({ id: d.id, ...d.data() } as GrowthEntry)) }); loaded.growth = true },
         () => { loaded.growth = true }),
-      onSnapshot(query(collection(db, 'esha_journal'), orderBy('timestamp', 'desc')),
+      onSnapshot(query(collection(db, paths.journal), orderBy('timestamp', 'desc')),
         snap => { set({ journal: snap.docs.map(d => ({ id: d.id, ...d.data() } as JournalEntry)) }); loaded.journal = true },
         () => { loaded.journal = true }),
-      onSnapshot(query(collection(db, 'esha_handover'), orderBy('timestamp', 'desc'), limit(20)),
+      onSnapshot(query(collection(db, paths.handovers), orderBy('timestamp', 'desc'), limit(20)),
         snap => { set({ handovers: snap.docs.map(d => ({ id: d.id, ...d.data() } as HandoverEntry)) }); loaded.handover = true },
         () => { loaded.handover = true }),
-      onSnapshot(query(collection(db, 'esha_appointments'), orderBy('createdAt', 'desc')),
+      onSnapshot(query(collection(db, paths.appointments), orderBy('createdAt', 'desc')),
         snap => { set({ appointments: snap.docs.map(d => ({ id: d.id, ...d.data() } as Appointment)) }) },
         () => {}
       ),
-      onSnapshot(doc(db, 'esha_settings', 'config'),
+      onSnapshot(doc(db, paths.settings),
         snap => { set({ settingsLoaded: true }); if (snap.exists()) { const d = snap.data(); if (d) set({ activeGoals: d.activeGoals ? fillGoals(d.activeGoals, (Date.now() - parseDob(d.babyDob).getTime()) / (7 * 86400000)) : DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob), babyName: typeof d.babyName === 'string' && d.babyName.trim() ? d.babyName.trim() : DEFAULT_BABY_NAME }) } },
         () => {}
       ),
     ]
 
     return () => { clearTimeout(t); unsubs.forEach(u => u()) }
-  }, [state.who, authReady, account.uid, state.refreshKey, historyStart, set])
+  }, [state.who, authReady, account.uid, paths, state.refreshKey, historyStart, set])
 
   // Helpers
   const lastFeed = useCallback((): Date | null => {
@@ -246,8 +274,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Write ops
   const saveEntry = async (data: Omit<Entry, 'id' | 'loggedBy' | 'timestamp'> & { _t?: Date }) => {
+    assertLive()
     const { _t, ...rest } = data as any
-    const ref = await addDoc(collection(db, 'esha_entries'), {
+    const ref = await addDoc(collection(db, paths.entries), {
       ...rest, loggedBy: state.who,
       timestamp: Timestamp.fromDate(_t || new Date()),
     })
@@ -255,32 +284,40 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }
 
   const updateEntry = async (id: string, data: Partial<Entry>) => {
+    assertLive()
     const { timestamp, ...rest } = data as any
     const patch: any = { ...rest }
     if (timestamp) patch.timestamp = Timestamp.fromDate(toDate(timestamp))
-    await updateDoc(doc(db, 'esha_entries', id), patch)
+    await updateDoc(doc(db, paths.entries, id), patch)
   }
 
-  const removeEntry   = (id: string) => deleteDoc(doc(db, 'esha_entries', id))
-  const removeGrowth  = (id: string) => deleteDoc(doc(db, 'esha_growth', id))
-  const removeJournal = (id: string) => deleteDoc(doc(db, 'esha_journal', id))
-  const removeHandover= (id: string) => deleteDoc(doc(db, 'esha_handover', id))
+  const removeEntry = async (id: string) => { assertLive(); await deleteDoc(doc(db, paths.entries, id)) }
+  const removeGrowth = async (id: string) => { assertLive(); await deleteDoc(doc(db, paths.growth, id)) }
+  const removeJournal = async (id: string) => { assertLive(); await deleteDoc(doc(db, paths.journal, id)) }
+  const removeHandover = async (id: string) => { assertLive(); await deleteDoc(doc(db, paths.handovers, id)) }
 
-  const saveGrowth = async (data: Omit<GrowthEntry, 'id' | 'loggedBy' | 'timestamp'>) =>
-    addDoc(collection(db, 'esha_growth'), { ...data, loggedBy: state.who, timestamp: Timestamp.now() }).then(() => {})
+  const saveGrowth = async (data: Omit<GrowthEntry, 'id' | 'loggedBy' | 'timestamp'>) => {
+    assertLive()
+    await addDoc(collection(db, paths.growth), { ...data, loggedBy: state.who, timestamp: Timestamp.now() })
+  }
 
-  const saveJournal = async (data: Omit<JournalEntry, 'id' | 'loggedBy' | 'timestamp'>) =>
-    addDoc(collection(db, 'esha_journal'), { ...data, loggedBy: state.who, timestamp: Timestamp.now() }).then(() => {})
+  const saveJournal = async (data: Omit<JournalEntry, 'id' | 'loggedBy' | 'timestamp'>) => {
+    assertLive()
+    await addDoc(collection(db, paths.journal), { ...data, loggedBy: state.who, timestamp: Timestamp.now() })
+  }
 
-  const saveHandover = async (data: Omit<HandoverEntry, 'id' | 'from' | 'timestamp'>) =>
-    addDoc(collection(db, 'esha_handover'), { ...data, from: state.who, timestamp: Timestamp.now() }).then(() => {})
+  const saveHandover = async (data: Omit<HandoverEntry, 'id' | 'from' | 'timestamp'>) => {
+    assertLive()
+    await addDoc(collection(db, paths.handovers), { ...data, from: state.who, timestamp: Timestamp.now() })
+  }
 
   const importEntries = async (entries: object[]) => {
+    assertLive()
     const CHUNK = 400
     for (let i = 0; i < entries.length; i += CHUNK) {
       const batch = writeBatch(db)
       entries.slice(i, i + CHUNK).forEach((entry: any) => {
-        const ref = doc(collection(db, 'esha_entries'))
+        const ref = doc(collection(db, paths.entries))
         const ts = entry.timestamp ? Timestamp.fromDate(new Date(entry.timestamp)) : Timestamp.now()
         batch.set(ref, { ...entry, timestamp: ts })
       })
@@ -292,14 +329,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== null))
   }
   const saveAppointment = async (data: Partial<Appointment>) => {
+    assertLive()
     const payload = stripUndefined({ ...data } as Record<string, any>)
     if (!payload.createdAt) payload.createdAt = new Date().toISOString()
-    await addDoc(collection(db, 'esha_appointments'), payload)
+    await addDoc(collection(db, paths.appointments), payload)
   }
   const updateAppointment = async (id: string, data: Partial<Appointment>) => {
-    await updateDoc(doc(db, 'esha_appointments', id), stripUndefined(data as Record<string, any>))
+    assertLive()
+    await updateDoc(doc(db, paths.appointments, id), stripUndefined(data as Record<string, any>))
   }
-  const removeAppointment = (id: string) => deleteDoc(doc(db, 'esha_appointments', id))
+  const removeAppointment = async (id: string) => { assertLive(); await deleteDoc(doc(db, paths.appointments, id)) }
 
   const loadOlderEntries = () => setState(s => ({ ...s, historyDays: s.historyDays + OLDER_STEP_DAYS }))
 
@@ -308,12 +347,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Writes only the goals that changed. Saving the whole set from one phone's copy could
   // silently undo a change the other parent had just made.
   const acceptGoalUpdate = async (changes: Partial<GoalSet>) => {
-    await setDoc(doc(db, 'esha_settings', 'config'), { activeGoals: changes }, { merge: true })
+    assertLive()
+    await setDoc(doc(db, paths.settings), { activeGoals: changes }, { merge: true })
     setState(s => ({ ...s, activeGoals: { ...s.activeGoals, ...changes } }))
   }
 
   const setFeedCycleHours = async (hours: number) => {
-    await setDoc(doc(db, 'esha_settings', 'config'), { feedCycleHours: hours }, { merge: true })
+    assertLive()
+    await setDoc(doc(db, paths.settings), { feedCycleHours: hours }, { merge: true })
     set({ feedCycleHours: hours })
   }
 
@@ -337,7 +378,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <Ctx.Provider value={{
-      ...state, entries, historyStart, loadOlderEntries, account, refreshAccount, setView, setWho,
+      ...state, entries, historyStart, loadOlderEntries, account, refreshAccount, family, paths, previewingCopy, setPreviewingCopy, setView, setWho,
       saveEntry, updateEntry, removeEntry,
       saveGrowth, removeGrowth,
       saveJournal, removeJournal,
