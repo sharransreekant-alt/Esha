@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import { ESHA_BORN } from '../types'
+import { useApp } from '../context/AppContext'
 import { getMilestoneForAge } from '../utils/milestones'
 
 export function GuidanceCard() {
   const [expanded, setExpanded] = useState(false)
-  const weekAge  = (Date.now() - ESHA_BORN.getTime()) / (7 * 24 * 60 * 60 * 1000)
+  const { babyDob } = useApp()
+  const weekAge  = (Date.now() - babyDob.getTime()) / (7 * 24 * 60 * 60 * 1000)
   const milestone = getMilestoneForAge(weekAge)
 
   return (

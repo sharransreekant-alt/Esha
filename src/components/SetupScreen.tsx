@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useApp } from '../context/AppContext'
 
 export function SetupScreen() {
-  const { setWho } = useApp()
+  const { setWho, babyName } = useApp()
   const [name, setName] = useState('')
 
   function handleGo() {
@@ -18,7 +18,7 @@ export function SetupScreen() {
     }}>
       <div style={{ fontSize: 60, marginBottom: 16 }}>🍼</div>
       <h1 style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 28, fontWeight: 700, marginBottom: 8, color: 'var(--text)' }}>
-        Esha's Tracker
+        {babyName}'s Tracker
       </h1>
       <p style={{ color: 'var(--muted)', marginBottom: 24, fontSize: 15, fontWeight: 600, lineHeight: 1.6 }}>
         Who are you? This shows next to each entry so you both know who logged what.

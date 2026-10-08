@@ -1,5 +1,5 @@
 import { Timestamp } from 'firebase/firestore'
-import { Entry, FeedComponent, ESHA_BORN } from '../types'
+import { Entry, FeedComponent } from '../types'
 
 export function toDate(ts: Timestamp | Date | null | undefined): Date {
   if (!ts) return new Date(0)
@@ -63,8 +63,8 @@ export function fmtMs(ms: number): string {
   return `${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`
 }
 
-export function eshaAge(): string {
-  const ms   = Date.now() - ESHA_BORN.getTime()
+export function babyAge(born: Date): string {
+  const ms   = Date.now() - born.getTime()
   const days = Math.floor(ms / 86400000)
   const w = Math.floor(days / 7), r = days % 7
   if (w === 0) return `${days} ${days !== 1 ? 'days' : 'day'} old`

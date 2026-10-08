@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { GoalSet } from '../utils/milestones'
-import { ESHA_BORN } from '../types'
 import { getPendingGoalUpdate } from '../utils/milestones'
 
 const FIELD_LABELS: Record<string, string> = {
@@ -25,14 +24,14 @@ const FIELD_EMOJI: Record<string, string> = {
 }
 
 export function GoalUpdateCard() {
-  const { activeGoals, acceptGoalUpdate, settingsLoaded } = useApp()
+  const { activeGoals, acceptGoalUpdate, settingsLoaded, babyName, babyDob } = useApp()
   const [accepting, setAccepting] = useState(false)
   const [dismissed, setDismissed] = useState(false)
 
   // Until saved goals arrive, activeGoals holds built-in defaults; acting on those would overwrite real ones
   if (dismissed || !activeGoals || !settingsLoaded) return null
 
-  const weekAge  = (Date.now() - ESHA_BORN.getTime()) / (7 * 24 * 60 * 60 * 1000)
+  const weekAge  = (Date.now() - babyDob.getTime()) / (7 * 24 * 60 * 60 * 1000)
   const pending  = getPendingGoalUpdate(activeGoals, weekAge)
 
   if (!pending) return null
@@ -67,7 +66,7 @@ export function GoalUpdateCard() {
             </span>
           </div>
           <div style={{ fontSize: 13, color: 'var(--text)', fontWeight: 600, lineHeight: 1.4 }}>
-            Esha is growing — some goals should change to match her development.
+            {babyName} is growing, so some suggested goals have changed. Take them or keep your own.
           </div>
         </div>
         <button onClick={() => setDismissed(true)} style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: 16, cursor: 'pointer', padding: '0 4px', flexShrink: 0 }}>✕</button>

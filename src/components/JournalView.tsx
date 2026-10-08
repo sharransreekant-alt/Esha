@@ -5,7 +5,7 @@ import { fmtTime, fmtDate } from '../utils/helpers'
 const MOODS = ['😊', '😴', '🙏', '😟', '🥰']
 
 export function JournalView() {
-  const { journal, saveJournal, removeJournal, setView } = useApp()
+  const { journal, saveJournal, removeJournal, setView, babyName } = useApp()
   const [showModal, setShowModal] = useState(false)
   const [mood, setMood]   = useState('')
   const [text, setText]   = useState('')
@@ -64,7 +64,7 @@ export function JournalView() {
             </div>
             <div className="fg">
               <label className="flbl">What's on your mind?</label>
-              <textarea className="finput" placeholder="Write anything… a moment, a feeling, something Esha did." value={text} onChange={e => setText(e.target.value)} />
+              <textarea className="finput" placeholder={`Write anything… a moment, a feeling, something ${babyName} did.`} value={text} onChange={e => setText(e.target.value)} />
             </div>
             <button className="btn-primary" onClick={handleSave}>Save Entry</button>
             <button className="btn-secondary" onClick={() => setShowModal(false)} style={{ marginTop: 8 }}>Cancel</button>

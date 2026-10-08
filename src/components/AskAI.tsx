@@ -16,7 +16,7 @@ const SUGGESTED = [
   'When was the last feed, and how much?',
   "What's the average gap between feeds this week?",
   'How many wet and dirty nappies today?',
-  'What solids has she had this week?',
+  'What solids were logged this week?',
   'What should I have ready for a GP appointment?',
 ]
 

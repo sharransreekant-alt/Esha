@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { Appointment } from '../types'
 import { APPOINTMENT_TEMPLATES } from '../utils/appointments'
-import { ESHA_BORN } from '../types'
 import { callWorker, voiceEnabled } from '../voice/parseClient'
 import { ageBand } from '../utils/ageBand'
 import { toDate } from '../utils/helpers'
@@ -36,7 +35,7 @@ function AppointmentModal({
   onClose: () => void
 }) {
   const { who, babyDob } = useApp()
-  const ageWeeks = Math.floor((Date.now() - ESHA_BORN.getTime()) / (7 * 24 * 60 * 60 * 1000))
+  const ageWeeks = Math.floor((Date.now() - babyDob.getTime()) / (7 * 24 * 60 * 60 * 1000))
   const [type,      setType]      = useState(initial?.type      || 'Midwife Visit')
   const [date,      setDate]      = useState(initial?.date      || new Date().toISOString().slice(0, 10))
   const [time,      setTime]      = useState(initial?.time      || '')

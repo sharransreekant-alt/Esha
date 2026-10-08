@@ -117,7 +117,7 @@ export const MILESTONES: Milestone[] = [
       'If breastfed and no poo for 7+ days with a hard belly, consult your GP',
     ],
     goalChanges: [
-      { field: 'feedsPerDay',   from: 9,  to: 8,  reason: 'Esha\'s stomach has grown and she can now take more at each feed, reducing the number of feeds needed.' },
+      { field: 'feedsPerDay',   from: 9,  to: 8,  reason: 'Babies can usually take more at each feed by this age, so fewer feeds are suggested.' },
       { field: 'poosPerDay',    from: 3,  to: 1,  reason: 'From 6 weeks, one poo a day is a reasonable goal — breastfed babies can vary day to day and that\'s normal.' },
       { field: 'tummyTimeMins', from: 10, to: 15, reason: 'Tummy time should increase to build neck and shoulder strength ahead of rolling.' },
     ],
@@ -149,7 +149,7 @@ export const MILESTONES: Milestone[] = [
       'She can now hold objects — soft rattles and textured rings are great',
     ],
     goalChanges: [
-      { field: 'feedsPerDay',   from: 8,  to: 7,  reason: 'At 3 months, Esha can take larger feeds and go longer between them. 7 feeds per day is appropriate.' },
+      { field: 'feedsPerDay',   from: 8,  to: 7,  reason: 'By 3 months many babies take larger feeds with longer gaps, so 7 feeds per day is suggested.' },
       { field: 'massagesPerDay',from: 4,  to: 3,  reason: 'Massage remains valuable but 3 times per day is sufficient from this age.' },
       { field: 'tummyTimeMins', from: 15, to: 20, reason: 'Tummy time target increases to support rolling development.' },
     ],
@@ -181,7 +181,7 @@ export const MILESTONES: Milestone[] = [
       'She\'ll start imitating sounds — repeat them back',
     ],
     goalChanges: [
-      { field: 'feedsPerDay',   from: 7,  to: 6,  reason: 'At 4–6 months, 6 feeds per day is appropriate as Esha takes more volume each time.' },
+      { field: 'feedsPerDay',   from: 7,  to: 6,  reason: 'At 4–6 months many babies take more at each feed, so 6 feeds per day is suggested.' },
       { field: 'tummyTimeMins', from: 20, to: 30, reason: 'Aim for 30 minutes total per day to support rolling, sitting and crawling development.' },
     ],
   },

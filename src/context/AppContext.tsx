@@ -6,7 +6,7 @@ import {
 import { db, ensureSignedIn } from '../firebase'
 import {
   Entry, GrowthEntry, JournalEntry, HandoverEntry, Appointment,
-  View, DEFAULT_FEED_CYCLE_HOURS, ESHA_BORN
+  View, DEFAULT_FEED_CYCLE_HOURS, DEFAULT_BABY_NAME, DEFAULT_BABY_DOB
 } from '../types'
 import { GoalSet, DEFAULT_GOALS, fillGoals } from '../utils/milestones'
 import { toDate } from '../utils/helpers'
@@ -29,6 +29,7 @@ interface AppState {
   theme:          'light' | 'dark'
   feedCycleHours: number
   babyDob:        Date
+  babyName:       string
   settingsLoaded: boolean   // false until saved goals and settings have arrived
   historyDays:    number    // how many days of entries are loaded
 }
@@ -71,7 +72,7 @@ const Ctx = createContext<AppContextValue | null>(null)
 // Settings may carry the date of birth as an ISO string; fall back to the built-in one
 function parseDob(v: unknown): Date {
   const d = typeof v === 'string' ? new Date(v) : null
-  return d && !isNaN(d.getTime()) ? d : ESHA_BORN
+  return d && !isNaN(d.getTime()) ? d : DEFAULT_BABY_DOB
 }
 
 const RECENT_DAYS = 14
@@ -99,7 +100,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     activeGoals: DEFAULT_GOALS,
     theme: computeDefaultTheme(),
     feedCycleHours: DEFAULT_FEED_CYCLE_HOURS,
-    babyDob: ESHA_BORN,
+    babyDob: DEFAULT_BABY_DOB,
+    babyName: DEFAULT_BABY_NAME,
     settingsLoaded: false,
     historyDays: RECENT_DAYS,
   })
@@ -177,7 +179,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         () => {}
       ),
       onSnapshot(doc(db, 'esha_settings', 'config'),
-        snap => { set({ settingsLoaded: true }); if (snap.exists()) { const d = snap.data(); if (d) set({ activeGoals: d.activeGoals ? fillGoals(d.activeGoals, (Date.now() - parseDob(d.babyDob).getTime()) / (7 * 86400000)) : DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob) }) } },
+        snap => { set({ settingsLoaded: true }); if (snap.exists()) { const d = snap.data(); if (d) set({ activeGoals: d.activeGoals ? fillGoals(d.activeGoals, (Date.now() - parseDob(d.babyDob).getTime()) / (7 * 86400000)) : DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob), babyName: typeof d.babyName === 'string' && d.babyName.trim() ? d.babyName.trim() : DEFAULT_BABY_NAME }) } },
         () => {}
       ),
     ]

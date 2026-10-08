@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { useApp } from '../context/AppContext'
-import { ESHA_BORN } from '../types'
 import { getMilestoneForAge } from '../utils/milestones'
 import { GoalSet } from '../utils/milestones'
 
@@ -15,8 +14,8 @@ const FIELD_CONFIG: { key: keyof GoalSet; label: string; emoji: string; unit: st
 ]
 
 export function GoalsSettingsView() {
-  const { activeGoals, acceptGoalUpdate, setView, feedCycleHours, setFeedCycleHours } = useApp()
-  const weekAge = (Date.now() - ESHA_BORN.getTime()) / (7 * 24 * 60 * 60 * 1000)
+  const { activeGoals, acceptGoalUpdate, setView, feedCycleHours, setFeedCycleHours, babyName, babyDob } = useApp()
+  const weekAge = (Date.now() - babyDob.getTime()) / (7 * 24 * 60 * 60 * 1000)
   const suggested = getMilestoneForAge(weekAge).goals
 
   const [cycleDraft, setCycleDraft] = useState(feedCycleHours)
@@ -80,7 +79,7 @@ export function GoalsSettingsView() {
 
       <div className="sec" style={{ marginBottom: 6 }}>Feed Timing</div>
       <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginBottom: 10, lineHeight: 1.5 }}>
-        How often Esha typically feeds — controls the "Next in" pill and the feed reminder.
+        How often {babyName} typically feeds — controls the "Next in" pill and the feed reminder.
       </div>
       <div style={{ background: 'var(--white)', borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow)', padding: '13px 14px', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -116,7 +115,7 @@ export function GoalsSettingsView() {
         </button>
       </div>
       <div style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600, marginBottom: 18, lineHeight: 1.5 }}>
-        Esha's age-based suggestion is shown for each goal. Set your own number if you'd rather track something different.
+        The age-based suggestion for {babyName} is shown for each goal. Set your own number if you'd rather track something different.
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ESHA_BORN } from '../types'
+import { useApp } from '../context/AppContext'
 import { getLeapStatus, Leap } from '../utils/leaps'
 
 function LeapDetail({ leap, phase, onClose }: { leap: Leap; phase: 'fussy' | 'skills'; onClose: () => void }) {
@@ -95,7 +95,8 @@ function LeapDetail({ leap, phase, onClose }: { leap: Leap; phase: 'fussy' | 'sk
 
 export function LeapCard() {
   const [showDetail, setShowDetail] = useState(false)
-  const status = getLeapStatus(ESHA_BORN)
+  const { babyDob } = useApp()
+  const status = getLeapStatus(babyDob)
 
   // Between leaps — show a subtle upcoming card
   if (status.phase === 'between' && status.nextLeap) {

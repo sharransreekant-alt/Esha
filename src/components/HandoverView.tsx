@@ -5,7 +5,7 @@ import { timeSince, fmtTime, fmtDate } from '../utils/helpers'
 const STATUSES = ['😴 Sleeping', '😊 Awake & happy', '😢 Fussy', '🍼 Just fed', '🎉 Just settled']
 
 export function HandoverView() {
-  const { handovers, saveHandover, removeHandover, markHandoverSeen, setView, entries } = useApp()
+  const { handovers, saveHandover, removeHandover, markHandoverSeen, setView, entries, babyName } = useApp()
   const [showModal, setShowModal] = useState(false)
   const [status, setStatus] = useState('')
   const [notes,  setNotes]  = useState('')
@@ -13,7 +13,7 @@ export function HandoverView() {
   const lastFeed = entries.find(e => e.type === 'feed')
 
   async function handleSave() {
-    if (!status) { alert('How is she right now?'); return }
+    if (!status) { alert(`How is ${babyName} right now?`); return }
     await saveHandover({
       status,
       notes: notes || null,
@@ -77,7 +77,7 @@ export function HandoverView() {
             <div style={{ fontFamily: "'Instrument Serif', serif", fontStyle: 'italic', fontSize: 20, fontWeight: 700, textAlign: 'center', marginBottom: 20 }}>🤝 Leave Handover</div>
             <div className="info-box">Leave a note so the other parent knows where things are at when they take over.</div>
             <div className="fg">
-              <label className="flbl">How is Esha right now?</label>
+              <label className="flbl">How is {babyName} right now?</label>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {STATUSES.map(s => (
                   <button key={s} onClick={() => setStatus(s)} className={`pill${status === s ? ' on' : ''}`} style={{ width: '100%', textAlign: 'left' }}>{s}</button>
