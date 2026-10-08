@@ -38,7 +38,7 @@ export function AccountView() {
             {account.name && account.email && <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', marginTop: 2, wordBreak: 'break-all' }}>{account.email}</div>}
           </div>
           <div className="info-box">
-            Sign in with the same account on another phone, or after reinstalling, to get back to the log.
+            Your log is now tied to this account, not just to this phone. If you get a new phone, reinstall the app or clear your browser, sign in with the same account and everything is there.
           </div>
           <button
             className="btn-secondary" disabled={busy} style={{ marginTop: 14 }}
@@ -50,7 +50,7 @@ export function AccountView() {
       ) : (
         <>
           <div style={{ fontSize: 13, color: 'var(--text-med)', fontWeight: 600, lineHeight: 1.55, marginBottom: 16 }}>
-            Sign in so the log is still there after a new phone or a reinstall. The first time you sign in here, it creates your account and keeps everything this phone can already see.
+            Right now your log is tied to this phone. If the phone is lost or replaced, or the app is reinstalled, you would lose access. Signing in ties it to an account you can get back into from any phone. Nothing changes in how you use the app.
           </div>
 
           <button className="btn-primary" disabled={busy} onClick={() => run(signInWithGoogle, 'Signed in')}>

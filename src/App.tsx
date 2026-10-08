@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react'
+import { disableNetwork, enableNetwork } from 'firebase/firestore'
+import { db } from './firebase'
 import { AppProvider, useApp } from './context/AppContext'
 import { ToastProvider } from './components/Toast'
 import { SetupScreen } from './components/SetupScreen'
@@ -33,8 +35,11 @@ function AppShell() {
     let hiddenAt = 0
     function handleVisibility() {
       if (document.visibilityState === 'hidden') { hiddenAt = Date.now(); return }
-      // A quick app switch keeps the live connection; only reload after a real absence
+      // After a real absence, reload. After a short one (Siri, another app), phones often
+      // leave the live connection frozen for many seconds, so restart just the connection:
+      // the listeners pick up where they left off and only fetch what changed.
       if (hiddenAt && Date.now() - hiddenAt > 5 * 60000) refresh()
+      else disableNetwork(db).then(() => enableNetwork(db)).catch(() => {})
     }
     document.addEventListener('visibilitychange', handleVisibility)
     return () => document.removeEventListener('visibilitychange', handleVisibility)
