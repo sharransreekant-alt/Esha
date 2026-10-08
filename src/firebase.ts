@@ -57,6 +57,7 @@ export async function signInWithGoogle(): Promise<AccountResult> {
     return 'linked'
   } catch (e: any) {
     // This Google account already belongs to an existing account: use that one
+    if (e?.code === 'auth/provider-already-linked') return 'linked'
     const credential = e?.code === 'auth/credential-already-in-use' ? GoogleAuthProvider.credentialFromError(e) : null
     if (!credential) throw e
     await signInWithCredential(auth, credential)

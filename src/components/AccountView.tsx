@@ -6,7 +6,7 @@ import { signInWithEmail, signInWithGoogle, resetPassword, signOutAccount, authM
 // Optional for now: the app works without signing in. An account means the log is
 // reachable again after a new phone or a reinstall.
 export function AccountView() {
-  const { setView, account } = useApp()
+  const { setView, account, refreshAccount } = useApp()
   const { showToast } = useToast()
   const [email,    setEmail]    = useState('')
   const [password, setPassword] = useState('')
@@ -15,7 +15,7 @@ export function AccountView() {
 
   async function run(action: () => Promise<unknown>, done: string) {
     setBusy(true); setError('')
-    try { await action(); showToast(done); setPassword('') } catch (e) { setError(authMessage(e)) }
+    try { await action(); refreshAccount(); showToast(done); setPassword('') } catch (e) { setError(authMessage(e)) }
     setBusy(false)
   }
 
@@ -34,7 +34,8 @@ export function AccountView() {
         <>
           <div style={{ background: 'var(--white)', borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow)', padding: '14px 15px', marginBottom: 14 }}>
             <div style={{ fontSize: 11, fontWeight: 800, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.6px' }}>Signed in as</div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text)', marginTop: 4, wordBreak: 'break-all' }}>{account.email || 'Your account'}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--text)', marginTop: 4 }}>✓ {account.name || account.email || 'Your account'}</div>
+            {account.name && account.email && <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--muted)', marginTop: 2, wordBreak: 'break-all' }}>{account.email}</div>}
           </div>
           <div className="info-box">
             Sign in with the same account on another phone, or after reinstalling, to get back to the log.

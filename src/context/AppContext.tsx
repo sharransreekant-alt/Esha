@@ -3,7 +3,7 @@ import {
   collection, addDoc, deleteDoc, updateDoc, doc, setDoc,
   query, orderBy, where, limit, onSnapshot, Timestamp, writeBatch
 } from 'firebase/firestore'
-import { onAuthStateChanged } from 'firebase/auth'
+import { onIdTokenChanged, User } from 'firebase/auth'
 import { db, auth, ensureSignedIn } from '../firebase'
 import {
   Entry, GrowthEntry, JournalEntry, HandoverEntry, Appointment,
@@ -36,7 +36,19 @@ interface AppState {
 }
 
 // Who this phone is signed in as. `email` is null until a real account is attached.
-export interface Account { uid: string; email: string | null; signedIn: boolean }
+export interface Account { uid: string; email: string | null; name: string | null; signedIn: boolean }
+
+// Attaching Google or email to an existing identity leaves the top-level fields empty,
+// so fall back to what the sign-in provider reported.
+function toAccount(u: User | null): Account {
+  const p = u?.providerData.find(d => d.email || d.displayName)
+  return {
+    uid: u?.uid || '',
+    email: u?.email || p?.email || null,
+    name: u?.displayName || p?.displayName || null,
+    signedIn: !!u && !u.isAnonymous,
+  }
+}
 
 interface AppContextValue extends AppState {
   setView:       (v: View) => void
@@ -69,6 +81,7 @@ interface AppContextValue extends AppState {
   setFeedCycleHours:  (hours: number) => Promise<void>
   historyStart:       Date        // entries older than this are not loaded yet
   account:            Account
+  refreshAccount:     () => void
   loadOlderEntries:   () => void
 }
 
@@ -148,9 +161,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // Sign in before reading anything, so the database rules can require it.
   // If sign-in fails we still try to subscribe; the rules decide what happens.
   const [authReady, setAuthReady] = useState(false)
-  const [account, setAccount] = useState<Account>({ uid: '', email: null, signedIn: false })
-  useEffect(() => onAuthStateChanged(auth, u => {
-    setAccount({ uid: u?.uid || '', email: u?.email || null, signedIn: !!u && !u.isAnonymous })
+  const [account, setAccount] = useState<Account>(toAccount(null))
+  const refreshAccount = useCallback(() => setAccount(toAccount(auth.currentUser)), [])
+  // onIdTokenChanged, not onAuthStateChanged: attaching an account to the phone's existing
+  // identity keeps the same user, which the latter never reports.
+  useEffect(() => onIdTokenChanged(auth, u => {
+    setAccount(toAccount(u))
     // Signed out: go back to an anonymous identity so the app keeps working
     if (!u) ensureSignedIn().catch(() => {})
   }), [])
@@ -321,7 +337,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <Ctx.Provider value={{
-      ...state, entries, historyStart, loadOlderEntries, account, setView, setWho,
+      ...state, entries, historyStart, loadOlderEntries, account, refreshAccount, setView, setWho,
       saveEntry, updateEntry, removeEntry,
       saveGrowth, removeGrowth,
       saveJournal, removeJournal,
