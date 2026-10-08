@@ -6,6 +6,7 @@ import { toDate } from '../utils/helpers'
 import { foodsTried } from '../utils/solids'
 import { auth, ensureSignedIn } from '../firebase'
 import { useToast } from './Toast'
+import { voiceEnabled } from '../voice/parseClient'
 
 export function MoreView() {
   const { setView, growth, journal, handovers, hasUnreadHandover, importEntries, appointments, entries } = useApp()
@@ -38,6 +39,7 @@ export function MoreView() {
     { id: 'insights', icon: '📊', name: 'Insights', sub: 'Feeding patterns' },
     { id: 'journal',  icon: '📖', name: 'Journal',  sub: `${journal.length} entr${journal.length === 1 ? 'y' : 'ies'}` },
     { id: 'handover', icon: '🤝', name: 'Handover', sub: unread ? '📬 Unread note!' : latest ? `Last: ${timeSince(latest.timestamp)}` : 'None yet' },
+    ...(voiceEnabled ? [{ id: 'shortcut' as View, icon: '🎙️', name: 'Siri shortcut', sub: 'Log without opening the app' }] : []),
   ]
 
   async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {

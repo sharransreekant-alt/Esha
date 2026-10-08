@@ -23,7 +23,10 @@ export function GoalsSettingsView() {
   const [cycleSaving, setCycleSaving] = useState(false)
   const [cycleSaved, setCycleSaved] = useState(false)
 
-  const [draft, setDraft] = useState<GoalSet>({ ...activeGoals })
+  // Only what this parent has edited. Everything else follows the saved goals live,
+  // so a change made on the other phone is never overwritten from here.
+  const [edits, setEdits] = useState<Partial<GoalSet>>({})
+  const draft: GoalSet = { ...activeGoals, ...edits }
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
@@ -31,25 +34,32 @@ export function GoalsSettingsView() {
 
   function updateField(key: keyof GoalSet, value: string) {
     const n = parseInt(value)
-    setDraft(d => ({ ...d, [key]: isNaN(n) ? 0 : n }))
+    setEdits(d => ({ ...d, [key]: isNaN(n) ? 0 : n }))
     setSaved(false)
   }
 
   function resetFieldToSuggested(key: keyof GoalSet) {
-    setDraft(d => ({ ...d, [key]: suggested[key] }))
+    setEdits(d => ({ ...d, [key]: suggested[key] }))
     setSaved(false)
   }
 
   function resetAllToSuggested() {
-    setDraft({ ...suggested })
+    setEdits({ ...suggested })
     setSaved(false)
   }
 
   async function handleSave() {
+    const changed: Partial<GoalSet> = {}
+    FIELD_CONFIG.forEach(f => { if (draft[f.key] !== activeGoals[f.key]) changed[f.key] = draft[f.key] })
     setSaving(true)
-    await acceptGoalUpdate(draft)
+    try {
+      await acceptGoalUpdate(changed)
+      setEdits({})
+      setSaved(true)
+    } catch {
+      alert('Save failed — check your connection')
+    }
     setSaving(false)
-    setSaved(true)
     setTimeout(() => setSaved(false), 2500)
   }
 

@@ -7,13 +7,16 @@ import { toDate, fmtDateLabel, feedVolume } from '../utils/helpers'
 interface DayGroup { label: string; items: Entry[] }
 
 export function HistoryView() {
-  const { entries, activeGoals } = useApp()
+  const { entries: allEntries, activeGoals, historyStart, loadOlderEntries } = useApp()
+  // Notes and solids are loaded for all time; only show days that are fully loaded
+  const entries = allEntries.filter(e => toDate(e.timestamp) >= historyStart)
   const [openDay, setOpenDay]   = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<Record<string, string>>({})
 
   if (!entries.length) return (
     <div style={{ padding: '18px 16px 72px' }}>
-      <div className="empty"><div className="empty-em">📋</div><p>No entries yet.</p></div>
+      <div className="empty"><div className="empty-em">📋</div><p>No entries since {fmtDateLabel(historyStart)}.</p></div>
+      <button className="btn-secondary" onClick={loadOlderEntries}>Show older</button>
     </div>
   )
 
@@ -98,6 +101,7 @@ export function HistoryView() {
           </div>
         )
       })}
+      <button className="btn-secondary" onClick={loadOlderEntries} style={{ marginTop: 14 }}>Show older</button>
     </div>
   )
 }

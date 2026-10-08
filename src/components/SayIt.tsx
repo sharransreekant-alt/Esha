@@ -39,6 +39,11 @@ export function SayIt() {
 
   useEffect(() => () => { recRef.current?.abort() }, [])
 
+  // A home-screen icon pointing at ...?say=1 opens the app already listening
+  useEffect(() => {
+    if (Recognition && new URLSearchParams(window.location.search).get('say') === '1') toggleMic()
+  }, [])
+
   function toggleMic() {
     if (listening) { recRef.current?.stop(); return }
     if (!Recognition) {

@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react'
 import {
   collection, addDoc, deleteDoc, updateDoc, doc, setDoc,
-  query, orderBy, onSnapshot, Timestamp, writeBatch
+  query, orderBy, where, limit, onSnapshot, Timestamp, writeBatch
 } from 'firebase/firestore'
 import { db, ensureSignedIn } from '../firebase'
 import {
@@ -30,6 +30,8 @@ interface AppState {
   theme:          'light' | 'dark'
   feedCycleHours: number
   babyDob:        Date
+  settingsLoaded: boolean   // false until saved goals and settings have arrived
+  historyDays:    number    // how many days of entries are loaded
 }
 
 interface AppContextValue extends AppState {
@@ -59,9 +61,11 @@ interface AppContextValue extends AppState {
   updateAppointment:  (id: string, data: Partial<Appointment>) => Promise<void>
   removeAppointment:  (id: string) => Promise<void>
   activeGoals:        GoalSet
-  acceptGoalUpdate:   (goals: GoalSet) => Promise<void>
+  acceptGoalUpdate:   (changes: Partial<GoalSet>) => Promise<void>
   toggleTheme:        () => void
   setFeedCycleHours:  (hours: number) => Promise<void>
+  historyStart:       Date        // entries older than this are not loaded yet
+  loadOlderEntries:   () => void
 }
 
 const Ctx = createContext<AppContextValue | null>(null)
@@ -71,6 +75,9 @@ function parseDob(v: unknown): Date {
   const d = typeof v === 'string' ? new Date(v) : null
   return d && !isNaN(d.getTime()) ? d : ESHA_BORN
 }
+
+const RECENT_DAYS = 14
+const OLDER_STEP_DAYS = 30
 
 function computeDefaultTheme(): 'light' | 'dark' {
   const stored = localStorage.getItem('eshaTheme')
@@ -96,7 +103,29 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     theme: computeDefaultTheme(),
     feedCycleHours: DEFAULT_FEED_CYCLE_HOURS,
     babyDob: ESHA_BORN,
+    settingsLoaded: false,
+    historyDays: RECENT_DAYS,
   })
+
+  // Entries arrive from three listeners: the recent window, plus all notes and all solids
+  // (both small, and both needed in full by their own screens). Loading every entry ever
+  // logged on each app open is what exhausts the database's daily read allowance.
+  const [recentEntries, setRecentEntries] = useState<Entry[]>([])
+  const [noteEntries,   setNoteEntries]   = useState<Entry[]>([])
+  const [solidsEntries, setSolidsEntries] = useState<Entry[]>([])
+
+  const historyStart = useMemo(() => {
+    const d = new Date()
+    d.setHours(0, 0, 0, 0)
+    d.setDate(d.getDate() - state.historyDays)
+    return d
+  }, [state.historyDays, state.refreshKey])
+
+  const entries = useMemo(() => {
+    const byId = new Map<string, Entry>()
+    for (const e of [...noteEntries, ...solidsEntries, ...recentEntries]) byId.set(e.id, e)
+    return [...byId.values()].sort((a, b) => toDate(b.timestamp).getTime() - toDate(a.timestamp).getTime())
+  }, [recentEntries, noteEntries, solidsEntries])
 
   const set = useCallback((patch: Partial<AppState>) =>
     setState(s => ({ ...s, ...patch })), [])
@@ -130,16 +159,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const t = setTimeout(() => set({ loading: false }), 5000)
 
     const unsubs = [
-      onSnapshot(query(collection(db, 'esha_entries'), orderBy('timestamp', 'desc')),
-        snap => { set({ entries: snap.docs.map(d => ({ id: d.id, ...d.data() } as Entry)) }); loaded.entries = true; checkDone() },
+      onSnapshot(query(collection(db, 'esha_entries'), where('timestamp', '>=', Timestamp.fromDate(historyStart)), orderBy('timestamp', 'desc')),
+        snap => { setRecentEntries(snap.docs.map(d => ({ id: d.id, ...d.data() } as Entry))); loaded.entries = true; checkDone() },
         () => { loaded.entries = true; checkDone() }),
+      onSnapshot(query(collection(db, 'esha_entries'), where('type', '==', 'note')),
+        snap => setNoteEntries(snap.docs.map(d => ({ id: d.id, ...d.data() } as Entry))), () => {}),
+      onSnapshot(query(collection(db, 'esha_entries'), where('type', '==', 'solids')),
+        snap => setSolidsEntries(snap.docs.map(d => ({ id: d.id, ...d.data() } as Entry))), () => {}),
       onSnapshot(query(collection(db, 'esha_growth'), orderBy('timestamp', 'desc')),
         snap => { set({ growth: snap.docs.map(d => ({ id: d.id, ...d.data() } as GrowthEntry)) }); loaded.growth = true },
         () => { loaded.growth = true }),
       onSnapshot(query(collection(db, 'esha_journal'), orderBy('timestamp', 'desc')),
         snap => { set({ journal: snap.docs.map(d => ({ id: d.id, ...d.data() } as JournalEntry)) }); loaded.journal = true },
         () => { loaded.journal = true }),
-      onSnapshot(query(collection(db, 'esha_handover'), orderBy('timestamp', 'desc')),
+      onSnapshot(query(collection(db, 'esha_handover'), orderBy('timestamp', 'desc'), limit(20)),
         snap => { set({ handovers: snap.docs.map(d => ({ id: d.id, ...d.data() } as HandoverEntry)) }); loaded.handover = true },
         () => { loaded.handover = true }),
       onSnapshot(query(collection(db, 'esha_appointments'), orderBy('createdAt', 'desc')),
@@ -147,19 +180,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         () => {}
       ),
       onSnapshot(doc(db, 'esha_settings', 'config'),
-        snap => { if (snap.exists()) { const d = snap.data(); if (d) set({ aiKey: d.aiKey || '', activeGoals: d.activeGoals ? fillGoals(d.activeGoals, (Date.now() - parseDob(d.babyDob).getTime()) / (7 * 86400000)) : DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob) }) } },
+        snap => { set({ settingsLoaded: true }); if (snap.exists()) { const d = snap.data(); if (d) set({ aiKey: d.aiKey || '', activeGoals: d.activeGoals ? fillGoals(d.activeGoals, (Date.now() - parseDob(d.babyDob).getTime()) / (7 * 86400000)) : DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob) }) } },
         () => {}
       ),
     ]
 
     return () => { clearTimeout(t); unsubs.forEach(u => u()) }
-  }, [state.who, authReady, state.refreshKey, set])
+  }, [state.who, authReady, state.refreshKey, historyStart, set])
 
   // Helpers
   const lastFeed = useCallback((): Date | null => {
-    const f = state.entries.find(e => e.type === 'feed')
+    const f = entries.find(e => e.type === 'feed')
     return f ? toDate(f.timestamp) : null
-  }, [state.entries])
+  }, [entries])
 
   const reminderActive = useCallback((): boolean => {
     if (state.reminderDismissed) return false
@@ -242,11 +275,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }
   const removeAppointment = (id: string) => deleteDoc(doc(db, 'esha_appointments', id))
 
+  const loadOlderEntries = () => setState(s => ({ ...s, historyDays: s.historyDays + OLDER_STEP_DAYS }))
+
   const refresh = () => setState(s => ({ ...s, loading: true, refreshKey: s.refreshKey + 1 }))
 
-  const acceptGoalUpdate = async (goals: GoalSet) => {
-    await setDoc(doc(db, 'esha_settings', 'config'), { activeGoals: goals }, { merge: true })
-    set({ activeGoals: goals })
+  // Writes only the goals that changed. Saving the whole set from one phone's copy could
+  // silently undo a change the other parent had just made.
+  const acceptGoalUpdate = async (changes: Partial<GoalSet>) => {
+    await setDoc(doc(db, 'esha_settings', 'config'), { activeGoals: changes }, { merge: true })
+    setState(s => ({ ...s, activeGoals: { ...s.activeGoals, ...changes } }))
   }
 
   const setFeedCycleHours = async (hours: number) => {
@@ -279,7 +316,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <Ctx.Provider value={{
-      ...state, setView, setWho,
+      ...state, entries, historyStart, loadOlderEntries, setView, setWho,
       saveEntry, updateEntry, removeEntry,
       saveGrowth, removeGrowth,
       saveJournal, removeJournal,

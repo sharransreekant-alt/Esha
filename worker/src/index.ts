@@ -5,6 +5,7 @@ import { modelCall, type Env } from './config'
 import { verifyIdToken } from './auth'
 import { checkRate } from './rateLimit'
 import { parseLog } from './parseLog'
+import { ShortcutSetupSchema, createShortcutKey, quickLog, quickUndo } from './quickLog'
 
 // Nothing in this file logs the utterance, the request body or the model output.
 
@@ -20,14 +21,44 @@ function corsHeaders(origin: string | null, env: Env): Record<string, string> {
   }
 }
 
+function modelError(error: unknown): 'busy' | 'upstream' | null {
+  if (error instanceof Anthropic.RateLimitError || error instanceof OpenAI.RateLimitError) return 'busy'
+  if (error instanceof Anthropic.APIError || error instanceof OpenAI.APIError) {
+    console.error('model_api_error', error.status)
+    return 'upstream'
+  }
+  return null
+}
+
+// Called by a phone shortcut, not a browser: authenticated by the shortcut's private key,
+// answers in plain text for the phone to read aloud.
+async function shortcutRoute(request: Request, env: Env, path: string): Promise<Response> {
+  const say = (status: number, text: string) => new Response(text, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8' } })
+  try {
+    if (path === '/quickUndo') {
+      const r = await quickUndo(env, request.headers.get('Authorization'))
+      return say(r.status, r.say)
+    }
+    const body = await request.json().catch(() => null) as { text?: unknown } | null
+    const r = await quickLog(env, request.headers.get('Authorization'), typeof body?.text === 'string' ? body.text : '')
+    return say(r.status, r.say)
+  } catch (error) {
+    if (!modelError(error)) console.error('quick_failed')
+    return say(500, 'Something went wrong, so nothing was saved. Please try again or use the app.')
+  }
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
+    const path = new URL(request.url).pathname
+    if (request.method === 'POST' && (path === '/quickLog' || path === '/quickUndo')) return shortcutRoute(request, env, path)
+
     const cors = corsHeaders(request.headers.get('Origin'), env)
     const json = (status: number, body: unknown) =>
       new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', ...cors } })
 
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors })
-    if (new URL(request.url).pathname !== '/parseLog' || request.method !== 'POST') return json(404, { error: 'not_found' })
+    if (request.method !== 'POST' || (path !== '/parseLog' && path !== '/shortcutKey')) return json(404, { error: 'not_found' })
     // Browsers always send Origin on cross-origin POSTs; reject anything not on the list.
     if (!cors['Access-Control-Allow-Origin']) return json(403, { error: 'origin_not_allowed' })
 
@@ -36,6 +67,14 @@ export default {
 
     let body: unknown
     try { body = await request.json() } catch { return json(400, { error: 'bad_request' }) }
+
+    if (path === '/shortcutKey') {
+      const setup = ShortcutSetupSchema.safeParse(body)
+      if (!setup.success) return json(400, { error: 'bad_request' })
+      const key = await createShortcutKey(env, uid, setup.data)
+      return key ? json(200, { key }) : json(403, { error: 'session_mismatch' })
+    }
+
     const req = ParseRequestSchema.safeParse(body)
     if (!req.success) return json(400, { error: 'bad_request' })
 
@@ -47,11 +86,9 @@ export default {
       if (!result.ok) return json(422, { error: result.reason })
       return json(200, { log: result.log })
     } catch (error) {
-      if (error instanceof Anthropic.RateLimitError || error instanceof OpenAI.RateLimitError) return json(503, { error: 'busy' })
-      if (error instanceof Anthropic.APIError || error instanceof OpenAI.APIError) {
-        console.error('model_api_error', error.status)
-        return json(502, { error: 'upstream' })
-      }
+      const kind = modelError(error)
+      if (kind === 'busy') return json(503, { error: 'busy' })
+      if (kind === 'upstream') return json(502, { error: 'upstream' })
       console.error('parse_failed')
       return json(500, { error: 'internal' })
     }

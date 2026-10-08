@@ -15,6 +15,7 @@ import { HandoverView } from './components/HandoverView'
 import { AppointmentsView } from './components/AppointmentsView'
 import { NotesView } from './components/NotesView'
 import { FoodsView } from './components/FoodsView'
+import { ShortcutView } from './components/ShortcutView'
 import { GoalsSettingsView } from './components/GoalsSettingsView'
 import { AskAI } from './components/AskAI'
 import { EveningSummary } from './components/EveningSummary'
@@ -28,8 +29,11 @@ function AppShell() {
 
   // Auto-refresh when app comes back to foreground (fixes iOS PWA stale data)
   useEffect(() => {
+    let hiddenAt = 0
     function handleVisibility() {
-      if (document.visibilityState === 'visible') refresh()
+      if (document.visibilityState === 'hidden') { hiddenAt = Date.now(); return }
+      // A quick app switch keeps the live connection; only reload after a real absence
+      if (hiddenAt && Date.now() - hiddenAt > 5 * 60000) refresh()
     }
     document.addEventListener('visibilitychange', handleVisibility)
     return () => document.removeEventListener('visibilitychange', handleVisibility)
@@ -58,7 +62,7 @@ function AppShell() {
   // Loading
   if (loading) return <div className="spin" />
 
-  const subViews = ['growth', 'insights', 'journal', 'handover', 'appointments', 'notes', 'goals', 'foods']
+  const subViews = ['growth', 'insights', 'journal', 'handover', 'appointments', 'notes', 'goals', 'foods', 'shortcut']
   const isSubView = subViews.includes(view)
   const unread = hasUnreadHandover()
 
@@ -90,6 +94,7 @@ function AppShell() {
         {view === 'appointments' && <AppointmentsView />}
         {view === 'notes'        && <NotesView />}
         {view === 'foods'        && <FoodsView />}
+        {view === 'shortcut'     && <ShortcutView />}
         {view === 'goals'         && <GoalsSettingsView />}
 
       {/* Evening summary */}

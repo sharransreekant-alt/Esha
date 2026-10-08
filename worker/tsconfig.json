@@ -10,5 +10,5 @@
     "noEmit": true,
     "resolveJsonModule": true
   },
-  "include": ["src", "scripts", "../shared"]
+  "include": ["src", "scripts", "tests", "../shared", "../src/voice/applyParsedLog.ts", "../src/utils/foodNames.ts", "../src/utils/ageBand.ts"]
 }

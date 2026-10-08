@@ -1,6 +1,6 @@
-import { Entry, EntryType, FeedComponent } from '../types'
+import type { Entry, EntryType, FeedComponent } from '../types'
 import { ParsedEvent, ParsedLog, fromLocalTime } from '../../shared/parsedLog'
-import { normFood, showFood } from '../utils/solids'
+import { normFood, showFood } from '../utils/foodNames'
 
 export const SILENT_SAVE_THRESHOLD = 0.85
 const FUTURE_TOLERANCE_MS = 5 * 60000
@@ -88,7 +88,12 @@ function toPayload(e: ParsedEvent, at: Date, utteranceId: string, knownFoods: Se
 }
 
 // Pure: decides what to save silently and what to ask about. No I/O.
-export function planSaves(log: ParsedLog, now: Date, utteranceId: string, knownFoods: Set<string> = new Set(), threshold = SILENT_SAVE_THRESHOLD): SavePlan {
+// `toDate` turns the parser's local wall-clock time into an instant. The app uses the
+// device clock; the server passes one that knows the family's timezone.
+export function planSaves(
+  log: ParsedLog, now: Date, utteranceId: string, knownFoods: Set<string> = new Set(),
+  toDate: (local: string) => Date | null = fromLocalTime, threshold = SILENT_SAVE_THRESHOLD,
+): SavePlan {
   const plan: SavePlan = { save: [], confirm: [], unsupported: [], redFlag: log.redFlag?.reason ?? null }
 
   const questions = new Map<number, string>()
@@ -97,7 +102,7 @@ export function planSaves(log: ParsedLog, now: Date, utteranceId: string, knownF
   }
 
   log.events.forEach((e, i) => {
-    const parsedAt = fromLocalTime(e.at)
+    const parsedAt = toDate(e.at)
     const inFuture = !!parsedAt && parsedAt.getTime() > now.getTime() + FUTURE_TOLERANCE_MS
     // A time a few minutes ahead is the parent rounding ("11:30" said at 11:26): treat it as now
     const at = !parsedAt || parsedAt.getTime() > now.getTime() ? now : parsedAt

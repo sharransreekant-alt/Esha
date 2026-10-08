@@ -4,6 +4,8 @@ compatibility_date = "2026-09-01"
 
 [vars]
 FIREBASE_PROJECT_ID = "esha-tracker"
+# Public web API key (the same one shipped in the app), not a secret.
+FIREBASE_API_KEY = "AIzaSyCRaQAVFHkS3aOQ6Qvv9O0DW6vQ8C6-G40"
 # Comma separated. GitHub Pages serves the app from this origin; localhost is for `npm run dev`.
 ALLOWED_ORIGINS = "https://sharransreekant-alt.github.io,http://localhost:5173"
 

@@ -15,6 +15,7 @@ export interface Env {
   OPENAI_API_KEY?: string
   ANTHROPIC_API_KEY?: string
   FIREBASE_PROJECT_ID: string
+  FIREBASE_API_KEY: string   // the public web key, used to refresh a parent's sign-in
   ALLOWED_ORIGINS: string // comma separated
   RATE: KVNamespace
 }
