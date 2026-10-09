@@ -1676,5 +1676,139 @@
    "redFlag": false,
    "silent": true
   }
+ },
+ {
+  "id": "c66",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "Be",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "formula",
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c67",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "wee wee",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "formula",
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c68",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "Vee.",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "formula",
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c69",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "pee and a poo",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "formula",
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    },
+    {
+     "type": "poo",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c70",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "We",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "formula",
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
+ },
+ {
+  "id": "c71",
+  "band": "6-9m",
+  "now": "2026-10-07T03:12",
+  "utterance": "Bee and 120 mils",
+  "timerState": null,
+  "recent": [],
+  "lastBottleType": "formula",
+  "expect": {
+   "events": [
+    {
+     "type": "wee",
+     "at": "2026-10-07T03:12"
+    },
+    {
+     "type": "feed",
+     "at": "2026-10-07T03:12",
+     "components": [
+      {
+       "feedType": "formula",
+       "ml": 120
+      }
+     ]
+    }
+   ],
+   "commands": [],
+   "redFlag": false,
+   "silent": true
+  }
  }
 ]

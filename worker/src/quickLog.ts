@@ -101,7 +101,7 @@ function describe(p: SavePayload): string {
     case 'vitaminD':  return 'vitamin D'
     case 'massage':   return p.duration ? `a ${p.duration} minute massage` : 'a massage'
     case 'tummyTime': return p.duration ? `${p.duration} minutes of tummy time` : 'tummy time'
-    case 'note':      return 'a note'
+    case 'note':      return `a note saying "${(p.notes || '').slice(0, 80)}"`
   }
 }
 
