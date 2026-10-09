@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react'
 import {
   collection, addDoc, deleteDoc, updateDoc, doc, setDoc,
-  query, orderBy, where, limit, onSnapshot, Timestamp, writeBatch
+  query, orderBy, where, limit, onSnapshot, getDoc, Timestamp, writeBatch
 } from 'firebase/firestore'
 import { onIdTokenChanged, User } from 'firebase/auth'
 import { db, auth, ensureSignedIn } from '../firebase'
 import {
   Entry, GrowthEntry, JournalEntry, HandoverEntry, Appointment,
-  View, DEFAULT_FEED_CYCLE_HOURS, DEFAULT_BABY_NAME, DEFAULT_BABY_DOB
+  View, DEFAULT_FEED_CYCLE_HOURS, LEGACY_BABY_NAME, LEGACY_BABY_DOB
 } from '../types'
 import { GoalSet, DEFAULT_GOALS, fillGoals } from '../utils/milestones'
 import { toDate } from '../utils/helpers'
@@ -91,15 +91,25 @@ interface AppContextValue extends AppState {
   previewingCopy:     boolean
   setPreviewingCopy:  (on: boolean) => void
   refreshAccount:     () => void
+  authReady:          boolean
   loadOlderEntries:   () => void
 }
 
 const Ctx = createContext<AppContextValue | null>(null)
 
 // Settings may carry the date of birth as an ISO string; fall back to the built-in one
-function parseDob(v: unknown): Date {
+function parseDob(v: unknown, fallback: Date): Date {
   const d = typeof v === 'string' ? new Date(v) : null
-  return d && !isNaN(d.getTime()) ? d : DEFAULT_BABY_DOB
+  return d && !isNaN(d.getTime()) ? d : fallback
+}
+
+// The profile this phone last saw, so the right name and age show the moment the app opens.
+function savedProfile(): { babyName: string; babyDob: Date } {
+  try {
+    const p = JSON.parse(localStorage.getItem('babyProfile') || 'null')
+    if (p?.babyName) return { babyName: p.babyName, babyDob: parseDob(p.babyDob, new Date()) }
+  } catch {}
+  return { babyName: 'Baby', babyDob: new Date() }
 }
 
 const RECENT_DAYS = 14
@@ -127,8 +137,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     activeGoals: DEFAULT_GOALS,
     theme: computeDefaultTheme(),
     feedCycleHours: DEFAULT_FEED_CYCLE_HOURS,
-    babyDob: DEFAULT_BABY_DOB,
-    babyName: DEFAULT_BABY_NAME,
+    ...savedProfile(),
     settingsLoaded: false,
     historyDays: RECENT_DAYS,
     legacyMoved: false,
@@ -187,11 +196,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   // The account's pointer to its family. Only real accounts have one.
   const [family, setFamily] = useState<FamilyLink>({ id: null, usingFamily: false, loaded: false })
   useEffect(() => {
-    if (!account.uid || !account.signedIn) { setFamily({ id: null, usingFamily: false, loaded: !!account.uid }); return }
+    if (!account.uid) return
+    if (!account.signedIn) { setFamily({ id: null, usingFamily: false, loaded: true }); return }
+    // Start from what this phone last knew, so the app opens straight away and still
+    // opens with no connection. The live value replaces it as soon as it arrives.
+    const key = `familyLink:${account.uid}`
+    try {
+      const saved = JSON.parse(localStorage.getItem(key) || 'null')
+      if (saved?.id) setFamily({ id: saved.id, usingFamily: !!saved.usingFamily, loaded: true })
+    } catch {}
     return onSnapshot(doc(db, 'users', account.uid),
-      snap => { const d = snap.data(); setFamily({ id: d?.familyId || null, usingFamily: !!d?.usingFamily, loaded: true }) },
-      () => setFamily({ id: null, usingFamily: false, loaded: true }))
+      snap => {
+        const d = snap.data()
+        const link = { id: (d?.familyId as string) || null, usingFamily: !!d?.usingFamily }
+        try { localStorage.setItem(key, JSON.stringify(link)) } catch {}
+        setFamily({ ...link, loaded: true })
+      },
+      () => setFamily(f => ({ ...f, loaded: true })))
   }, [account.uid, account.signedIn])
+
+  // On a new phone the parent's display name isn't stored yet: take it from the family
+  useEffect(() => {
+    if (state.who || !family.id || !account.uid) return
+    getDoc(doc(db, 'families', family.id, 'members', account.uid))
+      .then(m => { const name = m.data()?.name; if (typeof name === 'string' && name.trim()) setWho(name.trim()) })
+      .catch(() => {})
+  }, [state.who, family.id, account.uid])
 
   // Looking at the copied data before switching to it. Read-only: see assertLive below.
   const [previewingCopy, setPreviewingCopy] = useState(false)
@@ -238,7 +268,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         () => {}
       ),
       onSnapshot(doc(db, paths.settings),
-        snap => { set({ settingsLoaded: true, legacyMoved: paths === LEGACY && !!snap.data()?.movedToFamily }); if (snap.exists()) { const d = snap.data(); if (d) set({ activeGoals: d.activeGoals ? fillGoals(d.activeGoals, (Date.now() - parseDob(d.babyDob).getTime()) / (7 * 86400000)) : DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob), babyName: typeof d.babyName === 'string' && d.babyName.trim() ? d.babyName.trim() : DEFAULT_BABY_NAME }) } },
+        snap => {
+          const d = snap.data() || {}
+          const legacy = paths === LEGACY
+          const weekAge = (dob: Date) => (Date.now() - dob.getTime()) / (7 * 86400000)
+          const babyDob  = parseDob(d.babyDob, legacy ? LEGACY_BABY_DOB : new Date())
+          const babyName = typeof d.babyName === 'string' && d.babyName.trim() ? d.babyName.trim() : legacy ? LEGACY_BABY_NAME : 'Baby'
+          set({ settingsLoaded: true, legacyMoved: legacy && !!d.movedToFamily })
+          if (!snap.exists()) return
+          try { localStorage.setItem('babyProfile', JSON.stringify({ babyName, babyDob: babyDob.toISOString() })) } catch {}
+          set({ activeGoals: fillGoals(d.activeGoals, weekAge(babyDob)), feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob, babyName })
+        },
         () => {}
       ),
     ]
@@ -382,7 +422,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <Ctx.Provider value={{
-      ...state, entries, historyStart, loadOlderEntries, account, refreshAccount, family, paths, previewingCopy, setPreviewingCopy, setView, setWho,
+      ...state, entries, historyStart, loadOlderEntries, account, authReady, refreshAccount, family, paths, previewingCopy, setPreviewingCopy, setView, setWho,
       saveEntry, updateEntry, removeEntry,
       saveGrowth, removeGrowth,
       saveJournal, removeJournal,

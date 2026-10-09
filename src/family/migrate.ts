@@ -19,15 +19,26 @@ export async function existingFamilyId(): Promise<string | null> {
   return typeof d?.familyId === 'string' ? d.familyId : null
 }
 
-export async function createFamily(uid: string, who: string, babyName: string, babyDob: Date): Promise<string> {
-  if (await existingFamilyId()) throw new Error('family already exists')
+async function createFolder(uid: string, who: string, babyName: string, babyDob: Date, usingFamily: boolean): Promise<string> {
   const ref = doc(collection(db, 'families'))
   await setDoc(ref, { babyName, babyDob: babyDob.toISOString(), createdBy: uid, createdAt: serverTimestamp() })
   await setDoc(doc(db, ref.path, 'members', uid), { name: who, role: 'parent', joinedAt: serverTimestamp() })
-  // usingFamily stays false until the copy has been checked and the parent chooses to switch
-  await setDoc(doc(db, 'users', uid), { familyId: ref.id, usingFamily: false }, { merge: true })
-  await setDoc(doc(db, LEGACY.settings), { familyId: ref.id }, { merge: true })
+  await setDoc(doc(db, 'users', uid), { familyId: ref.id, usingFamily }, { merge: true })
   return ref.id
+}
+
+// A new family starting from scratch: the folder is in use straight away.
+export function createNewFamily(uid: string, who: string, babyName: string, babyDob: Date): Promise<string> {
+  return createFolder(uid, who, babyName, babyDob, true)
+}
+
+// The family that owned the original shared lists. usingFamily stays false until the copy
+// has been checked and the parent chooses to switch.
+export async function createFamily(uid: string, who: string, babyName: string, babyDob: Date): Promise<string> {
+  if (await existingFamilyId()) throw new Error('family already exists')
+  const id = await createFolder(uid, who, babyName, babyDob, false)
+  await setDoc(doc(db, LEGACY.settings), { familyId: id }, { merge: true })
+  return id
 }
 
 async function count(path: string): Promise<number> {

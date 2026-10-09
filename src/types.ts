@@ -75,10 +75,10 @@ export const FEED_EMOJI: Record<FeedType, string> = {
   formula:     '🍼',
 }
 
-// Fallback baby profile, used only until a family's own profile (babyName, babyDob in
-// settings) has loaded. New code reads the profile from useApp(), never these.
-export const DEFAULT_BABY_NAME = 'Esha'
-export const DEFAULT_BABY_DOB  = new Date('2026-03-03T01:50:00Z')
+// Profile for the original shared lists, which were created before profiles were stored.
+// Every family folder carries its own babyName and babyDob; code reads those via useApp().
+export const LEGACY_BABY_NAME = 'Esha'
+export const LEGACY_BABY_DOB  = new Date('2026-03-03T01:50:00Z')
 export const DEFAULT_FEED_CYCLE_HOURS = 4
 
 export interface Appointment {

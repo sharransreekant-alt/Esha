@@ -27,12 +27,18 @@ export function FamilyView() {
   const [madeByOther, setMadeByOther] = useState(false)
   const [members,   setMembers]   = useState<string[]>([])
   const [invite,    setInvite]    = useState<{ code: string; expiresAt: Date } | null>(null)
+  const [cameFromOldLists, setCameFromOldLists] = useState(false)
 
   async function loadCounts() {
     setError('')
     try {
       if (!family.id) { setMadeByOther(!!(await existingFamilyId())); return }
-      if (family.usingFamily) { setMembers(await listMembers(family.id)); return }
+      if (family.usingFamily) {
+        setMembers(await listMembers(family.id))
+        // Other families can't read the old lists at all, which is the answer for them
+        setCameFromOldLists(await existingFamilyId().then(id => id === family.id).catch(() => false))
+        return
+      }
       const [o, n] = await Promise.all([countAll(null), countAll(family.id)])
       setOldCounts(o); setNewCounts(n)
     } catch {
@@ -126,9 +132,11 @@ export function FamilyView() {
       <div className="info-box" style={{ marginTop: 18 }}>
         Only give the code to someone who should see everything in {babyName}'s log. Anyone who joins can read and add to all of it.
       </div>
-      <button onClick={handleSwitchBack} disabled={!!busy} style={{ display: 'block', margin: '18px auto 0', background: 'none', border: 'none', fontSize: 12, fontWeight: 800, color: 'var(--muted)', cursor: 'pointer' }}>
-        Go back to the old data on this phone
-      </button>
+      {cameFromOldLists && (
+        <button onClick={handleSwitchBack} disabled={!!busy} style={{ display: 'block', margin: '18px auto 0', background: 'none', border: 'none', fontSize: 12, fontWeight: 800, color: 'var(--muted)', cursor: 'pointer' }}>
+          Go back to the old data on this phone
+        </button>
+      )}
       {Err}
     </div>
   )

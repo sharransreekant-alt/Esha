@@ -5,7 +5,7 @@ import { signInWithEmail, signInWithGoogle, resetPassword, signOutAccount, authM
 
 // Optional for now: the app works without signing in. An account means the log is
 // reachable again after a new phone or a reinstall.
-export function AccountView({ embedded = false }: { embedded?: boolean }) {
+export function AccountView({ embedded = false, intro }: { embedded?: boolean; intro?: string }) {
   const { setView, account, refreshAccount } = useApp()
   const { showToast } = useToast()
   const [email,    setEmail]    = useState('')
@@ -53,7 +53,7 @@ export function AccountView({ embedded = false }: { embedded?: boolean }) {
       ) : (
         <>
           <div style={{ fontSize: 13, color: 'var(--text-med)', fontWeight: 600, lineHeight: 1.55, marginBottom: 16 }}>
-            Right now your log is tied to this phone. If the phone is lost or replaced, or the app is reinstalled, you would lose access. Signing in ties it to an account you can get back into from any phone. Nothing changes in how you use the app.
+            {intro || 'Right now your log is tied to this phone. If the phone is lost or replaced, or the app is reinstalled, you would lose access. Signing in ties it to an account you can get back into from any phone. Nothing changes in how you use the app.'}
           </div>
 
           <button className="btn-primary" disabled={busy} onClick={() => run(signInWithGoogle, 'Signed in')}>

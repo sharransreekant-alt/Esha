@@ -20,7 +20,7 @@ import { FoodsView } from './components/FoodsView'
 import { ShortcutView } from './components/ShortcutView'
 import { AccountView } from './components/AccountView'
 import { FamilyView } from './components/FamilyView'
-import { JoinGate } from './components/JoinFamily'
+import { Onboarding } from './components/Onboarding'
 import { GoalsSettingsView } from './components/GoalsSettingsView'
 import { AskAI } from './components/AskAI'
 import { EveningSummary } from './components/EveningSummary'
@@ -30,7 +30,7 @@ function AppShell() {
     who, view, loading,
     handovers, hasUnreadHandover, setView,
     eveningSeen, markEveningSeen, refresh,
-    previewingCopy, setPreviewingCopy, family, legacyMoved,
+    previewingCopy, setPreviewingCopy, family, authReady,
   } = useApp()
 
   // Auto-refresh when app comes back to foreground (fixes iOS PWA stale data)
@@ -65,14 +65,17 @@ function AppShell() {
     setShowEvening(false)
   }
 
-  // Not set up yet
+  // Working out who this is and which family they belong to
+  if (!authReady || !family.loaded) return <div className="spin" />
+
+  // No family yet: sign in, then start a log or join one
+  if (!family.id) return <Onboarding />
+
+  // In a family but this phone doesn't know the parent's name yet (it is normally filled in from the family)
   if (!who) return <SetupScreen />
 
   // Loading
   if (loading) return <div className="spin" />
-
-  // The log has moved to a family folder this account hasn't joined yet
-  if (legacyMoved && family.loaded && !family.id) return <JoinGate><AccountView embedded /></JoinGate>
 
   const subViews = ['growth', 'insights', 'journal', 'handover', 'appointments', 'notes', 'goals', 'foods', 'shortcut', 'account', 'family']
   const isSubView = subViews.includes(view)
