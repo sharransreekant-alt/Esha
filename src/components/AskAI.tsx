@@ -29,7 +29,7 @@ const ERRORS: Record<ParseError['kind'], string> = {
 }
 
 export function AskAI() {
-  const { entries, babyDob, feedCycleHours } = useApp()
+  const { entries, babyDob, feedCycleHours, solidsOn } = useApp()
   const [open,     setOpen]     = useState(false)
   const [messages, setMessages] = useState<Message[]>(() => {
     try {
@@ -155,7 +155,7 @@ export function AskAI() {
                 </div>
                 <div className="sec">Try asking…</div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
-                  {SUGGESTED.map((q, i) => (
+                  {SUGGESTED.filter(q => solidsOn || !q.includes('solids')).map((q, i) => (
                     <button key={i} onClick={() => send(q)} style={{
                       background: 'var(--white)', border: 'none', borderRadius: 'var(--r-sm)',
                       boxShadow: 'var(--shadow)', padding: '11px 14px',

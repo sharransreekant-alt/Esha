@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react'
 import {
   collection, addDoc, deleteDoc, updateDoc, doc, setDoc,
-  query, orderBy, where, limit, onSnapshot, getDoc, Timestamp, writeBatch
+  query, orderBy, where, limit, onSnapshot, getDoc, Timestamp
 } from 'firebase/firestore'
 import { onIdTokenChanged, User } from 'firebase/auth'
 import { db, auth, ensureSignedIn } from '../firebase'
@@ -12,6 +12,7 @@ import {
 import { GoalSet, DEFAULT_GOALS, fillGoals } from '../utils/milestones'
 import { toDate } from '../utils/helpers'
 import { DataPaths, LEGACY, familyPaths } from '../family/paths'
+import { solidsShown } from '../utils/solids'
 
 interface AppState {
   view:           View
@@ -67,7 +68,6 @@ interface AppContextValue extends AppState {
   removeJournal: (id: string) => Promise<void>
   saveHandover:  (data: Omit<HandoverEntry, 'id' | 'from' | 'timestamp'>) => Promise<void>
   removeHandover:(id: string) => Promise<void>
-  importEntries: (entries: object[]) => Promise<void>
   dismissReminder: () => void
   markEveningSeen: () => void
   markHandoverSeen: () => void
@@ -85,6 +85,7 @@ interface AppContextValue extends AppState {
   toggleTheme:        () => void
   setFeedCycleHours:  (hours: number) => Promise<void>
   historyStart:       Date        // entries older than this are not loaded yet
+  solidsOn:           boolean     // whether solids appear in the app for this baby
   account:            Account
   family:             FamilyLink
   paths:              DataPaths   // where this phone is reading and writing right now
@@ -355,20 +356,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     await addDoc(collection(db, paths.handovers), { ...data, from: state.who, timestamp: Timestamp.now() })
   }
 
-  const importEntries = async (entries: object[]) => {
-    assertLive()
-    const CHUNK = 400
-    for (let i = 0; i < entries.length; i += CHUNK) {
-      const batch = writeBatch(db)
-      entries.slice(i, i + CHUNK).forEach((entry: any) => {
-        const ref = doc(collection(db, paths.entries))
-        const ts = entry.timestamp ? Timestamp.fromDate(new Date(entry.timestamp)) : Timestamp.now()
-        batch.set(ref, { ...entry, timestamp: ts })
-      })
-      await batch.commit()
-    }
-  }
-
   function stripUndefined(obj: Record<string, any>): Record<string, any> {
     return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined && v !== null))
   }
@@ -422,12 +409,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <Ctx.Provider value={{
-      ...state, entries, historyStart, loadOlderEntries, account, authReady, refreshAccount, family, paths, previewingCopy, setPreviewingCopy, setView, setWho,
+      ...state, entries, solidsOn: solidsShown(state.babyDob, solidsEntries, state.activeGoals.solidsPerDay), historyStart, loadOlderEntries, account, authReady, refreshAccount, family, paths, previewingCopy, setPreviewingCopy, setView, setWho,
       saveEntry, updateEntry, removeEntry,
       saveGrowth, removeGrowth,
       saveJournal, removeJournal,
       saveHandover, removeHandover,
-      importEntries,
       dismissReminder, markEveningSeen, markHandoverSeen,
       requestNotifPermission,
       reminderActive, nextFeedIn, hasUnreadHandover,

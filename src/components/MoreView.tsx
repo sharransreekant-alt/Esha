@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useApp } from '../context/AppContext'
 import { View } from '../types'
 import { timeSince } from '../utils/helpers'
@@ -12,8 +12,7 @@ import { voiceEnabled } from '../voice/parseClient'
 const isApplePhone = /iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1)
 
 export function MoreView() {
-  const { setView, growth, journal, handovers, hasUnreadHandover, importEntries, appointments, entries, account, family } = useApp()
-  const fileRef = useRef<HTMLInputElement>(null)
+  const { setView, growth, journal, handovers, hasUnreadHandover, appointments, entries, account, family, solidsOn } = useApp()
   const { showToast } = useToast()
 
   // This install's sign-in identity, shown so it can be added to the database allow-list
@@ -35,7 +34,7 @@ export function MoreView() {
 
   const cards: { id: View; icon: string; name: string; sub: string }[] = [
     { id: 'appointments', icon: '🏥', name: 'Appointments', sub: apptCount > 0 ? `${apptCount} upcoming` : 'None scheduled' },
-    { id: 'foods', icon: '🥣', name: 'Foods tried', sub: foodCount ? `${foodCount} food${foodCount === 1 ? '' : 's'}` : 'None yet' },
+    ...(solidsOn ? [{ id: 'foods' as View, icon: '🥣', name: 'Foods tried', sub: foodCount ? `${foodCount} food${foodCount === 1 ? '' : 's'}` : 'None yet' }] : []),
     { id: 'notes', icon: '📝', name: 'Notes', sub: `${entries.filter((e: any) => e.type === 'note').length} notes` },
     { id: 'goals', icon: '🎯', name: 'Goals', sub: 'Goals & feed timing' },
     { id: 'growth',   icon: '📏', name: 'Growth',   sub: daysAgo === null ? 'Not started yet' : daysAgo === 0 ? 'Logged today' : `Last: ${daysAgo}d ago` },
@@ -46,16 +45,6 @@ export function MoreView() {
     { id: 'family', icon: '🏡', name: 'Family', sub: family.usingFamily ? 'Set up' : family.id ? 'Copy and check' : 'Not set up yet' },
     ...(voiceEnabled && isApplePhone ? [{ id: 'shortcut' as View, icon: '🎙️', name: 'Siri shortcut', sub: 'Log without opening the app' }] : []),
   ]
-
-  async function handleImport(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const text = await file.text()
-    const data = JSON.parse(text)
-    if (!Array.isArray(data)) { alert('Invalid file'); return }
-    await importEntries(data)
-    alert(`✓ ${data.length} entries imported!`)
-  }
 
   return (
     <div style={{ padding: '18px 16px 72px' }}>
@@ -68,12 +57,6 @@ export function MoreView() {
           </div>
         ))}
       </div>
-
-      <div className="divider" />
-      <button className="btn-secondary" onClick={() => fileRef.current?.click()}>
-        📥 Import Google Sheet history
-      </button>
-      <input ref={fileRef} type="file" accept=".json" style={{ display: 'none' }} onChange={handleImport} />
 
       {deviceId && (
         <div

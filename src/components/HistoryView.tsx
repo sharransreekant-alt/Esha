@@ -7,7 +7,7 @@ import { toDate, fmtDateLabel, feedVolume } from '../utils/helpers'
 interface DayGroup { label: string; items: Entry[] }
 
 export function HistoryView() {
-  const { entries: allEntries, activeGoals, historyStart, loadOlderEntries } = useApp()
+  const { entries: allEntries, activeGoals, historyStart, loadOlderEntries, solidsOn } = useApp()
   // Notes and solids are loaded for all time; only show days that are fully loaded
   const entries = allEntries.filter(e => toDate(e.timestamp) >= historyStart)
   const [openDay, setOpenDay]   = useState<string | null>(null)
@@ -31,7 +31,7 @@ export function HistoryView() {
     { key: 'feed', label: '🍼 Feeds' }, { key: 'solids', label: '🥣 Solids' }, { key: 'wee', label: '💧 Wees' },
     { key: 'poo', label: '💩 Poos' }, { key: 'massage', label: '🤲 Massage' },
     { key: 'vitaminD', label: '☀️ Vit D' }, { key: 'note', label: '📝 Notes' },
-  ]
+  ].filter(c => c.key !== 'solids' || solidsOn)
 
   return (
     <div style={{ padding: '18px 16px 72px' }}>

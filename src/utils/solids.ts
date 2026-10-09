@@ -45,3 +45,12 @@ export function solidsDetail(e: Entry): string {
   const first = (e.firstFoods || []).map(showFood).join(', ')
   return [foods, first && `first time: ${first}`, e.notes].filter(Boolean).join(' · ')
 }
+
+// Solids are offered from about four months. Before that they stay out of the way, unless
+// the family has already logged some or set a solids goal themselves.
+export const SOLIDS_FROM_WEEKS = 17
+
+export function solidsShown(babyDob: Date, entries: Entry[], solidsGoal: number, now: Date = new Date()): boolean {
+  const weeks = (now.getTime() - babyDob.getTime()) / (7 * 86400000)
+  return weeks >= SOLIDS_FROM_WEEKS || solidsGoal > 0 || entries.some(e => e.type === 'solids')
+}

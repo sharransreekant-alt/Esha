@@ -163,7 +163,7 @@ function TummyTimeModal({ onClose, onSave }: { onClose: () => void; onSave: (t: 
 }
 
 export function LogView() {
-  const { entries, saveEntry, updateEntry } = useApp()
+  const { entries, saveEntry, updateEntry, solidsOn } = useApp()
   const [modal,     setModal]     = useState<string | null>(null)
   const [editEntry, setEditEntry] = useState<Entry | null>(null)
 
@@ -238,7 +238,7 @@ export function LogView() {
       <div className="sec">Log activity</div>
       {voiceEnabled && <SayIt />}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 26 }}>
-        {actions.map(a => {
+        {actions.filter(a => a.key !== 'solids' || solidsOn).map(a => {
           const Icon = CATEGORY_ICON[a.key]
           return (
             <button key={a.key} onClick={a.action} style={{

@@ -14,7 +14,7 @@ const FIELD_CONFIG: { key: keyof GoalSet; label: string; emoji: string; unit: st
 ]
 
 export function GoalsSettingsView() {
-  const { activeGoals, acceptGoalUpdate, setView, feedCycleHours, setFeedCycleHours, babyName, babyDob } = useApp()
+  const { activeGoals, acceptGoalUpdate, setView, feedCycleHours, setFeedCycleHours, babyName, babyDob, solidsOn } = useApp()
   const weekAge = (Date.now() - babyDob.getTime()) / (7 * 24 * 60 * 60 * 1000)
   const suggested = getMilestoneForAge(weekAge).goals
 
@@ -119,7 +119,7 @@ export function GoalsSettingsView() {
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {FIELD_CONFIG.map(f => {
+        {FIELD_CONFIG.filter(f => f.key !== 'solidsPerDay' || solidsOn).map(f => {
           const isCustom = draft[f.key] !== suggested[f.key]
           return (
             <div key={f.key} style={{ background: 'var(--white)', borderRadius: 'var(--r-sm)', boxShadow: 'var(--shadow)', padding: '13px 14px' }}>
