@@ -125,7 +125,29 @@ export function spokenSummary(plan: SavePlan, now: Date, timeZone: string): stri
   return out.join(' ')
 }
 
-export interface QuickResult { status: number; say: string }
+export interface QuickResult { status: number; say: string; timing?: string }
+
+// A sign-in token lasts an hour, so keep it between requests instead of fetching a new
+// one on every spoken log.
+async function sessionFor(env: Env, ctx: ExecutionContext, hash: string, sc: Shortcut): Promise<{ idToken: string; uid: string } | null> {
+  const cached = await env.RATE.get(`sc-tok:${hash}`)
+  if (cached) {
+    const t = JSON.parse(cached) as { idToken: string; uid: string; exp: number }
+    if (t.exp > Date.now() + 60000) return t
+  }
+  const fresh = await exchangeRefreshToken(sc.refreshToken, env.FIREBASE_API_KEY)
+  if (fresh) ctx.waitUntil(env.RATE.put(`sc-tok:${hash}`, JSON.stringify({ ...fresh, exp: Date.now() + 50 * 60000 }), { expirationTtl: 50 * 60 }))
+  return fresh
+}
+
+// Which folder a parent logs into rarely changes; remember a family folder for a few minutes.
+async function cachedEntriesPath(env: Env, ctx: ExecutionContext, hash: string, db: Firestore, uid: string): Promise<string | null> {
+  const cached = await env.RATE.get(`sc-path:${hash}`)
+  if (cached) return cached
+  const path = await entriesPath(db, uid)
+  if (path && path !== LEGACY_ENTRIES) ctx.waitUntil(env.RATE.put(`sc-path:${hash}`, path, { expirationTtl: 600 }))
+  return path
+}
 
 export async function quickLog(env: Env, ctx: ExecutionContext, authHeader: string | null, text: string): Promise<QuickResult> {
   const found = await loadShortcut(env, authHeader)
@@ -136,24 +158,28 @@ export async function quickLog(env: Env, ctx: ExecutionContext, authHeader: stri
   const utterance = text.trim().slice(0, 600)
   if (!utterance) return { status: 400, say: "I didn't hear anything, so nothing was saved." }
 
-  const rate = await checkRate(env.RATE, sc.uid)
+  // Stage timings in milliseconds (numbers only, never content), to see where time goes
+  const t0 = Date.now()
+  const marks: string[] = []
+  const mark = (name: string) => marks.push(`${name}=${Date.now() - t0}`)
+
+  const [rate, session] = await Promise.all([checkRate(env.RATE, sc.uid), sessionFor(env, ctx, hash, sc)])
   ctx.waitUntil(rate.record)
   if (rate.verdict !== 'ok') return { status: 429, say: rate.verdict === 'day' ? "Today's voice limit is reached. Please log in the app." : 'Too many in a row. Try again in a minute.' }
-
-  const session = await exchangeRefreshToken(sc.refreshToken, env.FIREBASE_API_KEY)
+  mark('auth')
   if (!session) return { status: 401, say: 'This shortcut needs setting up again. Create a new key in the app under More.' }
   const db = new Firestore(env.FIREBASE_PROJECT_ID, session.idToken)
 
   try {
     const now = new Date()
-    const ENTRIES = await entriesPath(db, sc.uid)
+    const ENTRIES = await cachedEntriesPath(env, ctx, hash, db, sc.uid)
     if (!ENTRIES) return { status: 409, say: 'This log has moved to a family folder. Open the app on this phone and join the family, then try again.' }
-    const [recentDocs, solidsDocs] = await Promise.all([
-      db.latest(ENTRIES, 'timestamp', 40),
-      db.whereEquals(ENTRIES, 'type', 'solids', ['foods']),
-    ])
-    const knownFoods = new Set<string>()
-    for (const d of solidsDocs) for (const f of (d.foods as unknown[] | undefined) || []) if (typeof f === 'string') knownFoods.add(normFood(f))
+    mark('folder')
+    // The list of foods already tried is only needed after parsing, so fetch it alongside the model call
+    const solidsQuery = db.whereEquals(ENTRIES, 'type', 'solids', ['foods'])
+    solidsQuery.catch(() => {})
+    const recentDocs = await db.latest(ENTRIES, 'timestamp', 40)
+    mark('recent')
 
     const req: ParseRequest = {
       utterance,
@@ -164,7 +190,10 @@ export async function quickLog(env: Env, ctx: ExecutionContext, authHeader: stri
       lastBottleType: lastBottle(recentDocs),
       recentEvents: toRecent(recentDocs, sc.timeZone),
     }
-    const parsed = await parseLog(modelCall(env), req)
+    const [parsed, solidsDocs] = await Promise.all([parseLog(modelCall(env), req), solidsQuery])
+    mark('model')
+    const knownFoods = new Set<string>()
+    for (const d of solidsDocs) for (const f of (d.foods as unknown[] | undefined) || []) if (typeof f === 'string') knownFoods.add(normFood(f))
     if (!parsed.ok) return { status: 422, say: "I couldn't catch that, so nothing was saved. Please try again." }
 
     const utteranceId = `${now.getTime()}-sc`
@@ -178,7 +207,9 @@ export async function quickLog(env: Env, ctx: ExecutionContext, authHeader: stri
       const ids = await db.createAll(ENTRIES, docs)
       ctx.waitUntil(env.RATE.put(`sc-last:${hash}`, JSON.stringify({ path: ENTRIES, ids }), { expirationTtl: UNDO_WINDOW_SECONDS }))
     }
-    return { status: 200, say: spokenSummary(plan, now, sc.timeZone) }
+    mark('saved')
+    console.log('quick_timing', marks.join(' '))
+    return { status: 200, say: spokenSummary(plan, now, sc.timeZone), timing: marks.join(' ') }
   } catch (error) {
     if (error instanceof FirestoreError && (error.status === 401 || error.status === 403)) {
       return { status: 403, say: "This phone isn't allowed to save to the log, so nothing was saved." }

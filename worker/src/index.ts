@@ -64,7 +64,7 @@ async function shortcutRoute(request: Request, env: Env, ctx: ExecutionContext, 
   const auth = new URL(request.url).searchParams.get('key') || request.headers.get('Authorization')
   // Always HTTP 200: the Shortcuts app shows a bare error for anything else and never reads
   // the explanation aloud. The real outcome is in the X-Outcome header.
-  const say = (status: number, text: string) => new Response(text, { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Outcome': String(status) } })
+  const say = (status: number, text: string, timing = '') => new Response(text, { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-Outcome': String(status), ...(timing ? { 'X-Timing': timing } : {}) } })
   try {
     if (path === '/quickUndo') {
       const r = await quickUndo(env, auth)
@@ -73,7 +73,7 @@ async function shortcutRoute(request: Request, env: Env, ctx: ExecutionContext, 
     const text = spokenText(await request.text(), request.headers.get('Content-Type') || '')
     if (text === null) return say(400, "The shortcut didn't send any words. In Get Contents of URL, the request body needs a field named text, set to Dictated Text.")
     const r = await quickLog(env, ctx, auth, text)
-    return say(r.status, r.say)
+    return say(r.status, r.say, r.timing)
   } catch (error) {
     if (!modelError(error)) console.error('quick_failed')
     return say(500, 'Something went wrong, so nothing was saved. Please try again or use the app.')
