@@ -5,7 +5,7 @@ import { signInWithEmail, signInWithGoogle, resetPassword, signOutAccount, authM
 
 // Optional for now: the app works without signing in. An account means the log is
 // reachable again after a new phone or a reinstall.
-export function AccountView() {
+export function AccountView({ embedded = false }: { embedded?: boolean }) {
   const { setView, account, refreshAccount } = useApp()
   const { showToast } = useToast()
   const [email,    setEmail]    = useState('')
@@ -22,13 +22,16 @@ export function AccountView() {
   const emailOk = email.trim().includes('@')
 
   return (
-    <div style={{ padding: '18px 16px 72px' }}>
-      <div onClick={() => setView('more')} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18, cursor: 'pointer' }}>
-        <span style={{ fontSize: 18, color: 'var(--muted)' }}>←</span>
-        <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--muted)' }}>Back</span>
-      </div>
-
-      <div className="sec">Account</div>
+    <div style={{ padding: embedded ? 0 : '18px 16px 72px' }}>
+      {!embedded && (
+        <>
+          <div onClick={() => setView('more')} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 18, cursor: 'pointer' }}>
+            <span style={{ fontSize: 18, color: 'var(--muted)' }}>←</span>
+            <span style={{ fontSize: 13, fontWeight: 800, color: 'var(--muted)' }}>Back</span>
+          </div>
+          <div className="sec">Account</div>
+        </>
+      )}
 
       {account.signedIn ? (
         <>

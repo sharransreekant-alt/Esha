@@ -11,7 +11,17 @@ import { checkRate } from './rateLimit'
 import { Firestore, FirestoreError, exchangeRefreshToken } from './firestore'
 import { localTimeIn, zonedToDate, spokenTime, isTimeZone } from './time'
 
-const ENTRIES = 'esha_entries'
+const LEGACY_ENTRIES = 'esha_entries'
+
+// Where this parent's entries live: their family's folder once they have switched to it,
+// otherwise the original shared list. null means the shared list has been retired and
+// this account hasn't joined the family yet.
+async function entriesPath(db: Firestore, uid: string): Promise<string | null> {
+  const link = await db.getDoc('users', uid).catch(() => null)
+  if (typeof link?.familyId === 'string' && link.usingFamily) return `families/${link.familyId}/entries`
+  const legacy = await db.getDoc('esha_settings', 'config').catch(() => null)
+  return legacy?.movedToFamily ? null : LEGACY_ENTRIES
+}
 const UNDO_WINDOW_SECONDS = 60 * 60
 
 interface Shortcut { uid: string; who: string; refreshToken: string; timeZone: string; dob: string }
@@ -136,6 +146,8 @@ export async function quickLog(env: Env, ctx: ExecutionContext, authHeader: stri
 
   try {
     const now = new Date()
+    const ENTRIES = await entriesPath(db, sc.uid)
+    if (!ENTRIES) return { status: 409, say: 'This log has moved to a family folder. Open the app on this phone and join the family, then try again.' }
     const [recentDocs, solidsDocs] = await Promise.all([
       db.latest(ENTRIES, 'timestamp', 40),
       db.whereEquals(ENTRIES, 'type', 'solids', ['foods']),
@@ -164,7 +176,7 @@ export async function quickLog(env: Env, ctx: ExecutionContext, authHeader: stri
         return { ...rest, loggedBy: sc.who, timestamp: _t }
       })
       const ids = await db.createAll(ENTRIES, docs)
-      ctx.waitUntil(env.RATE.put(`sc-last:${hash}`, JSON.stringify(ids), { expirationTtl: UNDO_WINDOW_SECONDS }))
+      ctx.waitUntil(env.RATE.put(`sc-last:${hash}`, JSON.stringify({ path: ENTRIES, ids }), { expirationTtl: UNDO_WINDOW_SECONDS }))
     }
     return { status: 200, say: spokenSummary(plan, now, sc.timeZone) }
   } catch (error) {
@@ -183,12 +195,15 @@ export async function quickUndo(env: Env, authHeader: string | null): Promise<Qu
   const found = await loadShortcut(env, authHeader)
   if (!found) return { status: 401, say: "This shortcut's key isn't recognised." }
   const raw = await env.RATE.get(`sc-last:${found.hash}`)
-  const ids: string[] = raw ? JSON.parse(raw) : []
+  // Older records were a bare list of ids in the shared list
+  const saved = raw ? JSON.parse(raw) : null
+  const ids: string[] = Array.isArray(saved) ? saved : saved?.ids || []
+  const path: string = Array.isArray(saved) ? LEGACY_ENTRIES : saved?.path || LEGACY_ENTRIES
   if (!ids.length) return { status: 200, say: 'There is nothing recent to undo.' }
 
   const session = await exchangeRefreshToken(found.sc.refreshToken, env.FIREBASE_API_KEY)
   if (!session) return { status: 401, say: 'This shortcut needs setting up again.' }
-  await new Firestore(env.FIREBASE_PROJECT_ID, session.idToken).deleteAll(ENTRIES, ids)
+  await new Firestore(env.FIREBASE_PROJECT_ID, session.idToken).deleteAll(path, ids)
   await env.RATE.delete(`sc-last:${found.hash}`)
   return { status: 200, say: `Removed the last ${ids.length === 1 ? 'entry' : `${ids.length} entries`}.` }
 }

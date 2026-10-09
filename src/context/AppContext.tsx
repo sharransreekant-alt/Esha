@@ -34,6 +34,7 @@ interface AppState {
   babyName:       string
   settingsLoaded: boolean   // false until saved goals and settings have arrived
   historyDays:    number    // how many days of entries are loaded
+  legacyMoved:    boolean   // the original shared lists have been retired in favour of a family folder
 }
 
 // Which family this account belongs to, and whether the app has switched to its folder yet.
@@ -130,6 +131,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     babyName: DEFAULT_BABY_NAME,
     settingsLoaded: false,
     historyDays: RECENT_DAYS,
+    legacyMoved: false,
   })
 
   // Entries arrive from three listeners: the recent window, plus all notes and all solids
@@ -197,6 +199,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const paths = useMemo(() => inFamily ? familyPaths(family.id!) : LEGACY, [inFamily, family.id])
   const readOnlyPreview = previewingCopy && !family.usingFamily
   const assertLive = () => {
+    // The old lists are closed once the family has moved; this phone must join first
+    if (state.legacyMoved && !inFamily) { alert('This log has moved to a family folder. Join it from the More → Family screen to keep logging.'); throw new Error('moved') }
     if (!readOnlyPreview) return
     alert("You're viewing the copied data, which is read-only. Go back to live in More → Family to log.")
     throw new Error('preview is read-only')
@@ -234,7 +238,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         () => {}
       ),
       onSnapshot(doc(db, paths.settings),
-        snap => { set({ settingsLoaded: true }); if (snap.exists()) { const d = snap.data(); if (d) set({ activeGoals: d.activeGoals ? fillGoals(d.activeGoals, (Date.now() - parseDob(d.babyDob).getTime()) / (7 * 86400000)) : DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob), babyName: typeof d.babyName === 'string' && d.babyName.trim() ? d.babyName.trim() : DEFAULT_BABY_NAME }) } },
+        snap => { set({ settingsLoaded: true, legacyMoved: paths === LEGACY && !!snap.data()?.movedToFamily }); if (snap.exists()) { const d = snap.data(); if (d) set({ activeGoals: d.activeGoals ? fillGoals(d.activeGoals, (Date.now() - parseDob(d.babyDob).getTime()) / (7 * 86400000)) : DEFAULT_GOALS, feedCycleHours: d.feedCycleHours || DEFAULT_FEED_CYCLE_HOURS, babyDob: parseDob(d.babyDob), babyName: typeof d.babyName === 'string' && d.babyName.trim() ? d.babyName.trim() : DEFAULT_BABY_NAME }) } },
         () => {}
       ),
     ]

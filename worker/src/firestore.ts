@@ -64,6 +64,13 @@ export class Firestore {
     this.base = `https://firestore.googleapis.com/v1/${this.root}`
   }
 
+  // "families/abc/entries" is queried as collection "entries" under parent "families/abc"
+  private queryTarget(collectionPath: string): { url: string; collectionId: string } {
+    const parts = collectionPath.split('/')
+    const collectionId = parts.pop()!
+    return { url: `${parts.length ? '/' + parts.join('/') : ''}:runQuery`, collectionId }
+  }
+
   private async post(path: string, body: unknown): Promise<any> {
     const res = await fetch(`${this.base}${path}`, {
       method: 'POST',
@@ -83,9 +90,10 @@ export class Firestore {
 
   // Newest documents first.
   async latest(collection: string, orderField: string, limit: number): Promise<Record<string, unknown>[]> {
-    const rows = await this.post(':runQuery', {
+    const { url, collectionId } = this.queryTarget(collection)
+    const rows = await this.post(url, {
       structuredQuery: {
-        from: [{ collectionId: collection }],
+        from: [{ collectionId }],
         orderBy: [{ field: { fieldPath: orderField }, direction: 'DESCENDING' }],
         limit,
       },
@@ -94,9 +102,10 @@ export class Firestore {
   }
 
   async whereEquals(collection: string, field: string, value: string, select: string[]): Promise<Record<string, unknown>[]> {
-    const rows = await this.post(':runQuery', {
+    const { url, collectionId } = this.queryTarget(collection)
+    const rows = await this.post(url, {
       structuredQuery: {
-        from: [{ collectionId: collection }],
+        from: [{ collectionId }],
         where: { fieldFilter: { field: { fieldPath: field }, op: 'EQUAL', value: { stringValue: value } } },
         select: { fields: select.map(fieldPath => ({ fieldPath })) },
       },
