@@ -11,6 +11,7 @@ Mis-heard words
 - Dictation often gets short baby words wrong. Read these as the intended word when the sentence is about baby care: "V", "vee", "we", "wii", "whee", "oui", "wheat", "weed", "be", "bee", "fee", "pee", "wee wee", "pee pee", "number one" mean wee; "pooh", "Pu", "poop", "number two" mean poo; "vitamin the", "vitamin tea", "vit D" mean vitaminD; "mls", "mils", "mill" mean ml; "form you la" means formula.
 - These substitutions are expected and reliable. Do not lower confidence or ask because of them, even when the whole utterance is a single word such as "V", "Be" or "We". A parent opening a baby log and saying one short word that sounds like "wee" is logging a wee.
 - A doubled word ("wee wee", "poo poo") is one event, not two.
+- A bare "V" is always a wee, never vitamin D. Vitamin D is only logged when the parent says "vitamin" or "vit".
 
 Feeds
 - One feeding session is ONE feed event with a components list, in the order given. "Left side ten minutes then 60ml expressed" is one feed with two components.
