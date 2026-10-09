@@ -44,7 +44,8 @@ export function Onboarding() {
   return (
     <div style={{ minHeight: '100vh', padding: '48px 20px 40px', background: 'linear-gradient(160deg, var(--hdr-from) 0%, var(--cream) 60%)' }}>
       <div style={{ fontSize: 52, marginBottom: 10 }}>🍼</div>
-      <div className="serif" style={{ fontSize: 28, color: 'var(--text)', marginBottom: 8 }}>Welcome to Bub HQ</div>
+      <div className="serif" style={{ fontSize: 28, color: 'var(--text)', marginBottom: 4 }}>Welcome to Bub HQ</div>
+      <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--coral-d)', marginBottom: 12 }}>Everything bub, sorted.</div>
       <div style={{ fontSize: 14, color: 'var(--text-med)', fontWeight: 600, lineHeight: 1.55, marginBottom: 22 }}>
         A shared log for your baby's feeds, nappies, solids and more, kept in step between both parents' phones.
       </div>
