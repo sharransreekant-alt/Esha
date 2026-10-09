@@ -5,3 +5,6 @@ dist
 
 .dev.vars
 .wrangler
+
+*-debug.log
+.firebase

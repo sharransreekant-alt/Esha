@@ -1,0 +1,75 @@
+rules_version = '2';
+
+// Every family's records live in families/{familyId}/... and can only be reached by
+// that family's members. Tested by rules-tests/ (npm run test:rules).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function authed() {
+      return request.auth != null;
+    }
+    // An email or Google account, not the anonymous identity a phone starts with.
+    function realAccount() {
+      return authed() && request.auth.token.firebase.sign_in_provider != 'anonymous';
+    }
+    function isMember(familyId) {
+      return authed()
+        && exists(/databases/$(database)/documents/families/$(familyId)/members/$(request.auth.uid));
+    }
+
+    // Each account's pointer to its family.
+    match /users/{uid} {
+      allow read, write: if authed() && request.auth.uid == uid;
+    }
+
+    match /families/{familyId} {
+      allow create: if realAccount() && request.resource.data.createdBy == request.auth.uid;
+      allow get:    if isMember(familyId);
+      allow update: if isMember(familyId) && request.resource.data.createdBy == resource.data.createdBy;
+      // No list (families can't be enumerated) and no delete.
+
+      function createdByMe() {
+        return get(/databases/$(database)/documents/families/$(familyId)).data.createdBy == request.auth.uid;
+      }
+      // The invite named in the new member record must be for this family and unexpired.
+      function hasValidInvite() {
+        let invite = get(/databases/$(database)/documents/invites/$(request.resource.data.inviteCode)).data;
+        return invite.familyId == familyId && invite.expiresAt > request.time;
+      }
+
+      match /members/{uid} {
+        allow read:   if isMember(familyId);
+        // You can only ever add yourself: as the family's creator, or with an invite.
+        allow create: if authed() && uid == request.auth.uid && (createdByMe() || hasValidInvite());
+        allow update: if isMember(familyId) && uid == request.auth.uid;
+        // You can leave. Nobody can remove someone else.
+        allow delete: if authed() && uid == request.auth.uid;
+      }
+
+      match /{list}/{docId} {
+        allow read, write: if list in ['entries', 'growth', 'journal', 'handovers', 'appointments']
+          && isMember(familyId);
+      }
+    }
+
+    // A code is its own secret: it can be looked up by someone who has it, never listed.
+    match /invites/{code} {
+      allow get:    if authed();
+      allow create: if isMember(request.resource.data.familyId)
+        && request.resource.data.createdBy == request.auth.uid
+        && request.resource.data.expiresAt > request.time
+        && request.resource.data.expiresAt < request.time + duration.value(49, 'h');
+      allow delete: if isMember(resource.data.familyId);
+    }
+
+    // The original shared lists, kept as a backup after the first family moved out of
+    // them. Readable and writable only by members of that family.
+    function legacyFamilyId() {
+      return get(/databases/$(database)/documents/esha_settings/config).data.familyId;
+    }
+    match /{legacyList}/{docId} {
+      allow read, write: if legacyList in ['esha_entries', 'esha_growth', 'esha_journal', 'esha_handover', 'esha_appointments', 'esha_settings']
+        && isMember(legacyFamilyId());
+    }
+  }
+}
